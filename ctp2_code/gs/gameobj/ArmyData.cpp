@@ -9438,22 +9438,24 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 	sint32  soundID  = rec ? rec->GetSoundIDIndex() : -1;
 	sint32  spriteID = rec ? rec->GetSpriteID()->GetValue() : -1;
 
+	sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
 	if(spriteID != -1 && soundID != -1)
 	{
 		if(g_selected_item->IsAutoCenterOn())
 		{
 			if(
 			     (
-			       (    m_owner == g_selected_item->GetVisiblePlayer()
-			         || (unit.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
+			       (visiblePlayer == m_owner
+				|| (unit.GetVisibility() & (1 << visiblePlayer))
 			       )
 			    || c.IsValid()
-			    && (    c.GetOwner() == g_selected_item->GetVisiblePlayer()
-			         || (c.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
+			    && (c.GetOwner() == visiblePlayer()
+				|| (c.GetVisibility() & (1 << visiblePlayer)) // is true even if city is in FOW
 			       )
 			     )
-			){
-				g_director->AddCenterMap(m_pos);
+			  )
+			{
+				g_director->AddCenterMap( m_pos);
 			}
 		}
 
@@ -9463,8 +9465,6 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 	{
 		if(soundID != -1)
 		{
-			sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
-
 			if(visiblePlayer == m_owner
 			|| unit.GetVisibility() & (1 << visiblePlayer))
 			{
