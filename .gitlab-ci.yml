@@ -8,6 +8,7 @@ before_script:
 
 stages:
   - build
+  - ffmpeg4movies_failure
   - test
   - release
 
@@ -15,7 +16,6 @@ variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
 
 .build: &build
-  stage: build
 # tags:
 #   - multicore
   variables:
@@ -69,10 +69,20 @@ variables:
     - build.log
 
 plain:
+  stage: build
   <<: *build
 
 debug:
+  stage: build
   <<: *build
+
+noffmpeg4movies:
+  stage: ffmpeg4movies_failure
+  <<: *build
+  rules:
+    - if: '$CI_PIPELINE_STATUS == "failed"'
+      when: on_success
+    - when: never
 
 .test: &test
   stage: test
