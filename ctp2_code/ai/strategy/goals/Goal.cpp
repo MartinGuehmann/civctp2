@@ -1606,12 +1606,15 @@ void Goal::Compute_Needed_Troop_Flow()
 
 			//not used for the moment (only attack or defense strength is considerated
 			//(see army_strength > operator) - Calvitix
-			m_current_needed_strength.Set_Defenders(static_cast<sint8>(defensive_garrison + offensive_garrison));
-			m_current_needed_strength.Set_Ranged_Units(static_cast<sint8>(ranged_garrison));
+			if(!goal_record->GetForceMatchSpecial())
+			{
+				m_current_needed_strength.Set_Defenders(static_cast<sint8>(defensive_garrison + offensive_garrison));
+				m_current_needed_strength.Set_Ranged_Units(static_cast<sint8>(ranged_garrison));
+			}
 
 			// This includes also the slave garrison
 			Assert(m_target_city.IsValid());
-			if(m_target_city.IsValid())
+			if(m_target_city.IsValid() && !goal_record->GetForceMatchSpecial())
 				m_current_needed_strength.Set_Unit_Count(m_target_city.CD()->GetNeededGarrison());
 		}
 	}
