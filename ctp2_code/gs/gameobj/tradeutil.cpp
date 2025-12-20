@@ -59,25 +59,25 @@ sint32 tradeutil_GetTradeValue(const sint32 owner, const Unit & destination, sin
 	if(resource < 0 || resource >= g_theResourceDB->NumRecords())
 		return 0;
 
-	double baseValue = g_theWorld->GetGoodValue(resource); // good value varies between MIN_GOOD_VALUE and MAX_GOOD_VALUE (Const.txt) depening on its frequency on the map
+	double baseValue  = g_theWorld->GetGoodValue(resource); // good value varies between MIN_GOOD_VALUE and MAX_GOOD_VALUE (Const.txt) depening on its frequency on the map
 	double baseValue2 = baseValue * (10.0*g_theConstDB->Get(0)->GetTradeCoef() - 10) / (100 - 10.0*g_theConstDB->Get(0)->GetTradeCoef()); // TradeCoef is the factor that the VPC (valuePerCaravan) should be increased in case a good needs not just 1 caravan but 10 caravans for creating the trade route, i.e. if TradeCoef= 1 the dependency is just linear (as before), if TradeCoef= 1.002 then the VPC is about 2 times for a good that needs 2 Caravans to trade (in comparison as if the good would only need 1 Caravan to trade)
 
-	sint32 distToGood= destination.GetCityData()->GetDistanceToGood(resource);
-	double tmpValue= baseValue * distToGood + baseValue2 * distToGood * distToGood; // linear + quadratic dependency
-	sint32 totalValue= static_cast<sint32>(std::min<double>(tmpValue, std::numeric_limits<int>::max())); // limit totalValue to max value of sint32 before casting
+	sint32 distToGood = destination.GetCityData()->GetDistanceToGood(resource);
+	double totalValue = baseValue * distToGood + baseValue2 * distToGood * distToGood; // linear + quadratic dependency
 
-	PLAYER_INDEX const  tradePartner = destination.GetOwner();
+	PLAYER_INDEX const tradePartner = destination.GetOwner();
 	if (owner == tradePartner) // reduce value to good in case of domestic trade (good is within territory then)
 	{
-		totalValue *= (sint32) g_theConstDB->Get(0)->GetDomesticTradeReduction();
+		totalValue *= g_theConstDB->Get(0)->GetDomesticTradeReduction();
 	}
 
-	if ((owner != tradePartner)	&& AgreementMatrix::s_agreements.HasAgreement(owner, tradePartner, PROPOSAL_TREATY_TRADE_PACT))
+	if ((owner != tradePartner) && AgreementMatrix::s_agreements.HasAgreement(owner, tradePartner, PROPOSAL_TREATY_TRADE_PACT))
 	{
-		totalValue = (sint32) (totalValue * g_theConstDB->Get(0)->GetTradePactCoef());
+		totalValue *= g_theConstDB->Get(0)->GetTradePactCoef();
 	}
 
-	return static_cast<sint32>(std::max<double>(totalValue, 1.0)); // ensure that the trade value is >= 1
+	totalValue = std::max<double>(totalValue, 1.0); // ensure that the trade value is >= 1
+	return static_cast<sint32>(std::min<double>(totalValue, std::numeric_limits<int>::max())); // Limit totalValue to max value of sint32 before casting
 }
 
 sint32 tradeutil_GetTradeDistance(const Unit &source, const Unit &destination)
