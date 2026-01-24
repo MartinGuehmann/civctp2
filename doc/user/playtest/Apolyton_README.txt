@@ -61,6 +61,15 @@ For Chinese gamers: It is unclear if that version is just a fan translation.
 Please report any problems, bugs, crashes, etc. as an issue on GitHub:
 https://github.com/civctp2/civctp2/issues
 
+If you found a bug please report as much relevant information as possible.
+This includes how to reproduce the problem, an attached screenshot or savegame
+may be helpful. If the game crashes (terminates without user intention) then
+include a crash log. You can enable crash logging by editing your userprofile.txt
+(in [Your CTP2 directory]\ctp2_program\ctp\) to set EnableLogs=Yes. The log can
+then be found at [Your CTP2 directory]\ctp2_program\ctp\logs\crash.txt. Please
+do not attach the crash.txt to a post, instead include the content of that file
+in your post.
+
 The latest source code files can be found at: https://github.com/civctp2/civctp2
 
 Visit BureauBert's http://www.ctp2.info/ on how to use some new additions.
@@ -69,9 +78,6 @@ This version comes with new tech posters, which are in the same directory as thi
 
 Known bugs:
 
-- When you start a new game from a running game than the game put the new game screen in the
-  middle but does not paint the rest of the screen black so that you left with what was on the
-  screen before. However, this does not disturb the function.
 - The map on the Gaia Controller does not show the coverage over sea.
 
 On Windows DirectX build only:
@@ -79,10 +85,13 @@ On Windows DirectX build only:
   not display the number of units.
 - The chat window has some problems selecting text with the mouse.
 
+On Windows 64 bit build only:
+- The generated crash.txt does only contain the top most frames only, sometimes
+  even only the top frame. That means a bug is harder to find.
+
 On Linux:
-- MP is broken
-- Slecting words in text field via double click treat language specific characters as non word
-  characters.
+- When slecting words in a text fields via double click, language specific characters are treated
+  as non word characters.
 
 The Great History: In case you are interested, here are the previous playtest threads on Apolyton:
 http://apolyton.net/forums/showthread.php?t=103817 "PROJECT: Playtest"
@@ -98,12 +107,16 @@ http://apolyton.net/forums/showthread.php?t=191653 "Apolyton CTP2 Edition: Revis
 https://apolyton.net/forum/other-games/call-to-power-2/ctp2-source-code-project/245678-apolyton-ctp2-edition-revision-1111-12-jun-2011
 https://apolyton.net/forum/other-games/call-to-power-2/ctp2-source-code-project/9479186-ctp2-apolyton-edition-2025-01-20
 
-Changelog (Well, you don't have to read the full thing. ;)):
-2025-06-XX
+Changelog (Well, you don't have to read the full thing. ;))
+Note that the changes listed here are only those that affect players and modders.
+For behind the sceenes changes that are not supposed to change anything in the
+behavior of the game check out the Git history if you are really interested.
+
+2026-XX-XX
 Added:    32 and 64 bit Windows SDL builds
 
 ::Start SDL specfic changes::
-::Since there was no Windows SDL version these changes can only observes with the Linux version::
+::Since there was no Windows SDL version these changes can only be observes with the Linux version::
 
 Added:    Select with the mouse and the shift key text in a text field.
 Fixed:    Make the textfield ignore excape characters, except Ctrl+A,
@@ -144,7 +157,50 @@ Fixed:    Center the background image in the MP start screen.
 ::End SDL specfic changes::
 
 ::Other fixes, changes, additions
-Fixed:    Tile borders beween forest and polar hills and between mountains
+          up to 2025-11-04
+Fixed:    The AI does not try to come to close to cities and units on land while
+          transporting units on sea as there could be dangerous bombard units.
+Fixed:    When finding a path for transporting units on sea the AI does not treat ocean
+          cities and tunnels as land so that it actually can find a path.
+Fixed:    After a victory the attacker army moves to the defenders position.
+          It is unclear when this was broken.
+Fixed:    If a unit is unloaded to a tile that has eleven units, the units is
+          not killed.
+Fixed:    The AI does not try to move a unit for disbanding into a city that is
+          full.
+Fixed:    The ungroups an army before it disbands an obsolte units so it does not
+          disband the other units.
+Fixed:    The Linux version can now be generated with maximum optimization for speed.
+Added:    Generation of a crash.txt for the Linux version, it also prints the content
+          of the crash.txt to the terminal.
+Improved: The stack trace in the crash.txt.
+Fixed:    The AI improves the bottom ranked cities for gold, production, and science
+          instead of the top ones so that cities can catch up. For food it was already
+          this way.
+Fixed:    The AI builds only buildings from the maximum city size build list
+          if the building indeed increases the maximum city size and moves
+          to something else, otherwise.
+Fixed:    The AI focuses more on defense units if it is supposed to improve its
+          defense.
+Fixed:    Fix the calculation with whom the AI desires war.
+Fixed.    When a new civ is added to the game it does not inherit from a previously
+          killed civ that used the same player slot the civs that had contact and
+          empasies.
+Fixed:    The AI now considers units on ships for settling, special attacks such as
+          slave raids, diplomacy, and attacking units and cities.
+Fixed:    A text string was shorted so that it fits into the city window (German version only).
+Fixed:    Allow players only join an MP game if both host and client use the same
+          slic code.
+Added:    The game looks for the music files in the ctp2_data\music\ folder first,
+          if it cannot find them there is will look for them in ctp2_code\ctp\music\.
+Fixed:    Ecotopian civs ask angrily about reducing polltion and diplomatic civs ask
+          indignantly.
+Fixed:    If a starting age is specified then all building available up to that age
+          are given to a new city.
+Fixed:    The IsWonder flag for tile improvements now allows modders to make a tile
+          improvement only be build in cities that have that wonder.
+Fixed:    The line graph shows population when clicked on population.
+Fixed:    Tile borders beween forest and polar hills as well between mountains
           and polar hills as suggested by Kull.
 Updated:  Kull's fixed sprites with more animations.
 Added:    Option to the advanced options if units on sentinel should board a
@@ -152,13 +208,13 @@ Added:    Option to the advanced options if units on sentinel should board a
 Added:    Description text for the Unix internet option on Linux.
 Added:    Gossip
 Fixed:    Allow gaining an advance via gossip, if the target civ has no advance
-          tham this civ is boring.
+          than this civ is boring.
 Added:    Slic function void HearGossip(unit_t), basically for testing HearGossip, but
           modders may find it useful.
-Fixed:    Allow with the mouse and the shift key selected more than one item in a 
+Fixed:    Allow selecting with the mouse and the shift key more than one item in a 
           list box.
 Fixed:    The Linux version uses the directory of the executable as working directory.
-          This way you do not have to start CTP2 from that directory, but yoou can start
+          This way you do not have to start CTP2 from that directory, but you can start
           it from anyway.
 Changed:  The strings in the string database are now all in the same place accross
           languages, except additional strings for the languages, they are at the
@@ -192,7 +248,7 @@ Fixed:    Update the happiness timer only on BeginTurn. This way the impact
           of bioinfaction will not disappear if you just press the optimize
           specialist button.
 Changed:  Reduced the flash interval of the bio and nano infection icons. The
-          flashing can be disabled entirly in const.txt.
+          flashing can be disabled entirly by modders in const.txt.
 Fixed:    Special rules from the userprofile, which can be set at a new game,
           cannot be changed during a game anymore, unless you use the scenario
           editor. Those are:
