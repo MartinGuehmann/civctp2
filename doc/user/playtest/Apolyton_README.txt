@@ -90,7 +90,7 @@ On Windows 64 bit build only:
   even only the top frame. That means a bug is harder to find.
 
 On Linux:
-- When slecting words in a text fields via double click, language specific characters are treated
+- When selecting words in a text fields via double click, language specific characters are treated
   as non word characters.
 
 The Great History: In case you are interested, here are the previous playtest threads on Apolyton:
@@ -109,21 +109,21 @@ https://apolyton.net/forum/other-games/call-to-power-2/ctp2-source-code-project/
 
 Changelog (Well, you don't have to read the full thing. ;))
 Note that the changes listed here are only those that affect players and modders.
-For behind the sceenes changes that are not supposed to change anything in the
+For behind the scenes changes that are not supposed to change anything in the
 behavior of the game check out the Git history if you are really interested.
 
 2026-XX-XX
 Added:    32 and 64 bit Windows SDL builds
 
-::Start SDL specfic changes::
+::Start SDL specific changes::
 ::Since there was no Windows SDL version these changes can only be observes with the Linux version::
 
 Added:    Select with the mouse and the shift key text in a text field.
-Fixed:    Make the textfield ignore excape characters, except Ctrl+A,
+Fixed:    Make the textfield ignore escape characters, except Ctrl+A,
           Ctrl+C, Ctrl+P, and Ctrl+X, which execute select all,
           copy, paste, and cut.
 Added:    Make Ctrl+A select everything in a text field.
-Added:    Set the carret position when you click in a text field.
+Added:    Set the caret position when you click in a text field.
 Added:    Select a word in a text field if left clicked on it.
 Added:    Select the text under the cursor in a text filed if the mouse
           drags over it. (Left mouse button is pressed.)
@@ -131,15 +131,15 @@ Added:    Localized version for selecting words, which however does not work
           on Linux.
 Added:    Continue text selection if the mouse is dragging outside the text
           field.
-Fixed:    Do not enter more caracters into a text field than its size.
-Added:    Keep the carret in text fields always visible.
-Changed:  Make the carret the same color as the text in text fields.
+Fixed:    Do not enter more characters into a text field than its size.
+Added:    Keep the caret in text fields always visible.
+Changed:  Make the caret the same color as the text in text fields.
 Added:    Cut, copy and paste in text fields.
-Added:    Press ctrl and the arrow keys the carret jumps a word, if shift
+Added:    Press Ctrl and the arrow keys the caret jumps a word, if shift
           is also selected it selects the text to the next word boundary.
 Added:    Highlighting with shift and the arrow keys in text fields.
 Fixed:    A crash in the text field when everything was supposed to be selected.
-Fixed:    Make the carret blink in text fields.
+Fixed:    Make the caret blink in text fields.
 
 ::End of text field specific changes / implementations, a text field has a lot of
 ::functionality, and it is still a single line text field without password
@@ -154,10 +154,45 @@ Fixed:    The text field in the MP lobby accepts input.
 Changed:  Move the fullscreen option in SDL builds from the command line to the
           the graphics options on the user interface.
 Fixed:    Center the background image in the MP start screen.
-::End SDL specfic changes::
+::End SDL specific changes::
 
 ::Other fixes, changes, additions
-          up to 2025-11-04
+          up to 2025-12-12 or PR #431
+Fixed:    The AI does not try to disband armies that are needed for garrison or
+          have orders.
+Fixed:    The AI does not run over spies and other units that it could not see
+          at the beginning of the turn if it does not want to start a war. Instead
+          it will expel these units instead unless it has an alliance with the
+          owner of the units or the units cannot be expelled.
+Fixed:    The screen is blanked when returning to the lobby or restarting a game.
+Added:    The AI only uses only units that can be fortified for city garrison.
+          For that OnlyFortifiable was added to the goals database so that modders
+          can control this.
+Added:    AdditionalGarrisonUnitsIfNeeded to strategies.txt for modders. The AI
+          only uses needed garrison units from the strategies.txt and for suppressing
+          slave uprisings. It ignores the force match entirely. This flags allows
+          the AI to use more units for garrison according to the ForceMatch.
+          However, this does not seem to help the AI, just makes it shuffling around
+          units without sense. So it is set to zero.
+Changed:  The AI adds the needed garrison units to all defense goals.
+Fixed:    The AI does not add the maximum evaluated goals per type to the goal scheduler
+          but the maximum executed goals. This corresponds to the MaxEval and MaxExec 
+          values in strategies.txt.
+Changed:  Integrate city garrison into the goal scheduler. In fact, city garrison is
+          a subgoal of city defense. First, the AI reserves a number of units for
+          city defense, the other units can then go for city siege and if there are
+          not enough units for siege then they go to city defense.
+          Therefore, there is a new goal in goals.txt: GOAL_GARRISON which is a subgoal
+          of GOAL_DEFEND. This means the units the AI reserved for GOAL_GARRISON
+          count for GOAL_DEFEND, too, when estimating if the needed strength is reached.
+Changed:  The AI now uses the best units for city garrison instead the worst ones.
+Added:    The does not use for city garrison the Defense ForceMatch values anymore
+          so that it does not go crazy with city defense anymore. This has been
+          exposed to strategies.txt for modders.
+Changed:  The AI now takes into account that it needs a turn to unload a unit from
+          a boat when it is determining which unit is closer to a goal in number of
+          turns.
+Changed:  If two units are close to a goal, the AI does not prefer the one on a boat.
 Fixed:    The AI does not try to come to close to cities and units on land while
           transporting units on sea as there could be dangerous bombard units.
 Fixed:    When finding a path for transporting units on sea the AI does not treat ocean
@@ -168,7 +203,7 @@ Fixed:    If a unit is unloaded to a tile that has eleven units, the units is
           not killed.
 Fixed:    The AI does not try to move a unit for disbanding into a city that is
           full.
-Fixed:    The ungroups an army before it disbands an obsolte units so it does not
+Fixed:    The ungroups an army before it disbands an obsolete units so it does not
           disband the other units.
 Fixed:    The Linux version can now be generated with maximum optimization for speed.
 Added:    Generation of a crash.txt for the Linux version, it also prints the content
@@ -185,7 +220,7 @@ Fixed:    The AI focuses more on defense units if it is supposed to improve its
 Fixed:    Fix the calculation with whom the AI desires war.
 Fixed.    When a new civ is added to the game it does not inherit from a previously
           killed civ that used the same player slot the civs that had contact and
-          empasies.
+          embassies.
 Fixed:    The AI now considers units on ships for settling, special attacks such as
           slave raids, diplomacy, and attacking units and cities.
 Fixed:    A text string was shorted so that it fits into the city window (German version only).
@@ -193,14 +228,14 @@ Fixed:    Allow players only join an MP game if both host and client use the sam
           slic code.
 Added:    The game looks for the music files in the ctp2_data\music\ folder first,
           if it cannot find them there is will look for them in ctp2_code\ctp\music\.
-Fixed:    Ecotopian civs ask angrily about reducing polltion and diplomatic civs ask
+Fixed:    Ecotopian civs ask angrily about reducing pollution and diplomatic civs ask
           indignantly.
 Fixed:    If a starting age is specified then all building available up to that age
           are given to a new city.
 Fixed:    The IsWonder flag for tile improvements now allows modders to make a tile
           improvement only be build in cities that have that wonder.
 Fixed:    The line graph shows population when clicked on population.
-Fixed:    Tile borders beween forest and polar hills as well between mountains
+Fixed:    Tile borders between forest and polar hills as well between mountains
           and polar hills as suggested by Kull.
 Updated:  Kull's fixed sprites with more animations.
 Added:    Option to the advanced options if units on sentinel should board a
@@ -216,7 +251,7 @@ Fixed:    Allow selecting with the mouse and the shift key more than one item in
 Fixed:    The Linux version uses the directory of the executable as working directory.
           This way you do not have to start CTP2 from that directory, but you can start
           it from anyway.
-Changed:  The strings in the string database are now all in the same place accross
+Changed:  The strings in the string database are now all in the same place across
           languages, except additional strings for the languages, they are at the
           end. This makes translation easier, as new strings just need to be placed
           at the same location in the matching files.
@@ -242,14 +277,14 @@ Fixed:    Deactivate user profile options in MP that can be considered as cheats
              - CityLeavesRuins
 Fixed:    Select only units for uprising and militia that can be on the
           target terrain.
-Fixed:    Make the happiness impact from bioinfection show up emmidiately in
+Fixed:    Make the happiness impact from bio infection show up immediately in
           the city manager.
 Fixed:    Update the happiness timer only on BeginTurn. This way the impact
-          of bioinfaction will not disappear if you just press the optimize
+          of bio infaction will not disappear if you just press the optimize
           specialist button.
 Changed:  Reduced the flash interval of the bio and nano infection icons. The
-          flashing can be disabled entirly by modders in const.txt.
-Fixed:    Special rules from the userprofile, which can be set at a new game,
+          flashing can be disabled entirely by modders in const.txt.
+Fixed:    Special rules from the userprofile.txt, which can be set at a new game,
           cannot be changed during a game anymore, unless you use the scenario
           editor. Those are:
              - CityCaptureOptions
@@ -265,23 +300,23 @@ Fixed:    Special rules from the userprofile, which can be set at a new game,
 Fixed:    NoCityLimit has been fully implemented the user interface reflect it
           if it is on or off, and the AI also takes it into account for settling.
 Added:    The special rules screen to the MP rules screen and the scenario editor.
-Added:    Disable the Gaia Victiory on the special rules screen.
+Added:    Disable the Gaia Victory on the special rules screen.
 Fixed:    The special rule bloodlust, did nothing, now you have to conquer
           everybody else to win the disables all other victory types. If you have
           not won by the year 2300, you lose.
-Added:    Automatic turn end to the advanced opstions.
+Added:    Automatic turn end to the advanced options.
 Added:    A language database file: Language.txt and a userprofile option
           for selecting the language.
 Added:    Automatic language selection based on the operating system and the 
           languages available.
 Added:    Language selection screen in case you do not like the automatic choice.
-          It also gives some informaton about the available languages such their
+          It also gives some information about the available languages such their
           state of completeness.
 Added:    Czech and Polish fan translations, which are however incomplete.
-Fixed:    The AI does not try to pillage tile improvments that have the flag
+Fixed:    The AI does not try to pillage tile improvements that have the flag
           CantPillage (Feature for modders).
-Changed:  Move disclaimer.txt from the program diretory to the data directory.
-          So that it can be truely localized. This means different version in
+Changed:  Move disclaimer.txt from the program directory to the data directory.
+          So that it can be truly localized. This means different version in
           different languages can coexists in the same copy of CTP2.
 Added:    Left hand mouse option to the advance options.
 Fixed:    Some memory corruption on BeginTurn in MP. Unclear whether this has
@@ -395,7 +430,7 @@ Added:    Sort age button o sort items in Great Library by age.
 Fixed:    Slic Strings are resolved after loading even so the string
           database has been modified. Useful if you switch languages
           while playing. However, after installing a new version of
-          the Apolyton Edition you still have to reloadslic.
+          the Apolyton Edition you still have to reload slic.
 Changed:  The unit panel shows a shield if there are more than one unit
           unit in different armies on the field. You can click the shield
           for details. Works in that case like the next unit button.
