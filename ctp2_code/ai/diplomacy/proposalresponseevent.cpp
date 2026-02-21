@@ -1326,13 +1326,13 @@ STDEHANDLER(HonorPollutionAgreement_ProposalResponseEvent)
 			}
 		}
 	}
-	else if ((receiver_pollution / sender_pollution) < 1.0)
+	else if (receiver_pollution > sender_pollution)
 	{
 		DiplomacyArg arg;
 		double percent = 0.0;
 		DIPLOMATIC_TONE tone = DIPLOMATIC_TONE_EQUAL;
 
-		if (receiver_diplomat.GetPersonality()->GetDiscoveryEcotopian())
+		if (receiver_diplomat.GetPersonality()->GetDiscoveryEcotopian() && sender_pollution != 0) // Avoid devision by zero, it doesn't matter if sender_pollution == 0 anyway
 		{
 			percent = (double)(sender_pollution - receiver_pollution) / sender_pollution;
 			percent -= 0.05;
@@ -1366,7 +1366,6 @@ STDEHANDLER(HonorPollutionAgreement_ProposalResponseEvent)
 	}
 	else
 	{
-
 		receiver_diplomat.ConsiderResponse(sender, RESPONSE_REJECT, reject_priority);
 	}
 	return GEV_HD_Continue;
