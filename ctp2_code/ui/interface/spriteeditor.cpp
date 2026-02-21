@@ -496,7 +496,7 @@ void SpriteEditWindow::LoadSprite(const char *name)
 {
 	char tbuffer[256];
 
-	m_loopInProgress = false;;
+	m_loopInProgress = false;
 	m_stopAfterLoop  = true;
 
 	if (name == NULL)
