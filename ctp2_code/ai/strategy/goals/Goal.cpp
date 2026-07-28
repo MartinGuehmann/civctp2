@@ -856,11 +856,42 @@ Utility Goal::Recompute_Matching_Value(Plan_List & matches, const bool update)
 	}
 #endif
 
+	// RallyFirst goals (e.g. GOAL_SEIGE) are designed to accumulate force
+	// over multiple turns via their own RallyComplete()/Is_Satisfied() gate
+	// in Execute_Task, so being under-strength mid-rally shouldn't wipe
+	// every already-committed agent and start over from zero - but only
+	// once the rally has visibly started: an agent whose army already has
+	// more than one unit has already had some grouping happen, and an
+	// agent whose army HasCargo() is actively carrying units toward the
+	// target. A goal that has only ever picked up a single, still-idle,
+	// not-yet-loaded unit hasn't made any real progress; holding onto that
+	// unit indefinitely would just take it away from other uses (e.g.
+	// defense) for nothing.
+	bool rallyInProgress = false;
+	if (goal_record->GetRallyFirst())
+	{
+		for
+		(
+		    Agent_List::const_iterator agent_iter  = m_agents.begin();
+		                               agent_iter != m_agents.end();
+		                             ++agent_iter
+		)
+		{
+			Agent_ptr agent_ptr = (Agent_ptr) *agent_iter;
+			if (agent_ptr->Get_Army()->Num() > 1 || agent_ptr->Get_Army()->HasCargo())
+			{
+				rallyInProgress = true;
+				break;
+			}
+		}
+	}
+
 	if
 	  (
 	       (
 	            !projected_strength.HasEnough(m_current_needed_strength)
 	         && !goal_record->GetExecuteIncrementally()
+	         && !rallyInProgress
 	       )
 	    || count == 0
 	  )
