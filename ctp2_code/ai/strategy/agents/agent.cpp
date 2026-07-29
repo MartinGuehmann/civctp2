@@ -100,6 +100,28 @@ Agent::Agent(const Army & army)
     m_neededForGarrison (false)
 {
 	Compute_Squad_Strength();
+
+	if (m_army.IsValid())
+	{
+		ArmyData * armyData = m_army.AccessData();
+		armyData->SetAgent(this);
+
+		// Consume the one-shot "commit me to the same goal as this other
+		// agent" hint left by e.g. ArmyData::ExecuteUnloadOrder, so cargo
+		// debarked from a transport working a goal continues that goal
+		// instead of sitting free for the scheduler to send anywhere.
+		Agent * transferFrom = armyData->GetTransferGoalFrom();
+		if (transferFrom != NULL)
+		{
+			armyData->SetTransferGoalFrom(NULL);
+
+			Goal_ptr goal = transferFrom->Get_Goal();
+			if (goal != NULL)
+			{
+				goal->Commit_Agent(this);
+			}
+		}
+	}
 }
 
 Agent::Agent(const Agent & an_Original)
@@ -121,6 +143,15 @@ Agent::Agent(const Agent & an_Original)
 Agent::~Agent()
 {
 // Nothing to delete, references only
+
+	// Only clear it if it's still pointing to this agent - a copy made for
+	// scheduler planning/snapshotting never claims the pointer in the first
+	// place (see the copy constructor above), so its destructor must not
+	// clear a still-live original agent's registration.
+	if (m_army.IsValid() && m_army.AccessData()->GetAgent() == this)
+	{
+		m_army.AccessData()->SetAgent(NULL);
+	}
 }
 
 Agent & Agent::operator = (const Agent & an_Original)

@@ -352,6 +352,8 @@ ArmyData::ArmyData(const Army &army, const UnitDynamicArray &units)
     m_killMeSoon            (new PointerList<KillRecord>),
     m_name                  (NULL),
     m_debugString           (NULL),
+    m_agent                 (nullptr),
+    m_transferGoalFrom      (nullptr),
     m_owner                 (-1),
     m_reentryTurn           (-1),
     m_pos                   (),
@@ -377,6 +379,8 @@ ArmyData::ArmyData(const Army &army, const CellUnitList &units)
     m_killMeSoon            (new PointerList<KillRecord>),
     m_name                  (NULL),
     m_debugString           (NULL),
+    m_agent                 (nullptr),
+    m_transferGoalFrom      (nullptr),
     m_owner                 (-1),
     m_reentryTurn           (-1),
     m_pos                   (),
@@ -402,6 +406,8 @@ ArmyData::ArmyData(const Army &army, Unit &u)
     m_killMeSoon            (new PointerList<KillRecord>),
     m_name                  (NULL),
     m_debugString           (NULL),
+    m_agent                 (nullptr),
+    m_transferGoalFrom      (nullptr),
     m_owner                 (-1),
     m_reentryTurn           (-1),
     m_pos                   (),
@@ -424,6 +430,8 @@ ArmyData::ArmyData(const Army &army)
     m_killMeSoon            (new PointerList<KillRecord>),
     m_name                  (NULL),
     m_debugString           (NULL),
+    m_agent                 (nullptr),
+    m_transferGoalFrom      (nullptr),
     m_owner                 (-1),
     m_reentryTurn           (-1),
     m_pos                   (),
@@ -445,6 +453,8 @@ ArmyData::ArmyData(CivArchive &archive)
     m_killMeSoon            (new PointerList<KillRecord>),
     m_name                  (NULL),
     m_debugString           (NULL),
+    m_agent                 (nullptr),
+    m_transferGoalFrom      (nullptr),
     m_owner                 (-1),
     m_reentryTurn           (-1),
     m_pos                   (),
@@ -8625,6 +8635,16 @@ bool ArmyData::ExecuteUnloadOrder(Order *order)
 
 	if(debark.m_id != 0)
 	{
+		// The debarked force gets a brand new, goal-less Agent shortly
+		// (via GEV_CreatedArmy). If we're working a goal ourselves, leave
+		// a hint on it so that once its Agent is actually constructed, it
+		// gets committed to the same goal instead of being freely
+		// re-matched to whatever goal scores highest for it next cycle.
+		if(m_agent != NULL)
+		{
+			debark.AccessData()->SetTransferGoalFrom(m_agent);
+		}
+
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
 		                       GEV_FinishUnload,
 		                       GEA_Army, m_id,

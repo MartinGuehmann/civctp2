@@ -67,6 +67,7 @@ class CivArchive;
 class Path;
 class ArmyData;
 class Unit;
+class Agent;
 template <class T> class PointerList;
 class Order;
 enum CAUSE_REMOVE_ARMY;
@@ -115,6 +116,8 @@ private:
     PointerList<KillRecord>   *m_killMeSoon;           // Used
     MBCHAR                    *m_name;                 // Used and serialized
     MBCHAR                    *m_debugString;          // Used for debugging
+    Agent                     *m_agent;                // Not serialized - the Agent currently wrapping this army, if any; set/cleared by Agent's constructor/destructor
+    Agent                     *m_transferGoalFrom;     // Not serialized - one-shot hint: when this army's own Agent is constructed, commit it to this agent's goal (e.g. cargo debarked from a transport working a goal); consumed and cleared immediately
 
     // Should be all 32 bit on all systems
     PLAYER_INDEX               m_owner;                // Used and serialized
@@ -144,6 +147,12 @@ public:
 
     PLAYER_INDEX GetOwner() const { return m_owner; }
     void SetOwner(PLAYER_INDEX p);
+
+    Agent *GetAgent() const { return m_agent; }
+    void SetAgent(Agent *agent) { m_agent = agent; }
+
+    Agent *GetTransferGoalFrom() const { return m_transferGoalFrom; }
+    void SetTransferGoalFrom(Agent *agent) { m_transferGoalFrom = agent; }
 
     bool Insert(const Unit &id);
     void GetPos(MapPoint &pos) const { pos = m_pos; }
