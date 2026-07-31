@@ -1059,7 +1059,19 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 	if(u.IsCity())
 		return Unit();
 
-	if(cause != CAUSE_NEW_ARMY_UPRISING) // in case of CAUSE_NEW_ARMY_UPRISING m_all_units->Insert(u); was already done in Player::CreateUnitNoPosition
+	// In the CAUSE_NEW_ARMY_UPRISING case, m_all_units->Insert(u) was usually
+	// already done by Player::CreateUnitNoPosition - but only into the
+	// ORIGINAL (Vandals) owner's list. CityData::CleanupUprising also calls
+	// this on the NEW civilisation's Player when a slave revolt actually
+	// forms a new civ, and that player's m_all_units has never seen this
+	// unit before. Comparing against the unit's current owner tells apart
+	// "this is the same list it was already inserted into" (skip, avoid a
+	// duplicate) from "this is a different player's list" (insert for real -
+	// otherwise the unit ends up in no player's m_all_units at all once
+	// UnitData::ResetUnitOwner() removes it from the old owner's list, while
+	// still being reachable via its Army/City, leaving stale vision-added
+	// state that nothing ever cleans up).
+	if(cause != CAUSE_NEW_ARMY_UPRISING || u.GetOwner() != m_owner)
 	    m_all_units->Insert(u);
 
 	if(cause != CAUSE_NEW_ARMY_NETWORK) {
@@ -8729,10 +8741,13 @@ void Player::ResetVision()
 	m_vision->SetTheWholeWorldUnseen();
 	sint32 j;
 
+	DPRINTF(k_DBG_FIX, ("Player::ResetVision: owner %d, m_all_units->Num()=%d\n", m_owner, m_all_units->Num()));
+
 	for(j = 0; j < m_all_units->Num(); j++)
 	{
 		if(m_all_units->Access(j).Flag(k_UDF_VISION_ADDED))
 		{
+			DPRINTF(k_DBG_FIX, ("Player::ResetVision: owner %d, re-adding vision for unit 0x%lx\n", m_owner, m_all_units->Access(j).m_id));
 			m_all_units->Access(j).ClearFlag(k_UDF_VISION_ADDED);
 			m_all_units->Access(j).AddUnitVision();
 		}
