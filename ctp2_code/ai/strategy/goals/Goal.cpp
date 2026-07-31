@@ -981,6 +981,36 @@ bool Goal::CanGoalBeReevaluated() const
 
 bool Goal::Commited_Agents_Need_Orders() const
 {
+	// RallyFirst goals routinely have an agent sitting idle (zero pending
+	// orders) at the muster point while waiting for the rest of the group to
+	// arrive - that is expected, not a sign anything is wrong. The caller
+	// (Scheduler::Raw_Prioritize_Goals) responds to a true return here by
+	// rolling back every committed agent, which would otherwise scatter an
+	// in-progress rally on every raw-priority pass. Once the rally has
+	// visibly started (same criteria as the BAD_UTILITY exemption in
+	// Recompute_Matching_Value), don't treat idle waiting as needing orders.
+	bool rallyInProgress = false;
+	if (g_theGoalDB->Get(m_goal_type)->GetRallyFirst())
+	{
+		for
+		(
+		    Plan_List::const_iterator   match_iter  = m_matches.begin();
+		                                match_iter != m_matches.end();
+		                              ++match_iter
+		)
+		{
+			if(match_iter->Get_Agent()->Has_Goal(this)
+			&& (match_iter->Get_Agent()->Get_Army()->Num() > 1 || match_iter->Get_Agent()->Get_Army()->HasCargo())
+			){
+				rallyInProgress = true;
+				break;
+			}
+		}
+	}
+
+	if (rallyInProgress)
+		return false;
+
 	for
 	(
 	    Plan_List::const_iterator   match_iter  = m_matches.begin();
