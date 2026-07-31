@@ -710,7 +710,7 @@ void Agent::Group_With( Agent_ptr second_army )
 	MapPoint dest_pos = m_goal->Get_Target_Pos();
 
 	sprintf(myString, "Grouping at (%d,%d) to %s %s (%d,%d)", pos.x, pos.y, goalString, m_goal->GetTargetName(), dest_pos.x, dest_pos.y);
-	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
+	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type(), m_goal);
 
 	delete[] goalString;
 	delete[] myString;
@@ -733,7 +733,7 @@ void Agent::Ungroup_Order()
 
 	MBCHAR * myString = new MBCHAR[256];
 	sprintf(myString, "Ungrouping at (%d,%d)", pos.x, pos.y);
-	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
+	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type(), m_goal);
 	delete[] myString;
 }
 
@@ -890,7 +890,7 @@ sint32 Agent::DisbandObsoleteUnits()
 			PerformOrderHere(order_rec, &found_path);
 			MBCHAR * myString = new MBCHAR[255];
 			sprintf(myString, "Move to DISBAND @ %s", nearestCity.CD()->GetName());
-			g_graphicsOptions->AddTextToArmy(m_army, myString, 255, Get_Goal_Type());
+			g_graphicsOptions->AddTextToArmy(m_army, myString, 255, Get_Goal_Type(), m_goal);
 		}
 		return 0;
 	}
@@ -909,7 +909,7 @@ sint32 Agent::DisbandObsoleteUnits()
 	if(order_rec)
 	{
 		PerformOrder(order_rec);
-		g_graphicsOptions->AddTextToArmy(m_army, "DISBAND", 255, Get_Goal_Type());
+		g_graphicsOptions->AddTextToArmy(m_army, "DISBAND", 255, Get_Goal_Type(), m_goal);
 	}
 
 	return unit_count;
@@ -948,7 +948,7 @@ void Agent::WaitHere(const MapPoint & goal_pos)
 		m_army->GetPos(pos);
 		MBCHAR * myString = new MBCHAR[255];
 		sprintf(myString, "Waiting GROUP @ (%d,%d) to %s GO (%d,%d)", pos.x, pos.y, Goal::GetTargetName(Get_Target_Pos()), goal_pos.x, goal_pos.y);
-		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
+		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type(), m_goal);
 		delete[] myString;
 	}
 }
@@ -985,7 +985,7 @@ void Agent::ClearOrders()
 			sprintf(myString, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, m_targetPos.x, m_targetPos.y);
 		}
 
-		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
+		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type(), m_goal);
 
 		delete[] goalString;
 		delete[] myString;

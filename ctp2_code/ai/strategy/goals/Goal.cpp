@@ -3776,7 +3776,7 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 					m_goal_type, dest_pos.x, dest_pos.y));
 				first_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
-				g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), "GARRISON", magnitude);
+				g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), "GARRISON", magnitude, m_goal_type, this);
 				return false;
 			}
 			else
@@ -3881,7 +3881,7 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 				break;
 		}
 
-		g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), myString, magnitude, m_goal_type);
+		g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), myString, magnitude, m_goal_type, this);
 		delete[] myString;
 		delete[] goalString;
 
@@ -3921,7 +3921,7 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 		memset(myString, 0, strlen(myText) + 80);
 		sprintf(myString, "%s failed at (%d, %d), order: %s", goal_rec->GetNameText(), dest_pos.x, dest_pos.y, order_rec->GetNameText());
 
-		g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), myString, 0, m_goal_type);
+		g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), myString, 0, m_goal_type, this);
 		delete[] myString;
 
 		if(test != ORDER_TEST_OK && test == ORDER_TEST_NO_MOVEMENT)
@@ -4071,7 +4071,7 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 			}
 
 			sprintf(myString, "Boat waiting at (%d,%d) to board %s for %s", dest_pos.x, dest_pos.y, GetTargetName(), goalString);
-			g_graphicsOptions->AddTextToArmy(the_transport->Get_Army(), myString, magnitude, m_goal_type);
+			g_graphicsOptions->AddTextToArmy(the_transport->Get_Army(), myString, magnitude, m_goal_type, this);
 			delete[] myString;
 			delete[] goalString;
 
@@ -4107,7 +4107,7 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 			}
 
 			sprintf(myString, "NO PATH -> BOARD (%d,%d) %s for %s", dest_pos.x, dest_pos.y, GetTargetName(), goalString);
-			g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
+			g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type, this);
 
 			delete[] myString;
 			delete[] goalString;
@@ -4147,7 +4147,7 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 				}
 
 				sprintf(myString, "Boat waiting at (%d,%d) to board %s for %s", pos.x, pos.y, GetTargetName(), goalString);
-				g_graphicsOptions->AddTextToArmy(the_transport->Get_Army(), myString, magnitude, m_goal_type);
+				g_graphicsOptions->AddTextToArmy(the_transport->Get_Army(), myString, magnitude, m_goal_type, this);
 				delete[] myString;
 				delete[] goalString;
 
@@ -4221,7 +4221,7 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 			        uint8 magnitude = 220;
 			        MBCHAR * myString = new MBCHAR[256];
 			        sprintf(myString, "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
-			        g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
+			        g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type, this);
 			        delete[] myString;
 		}
 
@@ -4471,7 +4471,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				uint8 magnitude = 220;
 				MBCHAR * myString = new MBCHAR[256];
 				sprintf(myString, "NO PATH to (%d,%d) - %s", goal_pos.x, goal_pos.y, g_theGoalDB->Get(m_goal_type)->GetNameText());
-				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
+				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type, this);
 
 				delete[] myString;
 			}
@@ -4486,7 +4486,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				uint8 magnitude = (uint8)(((5000000 - val) * 255.0) / 5000000);
 				MBCHAR * myString = new MBCHAR[256];
 				sprintf(myString, "Waiting GROUP to GO %s (%d,%d)\n", GetTargetName(), goal_pos.x, goal_pos.y);
-				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
+				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type, this);
 				delete[] myString;
 
 				return true;
@@ -4501,7 +4501,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				uint8 magnitude = 220;
 				MBCHAR * myString = new MBCHAR[256];
 				sprintf(myString, "NO PATH (GROUP)(%d,%d)", goal_pos.x, goal_pos.y);
-				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
+				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type, this);
 				delete[] myString;
 			}
 
@@ -4518,7 +4518,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				uint8 magnitude = 220;
 				MBCHAR * myString = new MBCHAR[256];
 				sprintf(myString, "NO PATH (TRANSP.)(%d,%d)", goal_pos.x, goal_pos.y);
-				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
+				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type, this);
 				delete[] myString;
 			}
 		}
@@ -5008,7 +5008,7 @@ bool Goal::RallyTroops()
 				MapPoint goal_pos = Get_Target_Pos(agent_ptr->Get_Army());
 				MapPoint curr_pos = agent_ptr->Get_Pos();
 				sprintf(myString, "Split at (%d,%d) to GO %s (%d,%d)", curr_pos.x, curr_pos.y, GetTargetName(), goal_pos.x, goal_pos.y);
-				g_graphicsOptions->AddTextToArmy(agent_ptr->Get_Army(), myString, magnitude);
+				g_graphicsOptions->AddTextToArmy(agent_ptr->Get_Army(), myString, magnitude, m_goal_type, this);
 				delete[] myString;
 			}
 		}
@@ -5112,7 +5112,7 @@ bool Goal::RallyTroops()
 				MapPoint goal_pos;
 				goal_pos = Get_Target_Pos(agent1_ptr->Get_Army());
 				sprintf(myString, "Waiting GROUP to %s GO (%d,%d)", GetTargetName(), goal_pos.x, goal_pos.y);
-				g_graphicsOptions->AddTextToArmy(agent1_ptr->Get_Army(), myString, magnitude);
+				g_graphicsOptions->AddTextToArmy(agent1_ptr->Get_Army(), myString, magnitude, m_goal_type, this);
 				delete[] myString;
 			}
 
