@@ -934,7 +934,7 @@ void Goal::Set_Matching_Value(Utility combinedUtility)
 
 bool Goal::Add_Match(const Agent_ptr & agent, const bool update_match_value, const bool needsCargo)
 {
-#if defined(_DEBUG)
+#if defined(_DEBUG) || defined(USE_LOGGING)
 	for
 	   (
 	    Plan_List::iterator   plan_test_iter  = m_matches.begin();
@@ -1790,7 +1790,7 @@ void Goal::Compute_Needed_Troop_Flow()
 
 Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 {
-#if defined(_DEBUG)
+#if defined(_DEBUG) || defined(USE_LOGGING)
 	Player *player_ptr = g_player[ m_playerId ];
 	Assert(player_ptr && agent_ptr);
 #endif
@@ -4274,7 +4274,7 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 	return false;
 }
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) || defined(USE_LOGGING)
 namespace
 {
 	struct GotoGoalTaskSolution_InspectContext
@@ -4428,7 +4428,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 
 		Assert(found); // Problem
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) || defined(USE_LOGGING)
 		if (!found)
 		{
 			// Halt immediately so the game doesn't keep running out from
