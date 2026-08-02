@@ -67,6 +67,19 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
                                          float & cost,
                                          ASTAR_ENTRY_TYPE & entry )
 {
+	if (!GetCheckDest() && pos == m_dest)
+	{
+		// The final destination does not need to be literally enterable for
+		// a range-based goal (e.g. establishing an embassy in a foreign
+		// city): the actual order executes once in range, rather than by
+		// physically entering the target tile. UnitAstar::EntryCost already
+		// grants this same exemption for the plain terrain/ZOC checks (see
+		// its own !m_check_dest && pos==m_dest case); extend it here too,
+		// so the transport-specific continent/occupancy checks below do not
+		// re-reject the one tile the whole search is trying to reach.
+		return can_enter;
+	}
+
 	if (can_enter)
 	{
 		sint32 cont     = g_theWorld->GetContinent(pos);
