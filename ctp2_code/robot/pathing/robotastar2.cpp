@@ -93,23 +93,19 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 
 		if(g_theWorld->IsWater(pos) || g_theWorld->IsShallowWater(pos))
 		{
-			if
-			  (
-			       (
-			           g_theWorld->IsLand(prev)
-			        || g_theWorld->IsMountain(prev)
-			       )
-			    && !g_theWorld->IsWater(prev) // Ocean city and tunnel tiles are both land and sea, just make sure the previous one was not one of those
-			    && !g_theWorld->IsShallowWater(prev)
-			    &&  g_theWorld->GetContinent(prev) == m_transDestCont
-			  )
-			{
-				// Return invalid if we leave the target continent
-				cost = k_ASTAR_BIG;
-				entry = ASTAR_RETRY_DIRECTION;
-				return false;
-			}
-
+			// Used to hard-block stepping from land back onto water once
+			// already on the target continent, on the assumption that
+			// having arrived there, the rest of the way should be on foot.
+			// That breaks a continent that almost wraps around the world
+			// with a narrow gap, where a short hop across open water is
+			// genuinely shorter than walking nearly all the way around -
+			// the ship would leave and rejoin the very same continent, just
+			// not along the coastline. The other check above (blocking
+			// landing anywhere that is not the destination's continent)
+			// already keeps the transport from wandering off to unrelated
+			// land, and the cost multiplier right below already makes A*
+			// prefer the land route whenever that is actually cheaper - so
+			// this no longer needs to be an outright block, just a cost.
 			cost *= m_transMaxR;
 		}
 
