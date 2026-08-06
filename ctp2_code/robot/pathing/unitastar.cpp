@@ -1289,7 +1289,7 @@ bool UnitAstar::CheckIsDangerForPos(const MapPoint & pos)
 		//Check for hostile army
 		CellUnitList * the_army = g_theWorld->GetArmyPtr(neighbor);
 
-		if (the_army && !the_army->IsCivilian())
+		if (the_army && the_army->CanAttackOrBombard())
 		{
 			const PLAYER_INDEX owner     = the_army->GetOwner();
 			const bool         isVisible = m_army->IsVisible(owner);
