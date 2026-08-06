@@ -106,19 +106,39 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 
 		if(g_theWorld->IsWater(pos) || g_theWorld->IsShallowWater(pos))
 		{
-			// Used to hard-block stepping from land back onto water once
-			// already on the target continent, on the assumption that
-			// having arrived there, the rest of the way should be on foot.
-			// That breaks a continent that almost wraps around the world
-			// with a narrow gap, where a short hop across open water is
-			// genuinely shorter than walking nearly all the way around -
-			// the ship would leave and rejoin the very same continent, just
-			// not along the coastline. The other check above (blocking
-			// landing anywhere that is not the destination's continent)
-			// already keeps the transport from wandering off to unrelated
-			// land, and the cost multiplier right below already makes A*
-			// prefer the land route whenever that is actually cheaper - so
-			// this no longer needs to be an outright block, just a cost.
+			// Block stepping from land back onto water once already on the
+			// target continent, on the assumption that having arrived
+			// there, the rest of the way should be on foot - except right
+			// at the search's own start: a transport already sitting on
+			// the target continent (e.g. in a coastal city) may still need
+			// to leave by water for a continent shaped like a near-
+			// complete ring around the world with a narrow gap, where the
+			// water crossing is dramatically shorter than walking almost
+			// the whole way around. Once under way, though, do not allow
+			// repeatedly hopping on and off the coast elsewhere along the
+			// route - only the very first step gets this exemption.
+			bool const prevIsTargetContLand =
+			    (   g_theWorld->IsLand(prev)
+			     || g_theWorld->IsMountain(prev)
+			    )
+			 && !g_theWorld->IsWater(prev) // Ocean city and tunnel tiles are both land and sea, just make sure the previous one was not one of those
+			 && !g_theWorld->IsShallowWater(prev)
+			 &&  g_theWorld->GetContinent(prev) == m_transDestCont;
+
+			AI_DPRINTF(k_DBG_ASTAR, m_owner, -1, m_army.m_id,
+			    ("\tLEAVE_DIAG: prev(%d,%d) pos(%d,%d) start(%d,%d) dest(%d,%d) transDestCont=%d contPrev=%d contPos=%d prevIsTargetContLand=%d prev!=start=%d IsCity(prev)=%d IsCity(pos)=%d\n",
+			     prev.x, prev.y, pos.x, pos.y, m_start.x, m_start.y, m_dest.x, m_dest.y,
+			     m_transDestCont, g_theWorld->GetContinent(prev), g_theWorld->GetContinent(pos),
+			     prevIsTargetContLand, (prev != m_start), g_theWorld->IsCity(prev), g_theWorld->IsCity(pos)));
+
+			if(prevIsTargetContLand && prev != m_start)
+			{
+				// Return invalid if we leave the target continent
+				cost = k_ASTAR_BIG;
+				entry = ASTAR_RETRY_DIRECTION;
+				return false;
+			}
+
 			cost *= m_transMaxR;
 		}
 
