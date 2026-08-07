@@ -400,6 +400,7 @@ public:
 
     sint32 GetMinFuel();
     void CalcRemainingFuel(sint32 &num_tiles_to_half, sint32 &num_tiles_to_empty) const;
+    void CalcRemainingFuelTiles(sint32 &num_tiles_to_half, sint32 &num_tiles_to_empty) const;
 
     bool CanMove();
 

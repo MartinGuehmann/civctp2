@@ -2059,9 +2059,7 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 
 	sint32 num_tiles_to_half;
 	sint32 num_tiles_to_empty;
-	army->CalcRemainingFuel(num_tiles_to_half, num_tiles_to_empty);
-	num_tiles_to_empty /= k_MOVE_AIR_COST;
-	num_tiles_to_half /= k_MOVE_AIR_COST;
+	army->CalcRemainingFuelTiles(num_tiles_to_half, num_tiles_to_empty);
 
 	refueling_distance = -1;
 
@@ -2113,9 +2111,7 @@ void CtpAi::RefuelAirplane(const Army & army)
 {
 	sint32 num_tiles_to_half;
 	sint32 num_tiles_to_empty;
-	army->CalcRemainingFuel(num_tiles_to_half, num_tiles_to_empty);
-	num_tiles_to_empty /= k_MOVE_AIR_COST;
-	num_tiles_to_half /= k_MOVE_AIR_COST;
+	army->CalcRemainingFuelTiles(num_tiles_to_half, num_tiles_to_empty);
 
 	MapPoint pos;
 	if (num_tiles_to_half > 0 && army->GetNextPathPoint(pos))

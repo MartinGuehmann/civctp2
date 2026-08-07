@@ -3556,10 +3556,7 @@ bool Goal::Pretest_Bid(const Agent_ptr agent_ptr, const MapPoint & target_pos) c
 	{
 		sint32 num_tiles_to_half;
 		sint32 num_tiles_to_empty;
-		army->CalcRemainingFuel(num_tiles_to_half, num_tiles_to_empty);
-
-		num_tiles_to_empty = static_cast<sint32>(num_tiles_to_empty / k_MOVE_AIR_COST);
-		num_tiles_to_half = static_cast<sint32>(num_tiles_to_half / k_MOVE_AIR_COST);
+		army->CalcRemainingFuelTiles(num_tiles_to_half, num_tiles_to_empty);
 
 		sint32 distance_to_refuel;
 		sint32 distance_to_target;

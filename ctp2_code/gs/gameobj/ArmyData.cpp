@@ -9448,6 +9448,33 @@ void ArmyData::CalcRemainingFuel(sint32 &num_tiles_to_half, sint32 &num_tiles_to
 	}
 }
 
+//-------------------------------------------------------------------------------------------
+//
+// Name       : ArmyData::CalcRemainingFuelTiles
+//
+// Description: CalcRemainingFuel, converted from move points to tiles.
+//              Was duplicated at each call site (CtpAi::GetNearestRefuel,
+//              CtpAi::RefuelAirplane, Goal::Pretest_Bid).
+//
+// Parameters : num_tiles_to_half  : tiles the lowest fueled plane can move
+//                                   before reaching half its fuel level.
+//              num_tiles_to_empty : tiles the lowest fueled plane can move
+//                                   before running out of fuel.
+//
+// Globals    : -
+//
+// Returns    : -
+//
+// Remark(s)  : -
+//
+//--------------------------------------------------------------------------------------------
+void ArmyData::CalcRemainingFuelTiles(sint32 &num_tiles_to_half, sint32 &num_tiles_to_empty) const
+{
+	CalcRemainingFuel(num_tiles_to_half, num_tiles_to_empty);
+	num_tiles_to_half  = static_cast<sint32>(num_tiles_to_half  / k_MOVE_AIR_COST);
+	num_tiles_to_empty = static_cast<sint32>(num_tiles_to_empty / k_MOVE_AIR_COST);
+}
+
 bool ArmyData::CanMove()
 {
 	bool noneMoved = true;
