@@ -7182,7 +7182,7 @@ void ArmyData::CheckLoadSleepingCargoFromCity()
 				{
 					bool out_of_fuel;
 					u.SetIsInTransport(m_array[i]);
-					u.DeductMoveCost(k_MOVE_ENTER_TRANSPORT_COST, out_of_fuel);
+					u.DeductMoveCost(g_theConstDB->Get(0)->GetMoveEnterTransportCost(), out_of_fuel);
 					g_theWorld->RemoveUnitReference(m_pos, u);
 					u.UndoVision();
 					u.RemoveUnitVision();
@@ -8466,7 +8466,7 @@ bool ArmyData::MoveIntoTransport(const MapPoint &pos, CellUnitList &transports)
 				m_array[i].SetIsInTransport(transports[j]);
 				bool dummy_out_of_fuel;
 				m_array[i].DeductMoveCost
-				    (k_MOVE_ENTER_TRANSPORT_COST, dummy_out_of_fuel);
+				    (g_theConstDB->Get(0)->GetMoveEnterTransportCost(), dummy_out_of_fuel);
 
 				g_theWorld->RemoveUnitReference(m_pos, m_array[i]);
 				m_array[i].UndoVision();

@@ -291,7 +291,7 @@ bool UnitAstar::CheckUnits(
 				{
 					if (CanMoveIntoTransports(m_dest))
 					{
-						cost = k_MOVE_ENTER_TRANSPORT_COST;
+						cost = static_cast<float>(g_theConstDB->Get(0)->GetMoveEnterTransportCost());
 						entry = ASTAR_CAN_ENTER;
 						can_enter = true;
 						return true;

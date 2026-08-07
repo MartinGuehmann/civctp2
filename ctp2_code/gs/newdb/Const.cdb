@@ -286,6 +286,7 @@ Const : alsire {
 	Int    SpaceFuelCost                          aka SPACE_FUEL_COST
 	Int    NonSpaceFuelCost                       aka NON_SPACE_FUEL_COST
 	Float  MoveAirCost = 100.0                    aka MOVE_AIR_COST
+	Float  MoveEnterTransportCost = 100.0         aka MOVE_ENTER_TRANSPORT_COST
 
 	Int    StarvationWarningFudgeFactor           aka STARVATION_WARNING_FUDGE_FACTOR
 	Int    MaintenanceWarningFudgeFactor          aka MAINTENANCE_WARNING_FUDGE_FACTOR
