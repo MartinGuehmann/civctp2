@@ -125,7 +125,6 @@
 #include "installation.h"
 #include "installationtree.h"
 #include "MaterialPool.h"
-#include "MoveFlags.h"
 #include "net_action.h"
 #include "net_info.h"
 #include "net_unit.h"
@@ -885,7 +884,7 @@ bool UnitData::IsMovePointsEnough(const MapPoint &pos) const
 		sint32 fixMoveCosts = 0;
 
 		if (GetDBRec()->GetMovementTypeAir() ) {
-			cost = k_MOVE_AIR_COST;
+			cost = g_theConstDB->Get(0)->GetMoveAirCost();
 		} else if(GetDBRec()->GetMoveBonus(fixMoveCosts)) {
 			cost = static_cast<double>(fixMoveCosts);
 
@@ -3065,7 +3064,7 @@ void UnitData::BeginTurn()
 
 double UnitData::CalcFuelUpkeep() const
 {
-	return g_theConstDB->Get(0)->GetNonSpaceFuelCost() * (m_movement_points / k_MOVE_AIR_COST);
+	return g_theConstDB->Get(0)->GetNonSpaceFuelCost() * (m_movement_points / g_theConstDB->Get(0)->GetMoveAirCost());
 }
 
 void UnitData::EndTurn()

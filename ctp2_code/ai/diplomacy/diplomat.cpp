@@ -60,7 +60,7 @@
 #include <functional>
 
 #include "c3errors.h"
-#include "MoveFlags.h"
+#include "ConstRecord.h"        // g_theConstDB
 #include "MapPoint.h"
 #include "player.h"
 #include "Events.h"
@@ -4862,7 +4862,7 @@ void Diplomat::TargetNuclearAttack(const PLAYER_INDEX foreignerId, const bool la
 			if (closest_nuke_iter != weapon_list.end())
 			{
 				sint32 nuke_range = static_cast<sint32>
-					((*closest_nuke_iter).GetDBRec()->GetMaxMovePoints() / k_MOVE_AIR_COST) - 5;
+					((*closest_nuke_iter).GetDBRec()->GetMaxMovePoints() / g_theConstDB->Get(0)->GetMoveAirCost()) - 5;
 				close_enough = ((nuke_range * nuke_range) > closest_nuke_dist);
 			}
 

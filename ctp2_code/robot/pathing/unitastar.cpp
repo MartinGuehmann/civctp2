@@ -57,6 +57,7 @@
 
 #include "TerrainRecord.h"
 #include "UnitData.h"
+#include "ConstRecord.h"        // g_theConstDB
 
 #include "UnseenCell.h"
 #include "wonderutil.h"
@@ -154,7 +155,7 @@ bool UnitAstar::StraightLine
 float UnitAstar::ComputeValidMoveCost(const MapPoint & pos, const Cell & cell) const
 {
 	if (m_move_intersection & k_Unit_MovementType_Air_Bit) {
-		return k_MOVE_AIR_COST;
+		return static_cast<float>(g_theConstDB->Get(0)->GetMoveAirCost());
 	}
 
 	bool const is_tunnel_and_boat = g_theWorld->IsTunnel(pos) &&
@@ -528,7 +529,7 @@ bool UnitAstar::CheckMoveIntersection(const MapPoint & prev, const MapPoint & po
 {
 	if (m_move_intersection & k_Unit_MovementType_Air_Bit)
 	{
-		cost = k_MOVE_AIR_COST;
+		cost = static_cast<float>(g_theConstDB->Get(0)->GetMoveAirCost());
 		can_enter = true;
 	}
 	else if (the_pos_cell.CanEnter(m_move_intersection))
@@ -668,7 +669,7 @@ float UnitAstar::EstimateFutureCost(const MapPoint &pos, const MapPoint &dest)
 {
 	if (m_move_intersection & k_Unit_MovementType_Air_Bit)
 	{
-		return static_cast<float>(k_MOVE_AIR_COST * pos.NormalizedDistance(dest));
+		return static_cast<float>(g_theConstDB->Get(0)->GetMoveAirCost() * pos.NormalizedDistance(dest));
 	}
 
 	return Astar::EstimateFutureCost(pos, dest);

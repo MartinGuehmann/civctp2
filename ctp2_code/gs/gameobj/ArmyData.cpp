@@ -8867,7 +8867,7 @@ void ArmyData::DeductMoveCost(const MapPoint &pos)
 	{
 		if(m_array[i].GetMovementTypeAir())
 		{
-			c = k_MOVE_AIR_COST;
+			c = g_theConstDB->Get(0)->GetMoveAirCost();
 		// EMOD - this code may no longer be necessay since I
 		// think this code only gets the cost of the pos and
 		// unitdata is used for the unit deduct cost
@@ -9471,8 +9471,8 @@ void ArmyData::CalcRemainingFuel(sint32 &num_tiles_to_half, sint32 &num_tiles_to
 void ArmyData::CalcRemainingFuelTiles(sint32 &num_tiles_to_half, sint32 &num_tiles_to_empty) const
 {
 	CalcRemainingFuel(num_tiles_to_half, num_tiles_to_empty);
-	num_tiles_to_half  = static_cast<sint32>(num_tiles_to_half  / k_MOVE_AIR_COST);
-	num_tiles_to_empty = static_cast<sint32>(num_tiles_to_empty / k_MOVE_AIR_COST);
+	num_tiles_to_half  = static_cast<sint32>(num_tiles_to_half  / g_theConstDB->Get(0)->GetMoveAirCost());
+	num_tiles_to_empty = static_cast<sint32>(num_tiles_to_empty / g_theConstDB->Get(0)->GetMoveAirCost());
 }
 
 bool ArmyData::CanMove()

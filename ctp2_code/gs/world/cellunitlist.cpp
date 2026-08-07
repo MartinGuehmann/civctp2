@@ -60,6 +60,7 @@
 #include "GameEventManager.h"
 #include "TerrainRecord.h"	    // TerrainRecord
 #include "RandGen.h"            // g_rand
+#include "ConstRecord.h"        // g_theConstDB
 
 // Visibility cheat flags
 extern sint32 g_god;
@@ -746,7 +747,7 @@ bool CellUnitList::IsMovePointsEnough(const MapPoint &pos) const
 	if (GetMovementTypeAir())
 	{
 		// Prevent ships from diving under and using tunnels.
-		cost = k_MOVE_AIR_COST;
+		cost = g_theConstDB->Get(0)->GetMoveAirCost();
 	}
 	else if (g_theWorld->IsTunnel(pos) && !GetMovementTypeLand())
 	{
