@@ -5807,7 +5807,7 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 				}
 				else if(m_array[i].GetDBRec()->GetMovementTypeAir())
 				{
-					m_array[i].DeductMoveCost(k_MOVE_COMBAT_COST, out_of_fuel);
+					m_array[i].DeductMoveCost(g_theConstDB->Get(0)->GetMoveCombatCost(), out_of_fuel);
 				}
 				else
 				{
@@ -6055,7 +6055,7 @@ ORDER_RESULT ArmyData::Bombard(const MapPoint &orderPoint)
 				}
 				else if(m_array[i].GetDBRec()->GetMovementTypeAir())
 				{
-					m_array[i].DeductMoveCost(k_MOVE_COMBAT_COST, out_of_fuel);
+					m_array[i].DeductMoveCost(g_theConstDB->Get(0)->GetMoveCombatCost(), out_of_fuel);
 				}
 				else
 				{
