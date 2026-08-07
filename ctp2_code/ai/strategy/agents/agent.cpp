@@ -337,7 +337,23 @@ bool Agent::FindPathForTransportTasks(const uint32 & move_intersection, const Ma
 	double move_points;
 	m_army->MinMovementPoints(move_points);
 
-	double trans_max_r = 100.0 / move_points;
+	// Water cost needs to be scaled by how the cargo's own speed compares
+	// to the ship's, not just by the ship's speed - it is the cargo, not
+	// the ship, that walks the land legs of the route after disembarking.
+	// FindPathToPickUpCargo/FindPathToBoard route through here too, and
+	// have no cargo to ask about yet; fall back to the ship-only ratio
+	// (equivalent to assuming 100 move points of cargo) for those.
+	double trans_max_r;
+	if (m_army->HasCargo())
+	{
+		double cargo_move_points;
+		m_army->CargoMinMovementPoints(cargo_move_points);
+		trans_max_r = cargo_move_points / move_points;
+	}
+	else
+	{
+		trans_max_r = 100.0 / move_points;
+	}
 
 	if (RobotAstar2::s_aiPathing.FindPath( RobotAstar2::PATH_TYPE_TRANSPORT,
 										   m_army,

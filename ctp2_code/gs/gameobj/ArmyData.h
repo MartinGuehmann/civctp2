@@ -343,6 +343,7 @@ public:
 
     void CurMinMovementPoints(double &cur) const;
     void MinMovementPoints(double &cur) const;
+    void CargoMinMovementPoints(double &cur) const;
 
     void ThisMeansWAR(PLAYER_INDEX denfender);
 

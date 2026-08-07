@@ -5535,6 +5535,43 @@ void ArmyData::MinMovementPoints(double &cur) const
 
 //----------------------------------------------------------------------------
 //
+// Name       : ArmyData::CargoMinMovementPoints
+//
+// Description: Get the min of the m_MaxMovePoints of the cargo carried by
+//              this army's units (from their UnitRecords) and put it in
+//              double &cur. Left at its initial (very large) value if the
+//              army is not carrying any cargo.
+//
+// Parameters : -
+//
+// Globals    : -
+//
+// Returns    : -
+//
+// Remark(s)  : -
+//
+//----------------------------------------------------------------------------
+void ArmyData::CargoMinMovementPoints(double &cur) const
+{
+	cur = 10000000.0;
+
+	for(sint32 i = 0; i < m_nElements; i++)
+	{
+		const UnitDynamicArray * cargo =
+		    m_array[i].AccessData()->GetCargoList();
+
+		if (cargo)
+		{
+			for(sint32 j = 0; j < cargo->Num(); j++)
+			{
+				cur = std::min<double>(cur, cargo->Access(j).GetMaxMovePoints());
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+//
 // Name       : ArmyData::GetBombardRange
 //
 // Description: Test if this army can bombard. Fill in min_rge and max_rge.
