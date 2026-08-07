@@ -3095,7 +3095,7 @@ void UnitData::EndTurn()
 
 	if(rec->GetNoFuelThenCrash()) {
 		if(!CheckForRefuel() && !Flag(k_UDF_IN_SPACE)) {
-			m_fuel -= g_theConstDB->Get(0)->GetNonSpaceFuelCost() * sint32(m_movement_points / 100.0);
+			m_fuel -= g_theConstDB->Get(0)->GetNonSpaceFuelCost() * sint32(m_movement_points / k_MOVE_AIR_COST);
 
 			if(m_fuel <= 0) {
 				Unit me(m_id);
