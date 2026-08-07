@@ -320,6 +320,7 @@ public:
 	sint32 GetFuel() const { return m_fuel; }
 	void SetFuel(sint32 fuel);
 	bool GetUsedFuel (sint32 &fuel_remaining, sint32 &max_fuel) const;
+	double CalcFuelUpkeep() const;
 
 	bool IsVeteran() const { return Flag(k_UDF_IS_VET); };
 	void SetVeteran();

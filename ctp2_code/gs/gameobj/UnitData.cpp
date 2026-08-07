@@ -3063,6 +3063,11 @@ void UnitData::BeginTurn()
 	// End EMOD
 }
 
+double UnitData::CalcFuelUpkeep() const
+{
+	return g_theConstDB->Get(0)->GetNonSpaceFuelCost() * (m_movement_points / k_MOVE_AIR_COST);
+}
+
 void UnitData::EndTurn()
 {
 	const UnitRecord *rec = GetDBRec();
@@ -3095,7 +3100,7 @@ void UnitData::EndTurn()
 
 	if(rec->GetNoFuelThenCrash()) {
 		if(!CheckForRefuel() && !Flag(k_UDF_IN_SPACE)) {
-			m_fuel -= g_theConstDB->Get(0)->GetNonSpaceFuelCost() * sint32(m_movement_points / k_MOVE_AIR_COST);
+			m_fuel -= static_cast<sint32>(CalcFuelUpkeep());
 
 			if(m_fuel <= 0) {
 				Unit me(m_id);

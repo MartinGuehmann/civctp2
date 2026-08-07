@@ -99,7 +99,6 @@
 #include "ctpai.h"
 #include "gamefile.h"
 #include "TerrainRecord.h"
-#include "MoveFlags.h"          // k_MOVE_AIR_COST
 #include "SlicObject.h"
 #include "profileDB.h"
 #include "GameSettings.h"
@@ -2369,7 +2368,7 @@ CityData *Unit::GetCityData() const
 //----------------------------------------------------------------------------
 bool Unit::NeedsRefueling() const
 {
-	return GetFuel() <= g_theConstDB->Get(0)->GetNonSpaceFuelCost() * (GetMovementPoints() / k_MOVE_AIR_COST);
+	return GetFuel() <= GetData()->CalcFuelUpkeep();
 }
 
 //----------------------------------------------------------------------------
