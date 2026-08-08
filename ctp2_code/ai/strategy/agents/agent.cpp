@@ -58,6 +58,7 @@
 #include "GameEventUser.h"
 #include "CTPDatabase.h"
 #include "OrderRecord.h"    // g_theOrderDB
+#include "ConstRecord.h"    // g_theConstDB
 #include "GoalRecord.h"
 #include "UnitRecord.h"
 #include "mapanalysis.h"
@@ -352,7 +353,7 @@ bool Agent::FindPathForTransportTasks(const uint32 & move_intersection, const Ma
 	}
 	else
 	{
-		trans_max_r = 100.0 / move_points;
+		trans_max_r = g_theConstDB->Get(0)->GetDefaultCargoMovePoints() / move_points;
 	}
 
 	if (RobotAstar2::s_aiPathing.FindPath( RobotAstar2::PATH_TYPE_TRANSPORT,
@@ -474,15 +475,15 @@ double Agent::GetRoundsPrecise(const MapPoint & pos, sint32 & cells) const
 		///start and destination mappoints. - Calvitix
 	//	Cell *          myCell      = g_theWorld->GetCell(pos);
 	//	Cell *          otherCell   = g_theWorld->GetCell(Get_Pos());
-		double const    movement    = 100.0;
+		double const    movement    = g_theConstDB->Get(0)->GetBeeLineMoveCostPerTile();
 		// Using just the two endpoint cells' terrain cost (commented out
 		// below) is not accurate enough, since it says nothing about the
 		// terrain in between them. Averaging every tile along the way
 		// would fix that, but is too slow to do here.
 		//  std::min(myCell->GetMoveCost(), otherCell->GetMoveCost());
 
-		//ToDo : instead of 100.0, compute the min of terrain costs (with implementation)
-		move_point_cost = movement * sqrt(static_cast<double>(cells)); //original : 100.0
+		//ToDo : instead of a flat BeeLineMoveCostPerTile, compute the min of terrain costs (with implementation)
+		move_point_cost = movement * sqrt(static_cast<double>(cells));
 	}
 
 	m_army->MinMovementPoints(min_move);
