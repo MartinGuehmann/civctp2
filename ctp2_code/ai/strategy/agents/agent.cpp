@@ -475,9 +475,10 @@ double Agent::GetRoundsPrecise(const MapPoint & pos, sint32 & cells) const
 	//	Cell *          myCell      = g_theWorld->GetCell(pos);
 	//	Cell *          otherCell   = g_theWorld->GetCell(Get_Pos());
 		double const    movement    = 100.0;
-		// This does not do the trick, better avaerage
-		// over all tiles from pos to target, unfortunately this
-		// is slow.
+		// Using just the two endpoint cells' terrain cost (commented out
+		// below) is not accurate enough, since it says nothing about the
+		// terrain in between them. Averaging every tile along the way
+		// would fix that, but is too slow to do here.
 		//  std::min(myCell->GetMoveCost(), otherCell->GetMoveCost());
 
 		//ToDo : instead of 100.0, compute the min of terrain costs (with implementation)
