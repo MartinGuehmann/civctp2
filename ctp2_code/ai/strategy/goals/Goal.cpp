@@ -4274,6 +4274,16 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 #if defined(_DEBUG) || defined(USE_LOGGING)
 namespace
 {
+	// SetNeedUserInput only blocks *future* scheduler ticks - it does not
+	// unwind the call stack currently inside Scheduler::Match_Resources, so
+	// a second, unrelated army can still fail this same check later in the
+	// same pass, before the first dialog has been answered. MessageBoxDialog
+	// has no protection against a second Query() colliding with a still-open
+	// one (see GotoGoalTaskSolution's caller), so track that ourselves and
+	// just skip the popup - the log line and Assert still fire either way -
+	// until the pending one is resolved.
+	bool s_gotoGoalTaskSolutionDialogPending = false;
+
 	struct GotoGoalTaskSolution_InspectContext
 	{
 		GotoGoalTaskSolution_InspectContext(PLAYER_INDEX p, const Army & a)
@@ -4298,6 +4308,8 @@ namespace
 	{
 		GotoGoalTaskSolution_InspectContext * context =
 		    static_cast<GotoGoalTaskSolution_InspectContext *>(userData.m_voidPtr);
+
+		s_gotoGoalTaskSolutionDialogPending = false;
 
 		if (response)
 		{
@@ -4426,12 +4438,13 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 		Assert(found); // Problem
 
 #if defined(_DEBUG) || defined(USE_LOGGING)
-		if (!found)
+		if (!found && !s_gotoGoalTaskSolutionDialogPending)
 		{
 			// Halt immediately so the game doesn't keep running out from
 			// under the message box while it sits unanswered. Screen
 			// switch/selection/centering stay deferred to "Inspect"; see
 			// GotoGoalTaskSolution_InspectOrContinue.
+			s_gotoGoalTaskSolutionDialogPending = true;
 			g_gevManager->SetNeedUserInput();
 			MessageBoxDialog::Query
 			(
