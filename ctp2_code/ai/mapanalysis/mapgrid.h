@@ -38,6 +38,7 @@
 #include <sstream>
 
 #include "c3debugstl.h"
+#include "c3debug.h"
 
 #include "MapPoint.h"
 
@@ -103,6 +104,14 @@ public:
 		// changes nothing else.
 		size_t const newSize =
 		    static_cast<size_t>(m_xGridSize) * static_cast<size_t>(m_yGridSize);
+
+		if (newSize == 0)
+		{
+			DPRINTF(k_DBG_AI,
+			    ("MapGrid::Resize: computed a zero-size grid - xSize=%d ySize=%d resolution=%d xGridSize=%d yGridSize=%d oldValuesSize=%zu\n",
+			     xSize, ySize, resolution, m_xGridSize, m_yGridSize, m_values.size()));
+		}
+
 		if (newSize != m_values.size())
 		{
 			m_values.resize(newSize);
