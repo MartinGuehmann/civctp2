@@ -2107,7 +2107,7 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-ORDER_RESULT ArmyData::InciteRevolution(const MapPoint &point)
+ORDER_RESULT ArmyData::InciteRevolution(const MapPoint &point, sint32 baseCharge)
 {
 	Unit c = GetAdjacentCity(point);
 	if(c.m_id == 0)
@@ -2119,7 +2119,12 @@ ORDER_RESULT ArmyData::InciteRevolution(const MapPoint &point)
 	sint32 cost;
 	GetInciteRevolutionCost(point, cost);
 
-	if(g_player[m_owner]->m_gold->GetLevel() < cost)
+	// ExecuteSpecialOrder separately deducts baseCharge (the order's flat
+	// Orders.txt Gold cost) once this call returns anything but ILLEGAL, on
+	// top of the dynamic cost queued below - so the affordability check has
+	// to cover both, or the second, generic deduction can find the player
+	// short and trip Gold::SubGold's assert.
+	if(g_player[m_owner]->m_gold->GetLevel() < cost + baseCharge)
 	{
 		return ORDER_RESULT_ILLEGAL;
 	}
@@ -3639,7 +3644,7 @@ bool ArmyData::CanInciteUprising(sint32 &uindex) const
 	return false;
 }
 
-ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
+ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point, sint32 baseCharge)
 {
 	SlicObject *so;
 	sint32 uindex;
@@ -3693,7 +3698,12 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 
 	DPRINTF(k_DBG_GAMESTATE, ("Cost to incite uprising: %ld\n", cost));
 
-	if(g_player[m_owner]->m_gold->GetLevel() < cost)
+	// ExecuteSpecialOrder separately deducts baseCharge (the order's flat
+	// Orders.txt Gold cost) once this call returns anything but ILLEGAL, on
+	// top of the dynamic cost queued below - so the affordability check has
+	// to cover both, or the second, generic deduction can find the player
+	// short and trip Gold::SubGold's assert.
+	if(g_player[m_owner]->m_gold->GetLevel() < cost + baseCharge)
 		return ORDER_RESULT_FAILED;
 
 	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
@@ -4621,16 +4631,25 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 	                       GEA_City, c,
 	                       GEA_End);
 
+	// The city owner was never checked for affordability before being
+	// charged here. Rather than blocking the sale outright when they can't
+	// pay the full amount, clamp it to whatever gold they actually have -
+	// same as Gold::SubGold's own fallback, but without tripping its
+	// assert - and only credit the acting player with what was actually
+	// collected.
 	if(c.IsConvertedTo() < 0)
 	{
+		sint32 const gold = std::min(g_theConstDB->Get(0)->GetUnconvertedIndulgenceGold(),
+		                              g_player[c.GetOwner()]->m_gold->GetLevel());
+
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 		                       GEA_Player, c.GetOwner(),
-		                       GEA_Int, g_theConstDB->Get(0)->GetUnconvertedIndulgenceGold(),
+		                       GEA_Int, gold,
 		                       GEA_End);
 
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
 		                       GEA_Player, m_owner,
-		                       GEA_Int, g_theConstDB->Get(0)->GetUnconvertedIndulgenceGold(),
+		                       GEA_Int, gold,
 		                       GEA_End);
 
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
@@ -4642,13 +4661,16 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 	}
 	else if(c.IsConvertedTo() == m_array[uindex].GetOwner())
 	{
+		sint32 const gold = std::min(g_theConstDB->Get(0)->GetConvertedIndulgenceGold(),
+		                              g_player[c.GetOwner()]->m_gold->GetLevel());
+
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 		                       GEA_Player, c.GetOwner(),
-		                       GEA_Int, g_theConstDB->Get(0)->GetConvertedIndulgenceGold(),
+		                       GEA_Int, gold,
 		                       GEA_End);
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
 		                       GEA_Player, m_owner,
-		                       GEA_Int, g_theConstDB->Get(0)->GetConvertedIndulgenceGold(),
+		                       GEA_Int, gold,
 		                       GEA_End);
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
 		                       GEA_City, c.m_id,
@@ -4659,13 +4681,16 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 	}
 	else
 	{
+		sint32 const gold = std::min(g_theConstDB->Get(0)->GetOtherFaithIndulgenceGold(),
+		                              g_player[c.GetOwner()]->m_gold->GetLevel());
+
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 		                       GEA_Player, c.GetOwner(),
-		                       GEA_Int, g_theConstDB->Get(0)->GetOtherFaithIndulgenceGold(),
+		                       GEA_Int, gold,
 		                       GEA_End);
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
 		                       GEA_Player, m_owner,
-		                       GEA_Int, g_theConstDB->Get(0)->GetOtherFaithIndulgenceGold(),
+		                       GEA_Int, gold,
 		                       GEA_End);
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
 		                       GEA_City, c.m_id,
@@ -9831,7 +9856,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			result = UndergroundRailway(order->m_point);
 			break;
 		case UNIT_ORDER_INCITE_UPRISING:
-			result = InciteUprising(order->m_point);
+			result = InciteUprising(order->m_point, order_rec ? order_rec->GetGold() : 0);
 			break;
 		case UNIT_ORDER_BIO_INFECT:
 			result = BioInfect(order->m_point);
@@ -9868,7 +9893,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			result = InterceptTrade();
 			break;
 		case UNIT_ORDER_INCITE_REVOLUTION:
-			result = InciteRevolution(order->m_point);
+			result = InciteRevolution(order->m_point, order_rec ? order_rec->GetGold() : 0);
 			break;
 		case UNIT_ORDER_PILLAGE_UNCONDITIONALLY:
 			result = Pillage(false);

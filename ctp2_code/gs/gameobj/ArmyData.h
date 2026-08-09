@@ -214,7 +214,7 @@ public:
     ORDER_RESULT InvestigateCity(const MapPoint &point);
     ORDER_RESULT NullifyWalls(const MapPoint &point);
     ORDER_RESULT StealTechnology(const MapPoint &point);
-    ORDER_RESULT InciteRevolution(const MapPoint &point);
+    ORDER_RESULT InciteRevolution(const MapPoint &point, sint32 baseCharge);
     ORDER_RESULT AssassinateRuler(const MapPoint &point);
     Unit GetAdjacentCity(const MapPoint &point) const;
     sint32 GetCost();
@@ -260,7 +260,7 @@ public:
     bool CanUndergroundRailway(double &success, double &death) const;
     ORDER_RESULT UndergroundRailway(const MapPoint &point);
     bool CanInciteUprising(sint32 &uindex) const;
-    ORDER_RESULT InciteUprising(const MapPoint &point);
+    ORDER_RESULT InciteUprising(const MapPoint &point, sint32 baseCharge);
 
     bool CanEstablishEmbassy(sint32 &uindex) const;
     bool CanEstablishEmbassy() const;
