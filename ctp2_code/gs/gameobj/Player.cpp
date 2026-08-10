@@ -3174,6 +3174,12 @@ void Player::RemoveTradeRoute(TradeRoute route, CAUSE_KILL_TRADE_ROUTE cause)
 		RemoveUsedTransportPoints(route.GetCost()); // brings back used caravans/trade-units completely
 
 		if(cause != CAUSE_KILL_TRADE_ROUTE_NO_INITIAL_CARAVANS) {
+			if (m_traderUnits->Num() == 0)
+			{
+				DPRINTF(k_DBG_GAMESTATE,
+				    ("Player::RemoveTradeRoute: no trader units left to remove - player %d, cause %d, cost %d, source 0x%lx, destination 0x%lx\n",
+				     m_owner, cause, route.GetCost(), route.GetSource().m_id, route.GetDestination().m_id));
+			}
 			KillATrader(); // removes a caravan/trade-unit
 		}
 
