@@ -1581,6 +1581,12 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 						double prev_city_defense = city->GetCityData()->GetCurrentGarrisonStrength();
 						city->GetCityData()->SetCurrentGarrisonStrength( prev_city_defense + defense_strength );
 						sint8 prev_garrison = city->GetCityData()->GetCurrentGarrison();
+						if (defense_count > prev_garrison)
+						{
+							AI_DPRINTF(k_DBG_AI, playerId, -1, move_army.m_id,
+							    ("\tMakeRoomForNewUnits: defense_count (%d) > prev_garrison (%d) - city %s at (%d,%d), garrison.Num()=%d, move_army.Num()=%d\n",
+							     defense_count, prev_garrison, city.GetName(), pos.x, pos.y, garrison.Num(), move_army->Num()));
+						}
 						city->GetCityData()->SetCurrentGarrison( prev_garrison - defense_count );
 
 						break;
