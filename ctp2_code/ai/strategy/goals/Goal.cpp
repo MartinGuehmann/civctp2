@@ -1475,6 +1475,12 @@ const MapPoint & Goal::Get_Target_Pos() const
 		}
 		else
 		{
+			// This goal should have been removed once its target army
+			// died, well before anything tries to read a position from it
+			// here - check the log for this army id (e.g. a nearby
+			// "clearing orders" line) to see what actually happened to it.
+			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, m_target_army.m_id,
+			    ("\tGoal::Get_Target_Pos: target army 0x%lx is no longer valid\n", m_target_army.m_id));
 			pos.x = -1;
 			pos.y = -1;
 		}
@@ -1487,6 +1493,9 @@ const MapPoint & Goal::Get_Target_Pos() const
 		}
 		else
 		{
+			// Same reasoning as the target-army case above.
+			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, m_target_city.m_id,
+			    ("\tGoal::Get_Target_Pos: target city 0x%lx is no longer valid\n", m_target_city.m_id));
 			pos.x = -1;
 			pos.y = -1;
 		}
