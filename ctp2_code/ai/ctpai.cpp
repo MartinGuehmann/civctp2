@@ -2146,6 +2146,14 @@ void CtpAi::RefuelAirplane(const Army & army)
 		new_path,
 		total_cost))
 	{
+		Unit refuelCity = g_theWorld->GetCity(refueling_pos);
+		AI_DPRINTF(k_DBG_AI, army->GetOwner(), -1, army.m_id,
+		    ("\tRefuelAirplane: no path to refueling_pos (%d,%d) - start (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d, cell units there=%d, isCity=%d, cityOwner=%d\n",
+		     refueling_pos.x, refueling_pos.y, start_pos.x, start_pos.y, refueling_distance,
+		     num_tiles_to_half, num_tiles_to_empty,
+		     g_theWorld->GetCell(refueling_pos)->GetNumUnits(),
+		     refuelCity.IsValid(),
+		     refuelCity.IsValid() ? refuelCity.GetOwner() : -1));
 
 		bool NO_REFUEL_PATH = false;
 		Assert(NO_REFUEL_PATH);
