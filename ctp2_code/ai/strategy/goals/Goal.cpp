@@ -345,6 +345,19 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 	agent_iter = m_agents.erase(agent_iter);
 
 	// That is starange
+	if (m_current_attacking_strength.Get_Unit_Count() < static_cast<sint8>(Get_Agent_Count()))
+	{
+		AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, agent_ptr->Get_Army().m_id,
+		    ("\tRollback_Agent: Get_Unit_Count() < Get_Agent_Count() - army 0x%lx, owner %d, Num() %d, HasCargo %d, Get_Is_Dead %d, Get_Agent_Count() %zu\n",
+		     agent_ptr->Get_Army().m_id,
+		     agent_ptr->Get_Army().IsValid() ? agent_ptr->Get_Army()->GetOwner() : -1,
+		     agent_ptr->Get_Army().IsValid() ? agent_ptr->Get_Army()->Num() : -1,
+		     agent_ptr->Get_Army().IsValid() ? agent_ptr->Get_Army()->HasCargo() : -1,
+		     agent_ptr->Get_Is_Dead(),
+		     Get_Agent_Count()));
+		agent_ptr->Get_Squad_Strength().Log_Debug_Info(k_DBG_SCHEDULER, m_playerId, m_goal_type, "agent_ptr just-removed strength");
+		m_current_attacking_strength.Log_Debug_Info(k_DBG_SCHEDULER, m_playerId, m_goal_type, "current_attacking_strength after remove");
+	}
 	Assert(m_current_attacking_strength.Get_Unit_Count() >= static_cast<sint8>(Get_Agent_Count()));
 
 	agent_ptr->Set_Goal(NULL);
@@ -1043,6 +1056,10 @@ void Goal::Rollback_All_Agents()
 	{
 	}
 
+	if (!m_current_attacking_strength.NothingNeeded())
+	{
+		m_current_attacking_strength.Log_Debug_Info(k_DBG_SCHEDULER, m_playerId, m_goal_type, "current_attacking_strength after Rollback_All_Agents");
+	}
 	Assert(m_current_attacking_strength.NothingNeeded());
 }
 
