@@ -210,6 +210,15 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 	&& !HasLeftMap()
 	){
 		r = g_theWorld->RemoveUnitReference(pos, *this);
+		if (!r)
+		{
+			Cell * cell = g_theWorld->AccessCell(pos);
+			DPRINTF(k_DBG_GAMESTATE,
+			    ("Unit::RemoveAllReferences: RemoveUnitReference failed - unit 0x%lx owner %d cause %d killedBy %d pos (%d,%d), cell has %d units, cell city id 0x%lx\n",
+			     m_id, owner, cause, killedBy, pos.x, pos.y,
+			     cell ? cell->GetNumUnits() : -1,
+			     cell ? cell->GetCity().m_id : 0));
+		}
 		Assert(r);
 	}
 
