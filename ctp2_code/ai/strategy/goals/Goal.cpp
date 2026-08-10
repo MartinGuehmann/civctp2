@@ -4293,17 +4293,19 @@ namespace
 {
 	// SetNeedUserInput only blocks *future* scheduler ticks - it does not
 	// unwind the call stack currently inside Scheduler::Match_Resources, so
-	// a second, unrelated army can still fail this same check later in the
-	// same pass, before the first dialog has been answered. MessageBoxDialog
-	// has no protection against a second Query() colliding with a still-open
-	// one (see GotoGoalTaskSolution's caller), so track that ourselves and
-	// just skip the popup - the log line and Assert still fire either way -
-	// until the pending one is resolved.
-	bool s_gotoGoalTaskSolutionDialogPending = false;
+	// a second, unrelated army can still fail a path-finding check later in
+	// the same pass, before the first dialog has been answered.
+	// MessageBoxDialog has no protection against a second Query() colliding
+	// with a still-open one, so track that ourselves and just skip the
+	// popup - the log line and Assert still fire either way - until the
+	// pending one is resolved. Shared across every caller of
+	// PathFailure_InspectOrContinue below (GotoGoalTaskSolution,
+	// MoveToTarget, ...), so unrelated failures can't collide either.
+	bool s_pathFailureDialogPending = false;
 
-	struct GotoGoalTaskSolution_InspectContext
+	struct PathFailure_InspectContext
 	{
-		GotoGoalTaskSolution_InspectContext(PLAYER_INDEX p, const Army & a)
+		PathFailure_InspectContext(PLAYER_INDEX p, const Army & a)
 		: playerId(p), army(a) {}
 
 		PLAYER_INDEX playerId;
@@ -4321,12 +4323,12 @@ namespace
 	// the map on it, so it can be looked at freely. Stays paused.
 	// "Continue" (right button, response == false): resume immediately,
 	// no screen changes.
-	void GotoGoalTaskSolution_InspectOrContinue(bool response, Cookie userData)
+	void PathFailure_InspectOrContinue(bool response, Cookie userData)
 	{
-		GotoGoalTaskSolution_InspectContext * context =
-		    static_cast<GotoGoalTaskSolution_InspectContext *>(userData.m_voidPtr);
+		PathFailure_InspectContext * context =
+		    static_cast<PathFailure_InspectContext *>(userData.m_voidPtr);
 
-		s_gotoGoalTaskSolutionDialogPending = false;
+		s_pathFailureDialogPending = false;
 
 		if (response)
 		{
@@ -4455,20 +4457,20 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 		Assert(found); // Problem
 
 #if defined(_DEBUG) || defined(USE_LOGGING)
-		if (!found && !s_gotoGoalTaskSolutionDialogPending)
+		if (!found && !s_pathFailureDialogPending)
 		{
 			// Halt immediately so the game doesn't keep running out from
 			// under the message box while it sits unanswered. Screen
 			// switch/selection/centering stay deferred to "Inspect"; see
-			// GotoGoalTaskSolution_InspectOrContinue.
-			s_gotoGoalTaskSolutionDialogPending = true;
+			// PathFailure_InspectOrContinue.
+			s_pathFailureDialogPending = true;
 			g_gevManager->SetNeedUserInput();
 			MessageBoxDialog::Query
 			(
 			    "GotoGoalTaskSolution: FindPathToGoalWhileLoaded failed - see log for details.",
 			    "GotoGoalTaskSolutionFindPathToGoalWhileLoadedFailed",
-			    &GotoGoalTaskSolution_InspectOrContinue,
-			    new GotoGoalTaskSolution_InspectContext(m_playerId, the_army->Get_Army()),
+			    &PathFailure_InspectOrContinue,
+			    new PathFailure_InspectContext(m_playerId, the_army->Get_Army()),
 			    "str_ldl_MB_Inspect",
 			    "str_ldl_MB_Continue"
 			);
@@ -4772,6 +4774,26 @@ MapPoint Goal::MoveToTarget(Agent_ptr rallyAgent)
 	bool found = Agent::FindPath(rallyAgent->Get_Army(), Get_Target_Pos(rallyAgent->Get_Army()), check_dest, found_path);
 
 	Assert(found);
+
+#if defined(_DEBUG) || defined(USE_LOGGING)
+	if (!found && !s_pathFailureDialogPending)
+	{
+		// Same reasoning as GotoGoalTaskSolution's identical block above -
+		// halt immediately and offer to inspect the stuck army/situation
+		// before the moment passes.
+		s_pathFailureDialogPending = true;
+		g_gevManager->SetNeedUserInput();
+		MessageBoxDialog::Query
+		(
+		    "MoveToTarget: FindPath failed - see log for details.",
+		    "MoveToTargetFindPathFailed",
+		    &PathFailure_InspectOrContinue,
+		    new PathFailure_InspectContext(m_playerId, rallyAgent->Get_Army()),
+		    "str_ldl_MB_Inspect",
+		    "str_ldl_MB_Continue"
+		);
+	}
+#endif
 
 	if(!found)
 	{
