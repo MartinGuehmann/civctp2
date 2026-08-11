@@ -555,6 +555,15 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 
 	scheduler.Reset_Agent_Execution();
 
+	// Refresh agent strengths and each goal's running Get_Squad_Strength()
+	// total before Process_Goal_Changes (which can roll back goals) runs -
+	// otherwise it uses cached strengths left over from the end of last
+	// turn's last CtpAi_ProcessMatchesEvent cycle, which can be stale if an
+	// agent's army composition changed since then (e.g. via grouping),
+	// tripping Rollback_Agent/Rollback_All_Agents's strength invariants.
+	scheduler.Compute_Agent_Strength();
+	scheduler.Recompute_Goal_Strength();
+
 	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
 
 	t1 = GetTickCount();
