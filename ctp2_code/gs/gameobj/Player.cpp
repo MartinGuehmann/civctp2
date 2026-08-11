@@ -1276,6 +1276,9 @@ bool Player::RemoveUnitReference(const Unit &kill_me, const CAUSE_REMOVE_ARMY ca
 	{
 		RemoveTransportPoints(static_cast<sint32>(kill_me.GetDBRec()->GetMaxMovePoints()));
 		r = true;
+		DPRINTF(k_DBG_GAMESTATE,
+			("Player::RemoveUnitReference: trader unit 0x%lx removed - player %d, cause %d, killedBy %d, remaining trader units=%d\n",
+			 kill_me.m_id, m_owner, cause, killedBy, m_traderUnits->Num()));
 	}
 
 	if (*m_capitol == kill_me)
