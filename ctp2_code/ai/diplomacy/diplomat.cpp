@@ -1758,19 +1758,19 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 {
 	Player * player_ptr = g_player[m_playerId];
 	Player * foreigner_ptr = g_player[foreignerId];
-	bool NO_CONTACT_DECLARE_WAR = false;
 
 	if (foreignerId != 0)
 	{
-		if (!player_ptr || !player_ptr->HasContactWith(foreignerId))
+		// Stealth actions (pillage, nuking, park creation, ...) can trigger a
+		// war-declaring violation before the two sides have ever made
+		// contact (the victim only knows the perpetrator's identity, not
+		// that they've met them) - there is nothing to declare war on yet.
+		if (!player_ptr || !player_ptr->HasContactWith(foreignerId) ||
+		    !foreigner_ptr || !foreigner_ptr->HasContactWith(m_playerId))
 		{
-			Assert(NO_CONTACT_DECLARE_WAR)
-			return;
-		}
-
-		if (!foreigner_ptr || !foreigner_ptr->HasContactWith(m_playerId))
-		{
-			Assert(NO_CONTACT_DECLARE_WAR)
+			DPRINTF(k_DBG_GAMESTATE,
+				("Diplomat::DeclareWar: no contact between player %d and %d - skipping war declaration\n",
+				 m_playerId, foreignerId));
 			return;
 		}
 	}
