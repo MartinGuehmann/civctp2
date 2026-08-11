@@ -112,6 +112,17 @@ namespace
 
 void Unit::KillUnit(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX killedBy)
 {
+	if (!IsValid())
+	{
+		// Can happen when two separate attacks on the same unit each queue a
+		// GEV_KillUnit before the first one is processed - the unit is already
+		// gone by the time the second kill event fires.
+		DPRINTF(k_DBG_GAMESTATE,
+			("Unit::KillUnit: unit 0x%lx already removed - skipping redundant kill, cause %d killedBy %d\n",
+			 m_id, cause, killedBy));
+		return;
+	}
+
 	sint32  pollution;
 	if(GetDBRec()->GetDeathPollution(pollution))
 	{
