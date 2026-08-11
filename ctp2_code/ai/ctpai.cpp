@@ -1583,9 +1583,9 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 						sint8 prev_garrison = city->GetCityData()->GetCurrentGarrison();
 						if (defense_count > prev_garrison)
 						{
-							AI_DPRINTF(k_DBG_AI, playerId, -1, move_army.m_id,
-							    ("\tMakeRoomForNewUnits: defense_count (%d) > prev_garrison (%d) - city %s at (%d,%d), garrison.Num()=%d, move_army.Num()=%d\n",
-							     defense_count, prev_garrison, city.GetName(), pos.x, pos.y, garrison.Num(), move_army->Num()));
+							DPRINTF(k_DBG_AI,
+							    ("\tMakeRoomForNewUnits: defense_count (%d) > prev_garrison (%d) - player %d, army 0x%lx, city %s at (%d,%d), garrison.Num()=%d, move_army.Num()=%d\n",
+							     defense_count, prev_garrison, playerId, move_army.m_id, city.GetName(), pos.x, pos.y, garrison.Num(), move_army->Num()));
 						}
 						city->GetCityData()->SetCurrentGarrison( prev_garrison - defense_count );
 
@@ -2147,9 +2147,9 @@ void CtpAi::RefuelAirplane(const Army & army)
 		total_cost))
 	{
 		Unit refuelCity = g_theWorld->GetCity(refueling_pos);
-		AI_DPRINTF(k_DBG_AI, army->GetOwner(), -1, army.m_id,
-		    ("\tRefuelAirplane: no path to refueling_pos (%d,%d) - start (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d, cell units there=%d, isCity=%d, cityOwner=%d\n",
-		     refueling_pos.x, refueling_pos.y, start_pos.x, start_pos.y, refueling_distance,
+		DPRINTF(k_DBG_AI,
+		    ("\tRefuelAirplane: no path to refueling_pos (%d,%d) - player %d, army 0x%lx, start (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d, cell units there=%d, isCity=%d, cityOwner=%d\n",
+		     refueling_pos.x, refueling_pos.y, army->GetOwner(), army.m_id, start_pos.x, start_pos.y, refueling_distance,
 		     num_tiles_to_half, num_tiles_to_empty,
 		     g_theWorld->GetCell(refueling_pos)->GetNumUnits(),
 		     refuelCity.IsValid(),

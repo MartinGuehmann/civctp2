@@ -347,16 +347,17 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 	// That is starange
 	if (m_current_attacking_strength.Get_Unit_Count() < static_cast<sint8>(Get_Agent_Count()))
 	{
-		AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, agent_ptr->Get_Army().m_id,
-		    ("\tRollback_Agent: Get_Unit_Count() < Get_Agent_Count() - army 0x%lx, owner %d, Num() %d, HasCargo %d, Get_Is_Dead %d, Get_Agent_Count() %zu\n",
+		DPRINTF(k_DBG_SCHEDULER,
+		    ("\tRollback_Agent: Get_Unit_Count() < Get_Agent_Count() - player %d, goal_type %d, army 0x%lx, owner %d, Num() %d, HasCargo %d, Get_Is_Dead %d, Get_Agent_Count() %zu\n",
+		     m_playerId, m_goal_type,
 		     agent_ptr->Get_Army().m_id,
 		     agent_ptr->Get_Army().IsValid() ? agent_ptr->Get_Army()->GetOwner() : -1,
 		     agent_ptr->Get_Army().IsValid() ? agent_ptr->Get_Army()->Num() : -1,
 		     agent_ptr->Get_Army().IsValid() ? agent_ptr->Get_Army()->HasCargo() : -1,
 		     agent_ptr->Get_Is_Dead(),
 		     Get_Agent_Count()));
-		agent_ptr->Get_Squad_Strength().Log_Debug_Info(k_DBG_SCHEDULER, m_playerId, m_goal_type, "agent_ptr just-removed strength");
-		m_current_attacking_strength.Log_Debug_Info(k_DBG_SCHEDULER, m_playerId, m_goal_type, "current_attacking_strength after remove");
+		agent_ptr->Get_Squad_Strength().Log_Debug_Info_Unconditional(k_DBG_SCHEDULER, "agent_ptr just-removed strength");
+		m_current_attacking_strength.Log_Debug_Info_Unconditional(k_DBG_SCHEDULER, "current_attacking_strength after remove");
 	}
 	Assert(m_current_attacking_strength.Get_Unit_Count() >= static_cast<sint8>(Get_Agent_Count()));
 
@@ -1058,7 +1059,8 @@ void Goal::Rollback_All_Agents()
 
 	if (!m_current_attacking_strength.NothingNeeded())
 	{
-		m_current_attacking_strength.Log_Debug_Info(k_DBG_SCHEDULER, m_playerId, m_goal_type, "current_attacking_strength after Rollback_All_Agents");
+		DPRINTF(k_DBG_SCHEDULER, ("\tRollback_All_Agents: !NothingNeeded() - player %d, goal_type %d\n", m_playerId, m_goal_type));
+		m_current_attacking_strength.Log_Debug_Info_Unconditional(k_DBG_SCHEDULER, "current_attacking_strength after Rollback_All_Agents");
 	}
 	Assert(m_current_attacking_strength.NothingNeeded());
 }
@@ -1479,8 +1481,9 @@ const MapPoint & Goal::Get_Target_Pos() const
 			// died, well before anything tries to read a position from it
 			// here - check the log for this army id (e.g. a nearby
 			// "clearing orders" line) to see what actually happened to it.
-			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, m_target_army.m_id,
-			    ("\tGoal::Get_Target_Pos: target army 0x%lx is no longer valid\n", m_target_army.m_id));
+			DPRINTF(k_DBG_SCHEDULER,
+			    ("\tGoal::Get_Target_Pos: target army 0x%lx is no longer valid - player %d, goal_type %d\n",
+			     m_target_army.m_id, m_playerId, m_goal_type));
 			pos.x = -1;
 			pos.y = -1;
 		}
@@ -1494,8 +1497,9 @@ const MapPoint & Goal::Get_Target_Pos() const
 		else
 		{
 			// Same reasoning as the target-army case above.
-			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, m_target_city.m_id,
-			    ("\tGoal::Get_Target_Pos: target city 0x%lx is no longer valid\n", m_target_city.m_id));
+			DPRINTF(k_DBG_SCHEDULER,
+			    ("\tGoal::Get_Target_Pos: target city 0x%lx is no longer valid - player %d, goal_type %d\n",
+			     m_target_city.m_id, m_playerId, m_goal_type));
 			pos.x = -1;
 			pos.y = -1;
 		}
