@@ -2082,7 +2082,7 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 
 	Unit city;
 	double distance;
-	if (player->GetNearestCity(start_pos, city, distance, false, -1, true))
+	if (player->GetNearestCity(start_pos, city, distance, false, -1, true, army->Num()))
 	{
 		refueling_distance = static_cast<sint32>(distance);
 		refueling_pos = city.RetPos();

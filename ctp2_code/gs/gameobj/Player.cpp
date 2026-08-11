@@ -2725,7 +2725,8 @@ void Player::DelTailPathOrder(sint32 index)
 }
 
 bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
-							  double &distance, bool butNotThisOne, const sint32 continent, bool mustHaveRoom)
+							  double &distance, bool butNotThisOne, const sint32 continent, bool mustHaveRoom,
+							  sint32 unitsNeeded)
 {
 	sint32 j, n;
 	MapPoint cpos, diff;
@@ -2742,7 +2743,7 @@ bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
 	         ||
 	            (
 	                 mustHaveRoom
-	              && g_theWorld->GetCell(pos)->GetNumUnits() < k_MAX_ARMY_SIZE
+	              && (g_theWorld->GetCell(pos)->GetNumUnits() + unitsNeeded) <= k_MAX_ARMY_SIZE
 	            )
 	       )
 	  )
@@ -2765,7 +2766,7 @@ bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
 		if(cpos == pos && butNotThisOne)
 			continue;
 
-		if(mustHaveRoom && g_theWorld->GetCell(cpos)->GetNumUnits() == k_MAX_ARMY_SIZE)
+		if(mustHaveRoom && (g_theWorld->GetCell(cpos)->GetNumUnits() + unitsNeeded) > k_MAX_ARMY_SIZE)
 			continue;
 
 		if(continent != -1)
