@@ -114,9 +114,15 @@ void Unit::KillUnit(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX killedBy)
 {
 	if (!IsValid())
 	{
-		// Can happen when two separate attacks on the same unit each queue a
-		// GEV_KillUnit before the first one is processed - the unit is already
-		// gone by the time the second kill event fires.
+		// A double kill was possible when ArmyData::Fight's defenderSucks
+		// path queued GEV_KillUnit for every unit in a raw, unfiltered cell
+		// snapshot, including ones another, still-pending battle had
+		// already zeroed the HP of - fixed at the source (ArmyData.cpp).
+		// Getting here now indicates a real, still-unidentified double-kill
+		// path, not an accepted case - kept as a graceful (non-crashing)
+		// backstop, but should not actually happen any more.
+		bool DOUBLE_KILL_UNIT = false;
+		Assert(DOUBLE_KILL_UNIT);
 		DPRINTF(k_DBG_GAMESTATE,
 			("Unit::KillUnit: unit 0x%lx already removed - skipping redundant kill, cause %d killedBy %d\n",
 			 m_id, cause, killedBy));

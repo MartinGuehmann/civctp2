@@ -9145,6 +9145,16 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 			g_director->AddAttack(ta, td);
 			for(i = 0; i < defender.Num(); i++) // insert unit kill event such that it is exectued after BattleAftermath event
 			{
+				// defender was snapshotted from the cell's raw unit list
+				// (Cell::GetArmy), which is not pruned until a unit's own
+				// deferred GEV_KillUnit has processed - a still-pending
+				// kill from an earlier, paused battle against the same
+				// stack can leave an already-dead unit in here.
+				if(!defender[i].IsValid() || defender[i].GetHP() <= 0)
+				{
+					continue;
+				}
+
 				CAUSE_REMOVE_ARMY cause = CAUSE_REMOVE_ARMY_DIED_IN_ATTACK;
 				if(defender[i].m_id == td.m_id)
 				{
