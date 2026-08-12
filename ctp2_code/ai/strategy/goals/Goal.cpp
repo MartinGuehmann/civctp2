@@ -259,6 +259,21 @@ void Goal::Commit_Agent(const Agent_ptr & agent)
 	}
 #endif
 
+	if
+	(
+	     (m_target_army != ID() && !m_target_army.IsValid())
+	  || (m_target_city != ID() && !m_target_city.IsValid())
+	)
+	{
+		// The target died before the scheduler's next pass could prune this
+		// goal (e.g. a debarking army inheriting its transport's still-live
+		// goal handle, see Agent::Agent) - evacuate whatever is already
+		// committed and decline to add this agent too, instead of falling
+		// through to Get_Target_Pos's Assert(pos.IsValid()).
+		Rollback_All_Agents();
+		return;
+	}
+
 	MapPoint dest_pos = Get_Target_Pos();     // Get cheap target position first, no need for pillage checking, yet.
 	MapPoint curr_pos = agent->Get_Pos();
 
