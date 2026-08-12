@@ -4780,6 +4780,14 @@ void Goal::GroupTroops()
 				{
 					agent1_ptr->Group_With(agent2_ptr);
 				}
+
+				// agent1_ptr has now been given an action this cycle (all
+				// three branches above end up clearing its or agent2_ptr's
+				// Get_Can_Be_Executed()) - stop matching it against further
+				// agent2_ptr candidates, or a second match at the same
+				// position could call UnloadCargo() on it again and trip
+				// its Assert(Get_Can_Be_Executed()).
+				break;
 			}
 		}
 	}
