@@ -295,10 +295,16 @@ void Goal::Commit_Agent(const Agent_ptr & agent)
 	        && strength.Get_Transport() > m_current_attacking_strength.Get_Transport()
 	      )
 	){
-		m_current_attacking_strength.Add_Agent_Strength(agent);
-
 		if(agent->Get_Goal() == nullptr)
 		{
+			// Only add the strength when the agent is actually being newly
+			// committed to m_agents here - an agent already owned by
+			// m_sub_goal can get re-evaluated as a match candidate many
+			// times without ever leaving m_agents, and adding its strength
+			// again each time (without a corresponding extra remove) left
+			// a residual in m_current_attacking_strength that later tripped
+			// Rollback_All_Agents's Assert(NothingNeeded()).
+			m_current_attacking_strength.Add_Agent_Strength(agent);
 			m_agents.push_back(agent);
 
 			agent->Set_Goal(this);
