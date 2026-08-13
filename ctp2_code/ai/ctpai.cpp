@@ -1545,6 +1545,18 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 
 			if (move_army.m_id == 0x0)
 			{
+				// Can happen if every unit in the garrison belongs to a
+				// single army whose own size is already >= k_MAX_ARMY_SIZE
+				// (e.g. grown past the cap via repeated grouping) - there
+				// is then no smaller sub-army left to relocate. Log each
+				// garrison army's id/size to confirm.
+				for (j = 0; j < garrison.Num(); j++)
+				{
+					DPRINTF(k_DBG_AI,
+						("\tMakeRoomForNewUnits: no army smaller than k_MAX_ARMY_SIZE (%d) - player %d, city %s at (%d,%d), garrison unit %d: army 0x%lx, army.Num()=%d\n",
+						 k_MAX_ARMY_SIZE, playerId, city.GetName(), pos.x, pos.y,
+						 j, garrison.Access(j).GetArmy().m_id, garrison.Access(j).GetArmy().Num()));
+				}
 				Assert(0);
 				continue;
 			}
