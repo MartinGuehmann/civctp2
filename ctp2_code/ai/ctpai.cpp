@@ -2127,6 +2127,16 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 
 	if (refueling_distance < 0)
 	{
+		// No city (with room), aircraft carrier, or airfield was found at
+		// all - can be a legitimate dead end (e.g. a near-eliminated
+		// player with no cities/carriers/airfields left), not necessarily
+		// a bug. Log the player's actual counts to tell the two apart.
+		DPRINTF(k_DBG_AI,
+			("\tGetNearestRefuel: no refuel destination at all - player %d, army 0x%lx, start (%d,%d), num_tiles_to_half=%d, num_tiles_to_empty=%d, city count=%d\n",
+			 army->GetOwner(), army.m_id, start_pos.x, start_pos.y,
+			 num_tiles_to_half, num_tiles_to_empty,
+			 player->m_all_cities ? player->m_all_cities->Num() : -1));
+
 		bool NO_REFUEL_DESTINATION = false;
 		Assert(NO_REFUEL_DESTINATION);
 		return false;
