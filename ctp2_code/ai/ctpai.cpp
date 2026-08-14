@@ -247,6 +247,32 @@ void CtpAi::AddGoalsForCitiesAndArmies(const PLAYER_INDEX player)
 
 		GoalRecord const * goal = g_theGoalDB->Get(goal_type);
 
+		// Remove any existing goals of this type whose target city or army
+		// has died since the goal was created (e.g. a city lost to
+		// flooding) - otherwise they linger in the scheduler and keep
+		// hitting Get_Target_Pos's Assert(pos.IsValid()) every time
+		// they're re-evaluated, on every later turn, until the game ends.
+		{
+			Scheduler::Sorted_Goal_List existingGoals = scheduler.GetGoalsOfType(goal_type);
+			for
+			(
+			    Scheduler::Sorted_Goal_Iter goalIter  = existingGoals.begin();
+			                                goalIter != existingGoals.end();
+			                              ++goalIter
+			)
+			{
+				Goal_ptr existingGoal = goalIter->second;
+				bool const army_dead = (existingGoal->Get_Target_Army() != ID())
+				                     && !existingGoal->Get_Target_Army().IsValid();
+				bool const city_dead = (existingGoal->Get_Target_City() != ID())
+				                     && !existingGoal->Get_Target_City().IsValid();
+				if (army_dead || city_dead)
+				{
+					scheduler.Remove_Goal(existingGoal);
+				}
+			}
+		}
+
 		for(PLAYER_INDEX foreignerId = 0; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
 		{
 			Player* player_ptr = g_player[foreignerId];
