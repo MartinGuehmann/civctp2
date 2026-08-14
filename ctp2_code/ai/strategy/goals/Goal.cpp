@@ -282,7 +282,18 @@ void Goal::Commit_Agent(const Agent_ptr & agent)
 		return;
 	}
 
-	Squad_Strength strength = agent->Compute_Squad_Strength();
+	// Only refresh the cache when the agent is actually unowned - nobody
+	// else has counted its strength yet, so it's safe to update. An agent
+	// already owned by m_sub_goal can be re-evaluated as a candidate here
+	// many times without ever leaving it (including evaluations that end
+	// up rejected below); refreshing its cache each time silently
+	// invalidates whatever m_sub_goal already added, since it added the
+	// old value but Remove_Agent_Strength will later subtract the new
+	// one - the same residual-strength issue fixed for Commit_Agent's
+	// double-add, just via a stale-cache route instead of a double-add.
+	Squad_Strength strength = (agent->Get_Goal() == nullptr)
+	                        ? agent->Compute_Squad_Strength()
+	                        : agent->Get_Squad_Strength();
 	strength += m_current_attacking_strength;
 	double oldMissingStrength = m_current_needed_strength.GetTotalMissing(m_current_attacking_strength);
 	double newMissingStrength = m_current_needed_strength.GetTotalMissing(strength);
