@@ -1644,12 +1644,14 @@ void Diplomat::Execute_Proposal(const PLAYER_INDEX & sender,
 		break;
 	case PROPOSAL_OFFER_GIVE_GOLD:
 
+		// Deduct synchronously, right where the affordable amount is
+		// clamped - a deferred GEV_SubGold left a window for an earlier
+		// gold-costing proposal/response in the same processing batch to
+		// drain the balance first, making this already-computed amount
+		// stale by the time it actually ran, tripping Gold::SubGold's
+		// assert (reproduced in a Windows run).
 		gold = std::min(proposal_arg.gold, g_player[sender]->m_gold->GetLevel());
-
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SubGold,
-			GEA_Player, sender,
-			GEA_Int, gold,
-			GEA_End);
+		g_player[sender]->m_gold->SubGold(gold);
 
 		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AddGold,
 			GEA_Player, receiver,
@@ -1658,12 +1660,9 @@ void Diplomat::Execute_Proposal(const PLAYER_INDEX & sender,
 		break;
 	case PROPOSAL_REQUEST_GIVE_GOLD:
 
+		// Same reasoning as PROPOSAL_OFFER_GIVE_GOLD above.
 		gold = std::min(proposal_arg.gold, g_player[receiver]->m_gold->GetLevel());
-
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SubGold,
-			GEA_Player, receiver,
-			GEA_Int, gold,
-			GEA_End);
+		g_player[receiver]->m_gold->SubGold(gold);
 
 		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AddGold,
 			GEA_Player, sender,
