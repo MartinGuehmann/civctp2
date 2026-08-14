@@ -2180,6 +2180,24 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 		Assert(NO_REFUEL_DESTINATION);
 		return false;
 	}
+
+	if (!found)
+	{
+		// A city, carrier or airfield was found, but it's farther away
+		// than num_tiles_to_empty - the plane would run dry before
+		// reaching it. Report this as unreachable too, rather than
+		// letting the caller path toward a destination it can never
+		// actually get to.
+		DPRINTF(k_DBG_AI,
+			("\tGetNearestRefuel: nearest destination is out of fuel range - player %d, army 0x%lx, start (%d,%d), refueling_pos (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d\n",
+			 army->GetOwner(), army.m_id, start_pos.x, start_pos.y,
+			 refueling_pos.x, refueling_pos.y, refueling_distance,
+			 num_tiles_to_half, num_tiles_to_empty));
+
+		bool NO_REFUEL_IN_RANGE = false;
+		Assert(NO_REFUEL_IN_RANGE);
+		return false;
+	}
 	return true;
 }
 
