@@ -1192,10 +1192,11 @@ bool UnitAstar::FindPath(
 	if (searchSucceeded) {
 		result = true;
 	} else {
-		DPRINTF(k_DBG_ASTAR, ("PATHFIND_DIAG: UnitAstar::FindPath failed from (%d,%d) to (%d,%d): %s\n",
+		DPRINTF(k_DBG_ASTAR, ("PATHFIND_DIAG: UnitAstar::FindPath failed from (%d,%d) to (%d,%d): %s, army 0x%lx move_union 0x%x move_intersection 0x%x\n",
 		                                 start.x, start.y, dest.x, dest.y,
 		                                 pretestPassed ? "PretestDest passed, full A* search failed"
-		                                               : "rejected by PretestDest before searching"));
+		                                               : "rejected by PretestDest before searching",
+		                                 m_army.m_id, move_union, move_intersection));
 		if (no_bad_path) {
 			result = false;
 		} else {
