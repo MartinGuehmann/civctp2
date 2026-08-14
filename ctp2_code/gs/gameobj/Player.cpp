@@ -1259,6 +1259,20 @@ bool Player::RemoveUnitReference(const Unit &kill_me, const CAUSE_REMOVE_ARMY ca
 		m_readiness->UnsupportUnit(kill_me, m_government_type);
 		kill_me.GetPos(pos);
 	}
+	else
+	{
+		// Real-data gathering for unit.cpp:243's Assert(r): kill_me not
+		// being in m_all_units despite Unit::KillUnit's own IsValid()
+		// check (global unit pool, not this list) having just passed is
+		// not yet understood - log the unit's state so the next
+		// occurrence can confirm or rule out the TempSlaveUnit theory
+		// above versus other candidates (e.g. an ownership change earlier
+		// in the same Player::RemoveDeadPlayers pass).
+		DPRINTF(k_DBG_GAMESTATE,
+			("Player::RemoveUnitReference: kill_me 0x%lx not found in m_all_units - player %d, cause %d, killedBy %d, isTempSlaveUnit %d, isBeingTransported %d, owner %d\n",
+			 kill_me.m_id, m_owner, cause, killedBy,
+			 kill_me.IsTempSlaveUnit(), kill_me.IsBeingTransported(), kill_me.GetOwner()));
+	}
 
 	if(RemoveCityReferenceFromPlayer(kill_me, CAUSE_REMOVE_CITY(cause), killedBy))
 	{
