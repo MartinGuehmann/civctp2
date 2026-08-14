@@ -1723,8 +1723,12 @@ void Diplomat::Execute_Proposal(const PLAYER_INDEX & sender,
 			AgreementMatrix::s_agreements.
 				CancelAgreement(sender, receiver, PROPOSAL_TREATY_DECLARE_WAR);
 	
-			Diplomat::GetDiplomat(sender).UpdateDesireWarWith(receiver);
-			Diplomat::GetDiplomat(receiver).UpdateDesireWarWith(sender);
+			// A war ending can change who's the "weakest enemy" among
+			// each side's remaining wars (IsBestHotwarEnemy compares
+			// across all of them), so a single-entry refresh isn't
+			// enough - recompute the whole cache for both sides.
+			Diplomat::GetDiplomat(sender).ComputeAllDesireWarWith();
+			Diplomat::GetDiplomat(receiver).ComputeAllDesireWarWith();
 
 			// Maybe add to CancelAgreement as message from DB
 			SlicObject *so = new SlicObject("401WarOver");
@@ -1846,8 +1850,12 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 	player_ptr->CloseEmbassy(foreignerId);
 	foreigner_ptr->CloseEmbassy(m_playerId);
 
-	Diplomat::GetDiplomat(foreignerId).UpdateDesireWarWith(m_playerId);
-	UpdateDesireWarWith(foreignerId);
+	// Starting a new war can change who's the "weakest enemy" among
+	// each side's existing wars too (IsBestHotwarEnemy compares across
+	// all of them), so a single-entry refresh isn't enough - recompute
+	// the whole cache for both sides.
+	Diplomat::GetDiplomat(foreignerId).ComputeAllDesireWarWith();
+	ComputeAllDesireWarWith();
 }
 
 void Diplomat::SetEmbargo(const PLAYER_INDEX foreignerId, const bool state)
