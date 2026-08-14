@@ -1507,6 +1507,64 @@ void CtpAi::UnGroupGarrisonUnits(const PLAYER_INDEX playerId)
 	} // for i
 }
 
+// Recomputes a single city's current-garrison count/strength from scratch,
+// the same way ComputeCityGarrisons does for every city once per turn, but
+// scoped to one city and able to exclude a specific army - used when an
+// army is relocated out of a city outside of that once-per-turn pass, so
+// the incremental alternative (subtracting the relocated army's own
+// defense_count from the cached total) can't go stale/negative relative
+// to whatever ComputeCityGarrisons actually counted it as. Cheap to call
+// here since a city can be room-made-for at most once per turn.
+void CtpAi::RecomputeCityGarrison(const Unit & city, const Army & excludeArmy)
+{
+	Player * player_ptr = g_player[city.GetOwner()];
+	Assert(player_ptr != NULL);
+
+	double strength = 0.0;
+	sint8  count    = 0;
+
+	sint32 num_armies = player_ptr->m_all_armies->Num();
+	for (sint32 armyIndex = 0; armyIndex < num_armies; ++armyIndex)
+	{
+		Army army = player_ptr->m_all_armies->Access(armyIndex);
+		Assert(army.IsValid());
+
+		if (army == excludeArmy || army->NumOrders() > 0)
+			continue;
+
+		if (g_theWorld->GetCity(army->RetPos()).m_id != city.m_id)
+			continue;
+
+		sint32 transports, max, empty;
+		if (army->GetCargo(transports, max, empty))
+			continue;
+
+		sint8 defense_count;
+		sint8 tmp_count;
+		float tmp;
+		float defense_strength;
+		army->ComputeStrength(tmp,
+		                      defense_strength,
+		                      tmp,
+		                      defense_count,
+		                      tmp_count,
+		                      tmp,
+		                      tmp,
+		                      tmp,
+		                      tmp,
+		                      false // check
+		                     );
+
+		defense_strength += static_cast<float>(city.GetDefendersBonus() * static_cast<double>(defense_count));
+
+		strength += defense_strength;
+		count    += defense_count;
+	}
+
+	city->GetCityData()->SetCurrentGarrisonStrength(strength);
+	city->GetCityData()->SetCurrentGarrison(count);
+}
+
 void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 {
 
@@ -1581,34 +1639,15 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 
 						g_graphicsOptions->AddTextToArmy(move_army, "MakeRoom", 255);
 
-						sint8 defense_count;
-						sint8 tmp_count;
-						float tmp;
-						float defense_strength;
-						move_army->ComputeStrength(tmp,
-						                           defense_strength,
-						                           tmp,
-						                           defense_count,
-						                           tmp_count,
-						                           tmp,
-						                           tmp,
-						                           tmp,
-						                           tmp,
-						                           true
-						                          );
-
-						defense_strength -= static_cast<float>(city.GetDefendersBonus() * static_cast<double>(defense_count));
-
-						double prev_city_defense = city->GetCityData()->GetCurrentGarrisonStrength();
-						city->GetCityData()->SetCurrentGarrisonStrength( prev_city_defense + defense_strength );
-						sint8 prev_garrison = city->GetCityData()->GetCurrentGarrison();
-						if (defense_count > prev_garrison)
-						{
-							DPRINTF(k_DBG_AI,
-							    ("\tMakeRoomForNewUnits: defense_count (%d) > prev_garrison (%d) - player %d, army 0x%lx, city %s at (%d,%d), garrison.Num()=%d, move_army.Num()=%d\n",
-							     defense_count, prev_garrison, playerId, move_army.m_id, city.GetName(), pos.x, pos.y, garrison.Num(), move_army->Num()));
-						}
-						city->GetCityData()->SetCurrentGarrison( prev_garrison - defense_count );
+						// Recompute from scratch (excluding move_army, which
+						// is on its way out) rather than subtracting its
+						// defense_count from the cached total - that total
+						// only reflects idle, non-cargo armies as of this
+						// turn's ComputeCityGarrisons pass, which move_army
+						// may not have been part of, so the subtraction
+						// could underflow (see citydata.cpp's
+						// Assert(value >= 0) in SetCurrentGarrison).
+						RecomputeCityGarrison(city, move_army);
 
 						break;
 					}
