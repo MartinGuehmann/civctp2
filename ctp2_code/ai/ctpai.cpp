@@ -83,6 +83,9 @@
 //----------------------------------------------------------------------------
 
 #include "c3.h"
+
+#include <map>
+
 #include "ctpai.h"
 
 #include "profileai.h"
@@ -2235,13 +2238,25 @@ void CtpAi::RefuelAirplane(const Army & army)
 		total_cost))
 	{
 		Unit refuelCity = g_theWorld->GetCity(refueling_pos);
+
+		// Track repeated failures per army so a single log line shows
+		// whether this is a one-off or the same army stuck retrying the
+		// same failing refuel order turn after turn (the stuck-move-order
+		// pattern already seen for the plain NO_REFUEL_DESTINATION case).
+		static std::map<uint32, std::pair<sint32, sint32> > s_lastFailure; // army id -> (round, consecutive count)
+		sint32 const curRound = g_turn->GetRound();
+		std::pair<sint32, sint32> & entry = s_lastFailure[army.m_id];
+		entry.second = (entry.first == curRound - 1) ? (entry.second + 1) : 1;
+		entry.first = curRound;
+
 		DPRINTF(k_DBG_AI,
-		    ("\tRefuelAirplane: no path to refueling_pos (%d,%d) - player %d, army 0x%lx, start (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d, cell units there=%d, isCity=%d, cityOwner=%d\n",
+		    ("\tRefuelAirplane: no path to refueling_pos (%d,%d) - player %d, army 0x%lx, start (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d, cell units there=%d, isCity=%d, cityOwner=%d, consecutive failures=%d\n",
 		     refueling_pos.x, refueling_pos.y, army->GetOwner(), army.m_id, start_pos.x, start_pos.y, refueling_distance,
 		     num_tiles_to_half, num_tiles_to_empty,
 		     g_theWorld->GetCell(refueling_pos)->GetNumUnits(),
 		     refuelCity.IsValid(),
-		     refuelCity.IsValid() ? refuelCity.GetOwner() : -1));
+		     refuelCity.IsValid() ? refuelCity.GetOwner() : -1,
+		     entry.second));
 
 		bool NO_REFUEL_PATH = false;
 		Assert(NO_REFUEL_PATH);
