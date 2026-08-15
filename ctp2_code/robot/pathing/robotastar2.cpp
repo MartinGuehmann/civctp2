@@ -75,7 +75,16 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 
 		bool occupied = (m_army->HasCargo() && (!m_army.CanAtLeastOneCargoUnloadAt(pos, false, !m_is_robot)));
 
-		if(occupied || wrong_cont)
+		// When check_dest is false, reaching the literal dest tile is only
+		// ever meant as a marker for "got adjacent" (UnitAstar::EntryCost
+		// grants it unconditionally for exactly this reason, e.g. for a
+		// range-based goal like diplomacy where the mover can't actually
+		// enter a foreign city) - occupied/wrong_cont must not re-block it
+		// here, or dest becomes structurally unreachable and every search
+		// for it burns its whole node budget failing from every direction.
+		bool const destExempt = (pos == m_dest) && !GetCheckDest();
+
+		if((occupied || wrong_cont) && !destExempt)
 		{
 			if(  is_land
 			   &&
@@ -85,6 +94,14 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 			     )
 			  )
 			{
+				AI_DPRINTF(k_DBG_ASTAR, m_owner, -1, m_army.m_id,
+				    ("\tBLOCK_DIAG: prev(%d,%d) pos(%d,%d) start(%d,%d) dest(%d,%d) occupied=%d wrong_cont=%d destExempt=%d checkDest=%d IsCity(pos)=%d IsCity(prev)=%d contPos=%d/%d transDestCont=%d/%d\n",
+				     prev.x, prev.y, pos.x, pos.y, m_start.x, m_start.y, m_dest.x, m_dest.y,
+				     occupied, wrong_cont, destExempt, GetCheckDest(),
+				     g_theWorld->IsCity(pos), g_theWorld->IsCity(prev),
+				     cont.GetLandContinent(), cont.GetWaterContinent(),
+				     m_transDestCont.GetLandContinent(), m_transDestCont.GetWaterContinent()));
+
 				cost = k_ASTAR_BIG;
 				entry = ASTAR_RETRY_DIRECTION;
 				return false;
