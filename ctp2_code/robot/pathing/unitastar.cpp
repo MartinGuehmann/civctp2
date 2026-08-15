@@ -71,6 +71,7 @@ namespace
 #endif
 	// Will generate a truncation warning, but only once.
 	sint16 const    MARK_UNUSED16   = static_cast<sint16>(MARK_UNUSED);
+	sint32 const    MARK_UNUSED32   = static_cast<sint32>(MARK_UNUSED);
 #if defined(_MSC_VER)
 #pragma warning(default:4309)
 #endif
@@ -1264,14 +1265,14 @@ bool UnitAstar::VerifyMem() const
 {
 	if (m_move_union          == MARK_UNUSED)   return false;
 	if (m_move_intersection   == MARK_UNUSED)   return false;
-	if (m_max_dir             == MARK_UNUSED)   return false;
+	if (m_max_dir             == MARK_UNUSED32) return false;
 	if (m_mask_alliance       == MARK_UNUSED)   return false;
 	if (m_dest.x              == MARK_UNUSED16) return false;
 	if (m_dest.y              == MARK_UNUSED16) return false;
 	if (m_start.x             == MARK_UNUSED16) return false;
 	if (m_start.y             == MARK_UNUSED16) return false;
-	if (m_owner               == MARK_UNUSED)   return false;
-	if (m_nUnits              == MARK_UNUSED)   return false;
+	if (m_owner               == MARK_UNUSED32) return false;
+	if (m_nUnits              == MARK_UNUSED32) return false;
 	if (m_army.m_id           == MARK_UNUSED)   return false;
 	if (m_army_minmax_move    == -9999999.0f)   return false;
 
