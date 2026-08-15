@@ -948,7 +948,7 @@ bool World::GetAdjacentOcean(const MapPoint &pos, sint32 & water_cont) const
 		{
 			if(IsWater(water))
 			{
-				water_cont = GetCell(water)->GetContinent();
+				water_cont = GetCell(water)->GetWaterContinent();
 
 				if(GetWaterContinentSize(water_cont) > 25)
 					return true;

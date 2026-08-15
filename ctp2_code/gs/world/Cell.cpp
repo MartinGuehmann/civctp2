@@ -112,6 +112,7 @@ Cell::Cell()
     m_terrain_type         (-1),
     m_city                 (),
     m_cellOwner            (-1),
+    m_continentIDs         (),
     m_unit_army            (NULL),
     m_objects              (NULL),
     m_jabba                (NULL),

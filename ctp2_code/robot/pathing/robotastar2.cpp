@@ -69,7 +69,7 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 {
 	if (can_enter)
 	{
-		sint32 cont     = g_theWorld->GetContinent(pos);
+		ContinentIDs cont = g_theWorld->GetContinent(pos);
 		bool is_land    = ( g_theWorld->IsLand(pos) || g_theWorld->IsMountain(pos) );
 		bool wrong_cont = ( cont != m_transDestCont ) && (!g_theWorld->IsCity(pos));
 
@@ -113,9 +113,11 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 			 &&  g_theWorld->GetContinent(prev) == m_transDestCont;
 
 			AI_DPRINTF(k_DBG_ASTAR, m_owner, -1, m_army.m_id,
-			    ("\tLEAVE_DIAG: prev(%d,%d) pos(%d,%d) start(%d,%d) dest(%d,%d) transDestCont=%d contPrev=%d contPos=%d prevIsTargetContLand=%d prev!=start=%d IsCity(prev)=%d IsCity(pos)=%d\n",
+			    ("\tLEAVE_DIAG: prev(%d,%d) pos(%d,%d) start(%d,%d) dest(%d,%d) transDestCont=%d/%d contPrev=%d/%d contPos=%d/%d prevIsTargetContLand=%d prev!=start=%d IsCity(prev)=%d IsCity(pos)=%d\n",
 			     prev.x, prev.y, pos.x, pos.y, m_start.x, m_start.y, m_dest.x, m_dest.y,
-			     m_transDestCont, g_theWorld->GetContinent(prev), g_theWorld->GetContinent(pos),
+			     m_transDestCont.GetLandContinent(), m_transDestCont.GetWaterContinent(),
+			     g_theWorld->GetContinent(prev).GetLandContinent(), g_theWorld->GetContinent(prev).GetWaterContinent(),
+			     g_theWorld->GetContinent(pos).GetLandContinent(), g_theWorld->GetContinent(pos).GetWaterContinent(),
 			     prevIsTargetContLand, (prev != m_start), g_theWorld->IsCity(prev), g_theWorld->IsCity(pos)));
 
 			if(prevIsTargetContLand && prev != m_start)

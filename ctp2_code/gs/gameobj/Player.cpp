@@ -2785,7 +2785,7 @@ bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
 
 		if(continent != -1)
 		{
-			cont = g_theWorld->GetContinent(cpos);
+			cont = g_theWorld->GetContinent(cpos).GetLandContinent();
 			if (cont != continent)
 				continue;
 		}
@@ -2927,7 +2927,7 @@ bool Player::GetNearestAirfield(const MapPoint &src, MapPoint &dest, const sint3
 
 			if(continent != -1)
 			{
-				cont = g_theWorld->GetContinent(chkpos);
+				cont = g_theWorld->GetContinent(chkpos).GetLandContinent();
 				if (cont != continent)
 					continue;
 			}

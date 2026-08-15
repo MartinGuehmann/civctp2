@@ -304,8 +304,10 @@ public:
 
 
 
-    sint16 GetContinent(const MapPoint & pos) const;
+    ContinentIDs GetContinent(const MapPoint & pos) const;
     bool IsOnSameContinent(const MapPoint & pos1, const MapPoint & pos2) const;
+    bool IsWaterContinent(const MapPoint & pos) const { return GetCell(pos)->IsWaterContinent(); }
+    bool IsLandContinent (const MapPoint & pos) const { return GetCell(pos)->IsLandContinent();  }
 
     sint16 GetMinWaterContinent() const;
     sint16 GetMaxWaterContinent() const;

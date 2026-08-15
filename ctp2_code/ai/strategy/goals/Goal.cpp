@@ -4039,7 +4039,7 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 	{
 		MapPoint start_pos = the_army->Get_Pos();
 
-		sint16 cargo_cont = g_theWorld->GetContinent(start_pos); // Dangerous with transport target can be closer
+		sint16 cargo_cont = g_theWorld->GetContinent(start_pos).GetLandContinent(); // Dangerous with transport target can be closer
 
 		Unit nearest_city;
 		MapPoint nearest_airfield;
@@ -4438,7 +4438,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 	&& the_army->Get_Army()->GetMovementTypeAir()
 	&& the_army->Get_Army()->CanSpaceLaunch()
 	){
-		sint16 target_cont = g_theWorld->GetContinent(goal_pos);
+		sint16 target_cont = g_theWorld->GetContinent(goal_pos).GetLandContinent();
 
 		Unit   nearest_city;
 		double city_distance = 0.0;
