@@ -112,15 +112,26 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 			 && !g_theWorld->IsShallowWater(prev)
 			 &&  g_theWorld->GetContinent(prev) == m_transDestCont;
 
+			// A tunnel tile is water for a ship, but for cargo that's
+			// already disembarked it's the land bridge across a strait -
+			// crossing one (or a chain of them, since each tile is
+			// checked independently as pos advances) while already
+			// marching on the target continent isn't "leaving" it, and
+			// should cost like a land step below, not get scaled by the
+			// ship's speed ratio.
+			bool const posIsTargetContTunnel =
+			    g_theWorld->IsTunnel(pos)
+			 && g_theWorld->GetContinent(pos).GetLandContinent() == m_transDestCont.GetLandContinent();
+
 			AI_DPRINTF(k_DBG_ASTAR, m_owner, -1, m_army.m_id,
-			    ("\tLEAVE_DIAG: prev(%d,%d) pos(%d,%d) start(%d,%d) dest(%d,%d) transDestCont=%d/%d contPrev=%d/%d contPos=%d/%d prevIsTargetContLand=%d prev!=start=%d IsCity(prev)=%d IsCity(pos)=%d\n",
+			    ("\tLEAVE_DIAG: prev(%d,%d) pos(%d,%d) start(%d,%d) dest(%d,%d) transDestCont=%d/%d contPrev=%d/%d contPos=%d/%d prevIsTargetContLand=%d posIsTargetContTunnel=%d prev!=start=%d IsCity(prev)=%d IsCity(pos)=%d\n",
 			     prev.x, prev.y, pos.x, pos.y, m_start.x, m_start.y, m_dest.x, m_dest.y,
 			     m_transDestCont.GetLandContinent(), m_transDestCont.GetWaterContinent(),
 			     g_theWorld->GetContinent(prev).GetLandContinent(), g_theWorld->GetContinent(prev).GetWaterContinent(),
 			     g_theWorld->GetContinent(pos).GetLandContinent(), g_theWorld->GetContinent(pos).GetWaterContinent(),
-			     prevIsTargetContLand, (prev != m_start), g_theWorld->IsCity(prev), g_theWorld->IsCity(pos)));
+			     prevIsTargetContLand, posIsTargetContTunnel, (prev != m_start), g_theWorld->IsCity(prev), g_theWorld->IsCity(pos)));
 
-			if(prevIsTargetContLand && prev != m_start)
+			if(prevIsTargetContLand && prev != m_start && !posIsTargetContTunnel)
 			{
 				// Return invalid if we leave the target continent
 				cost = k_ASTAR_BIG;
@@ -128,7 +139,10 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 				return false;
 			}
 
-			cost *= m_transMaxR;
+			if (!posIsTargetContTunnel)
+			{
+				cost *= m_transMaxR;
+			}
 		}
 
 		if(g_theWorld->IsWater(prev) || g_theWorld->IsShallowWater(prev))
