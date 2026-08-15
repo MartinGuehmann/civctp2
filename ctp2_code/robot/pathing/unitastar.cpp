@@ -983,10 +983,17 @@ bool UnitAstar::PretestDest_SameLandContinent(const MapPoint & start, const MapP
 
 bool UnitAstar::PretestDest_SameWaterContinent(const MapPoint & start, const MapPoint & dest) const
 {
-	const uint32 landBits = k_Unit_MovementType_Land_Bit | k_Unit_MovementType_Mountain_Bit;
-	const uint32 nonLandBits = k_Unit_MovementType_Air_Bit | k_Unit_MovementType_Space_Bit
-	                           | k_Unit_MovementType_Sea_Bit | k_Unit_MovementType_ShallowWater_Bit;
-	if (((m_move_intersection & landBits) != 0) && ((m_move_intersection & nonLandBits) == 0))
+	// Was accidentally given a copy of PretestDest_SameLandContinent's
+	// land-only gate during a "clean code" refactor (7c16b5ea0), instead
+	// of its own water-only one - the original Activision code gated
+	// this on the mover being purely naval (Sea/ShallowWater, nothing
+	// else), not purely land. That silently disabled this check for
+	// every real ship, since a ship's Sea_Bit made the copied gate's
+	// nonLandBits-must-be-0 requirement always fail.
+	const uint32 waterBits = k_Unit_MovementType_Sea_Bit | k_Unit_MovementType_ShallowWater_Bit;
+	const uint32 nonWaterBits = k_Unit_MovementType_Air_Bit | k_Unit_MovementType_Space_Bit
+	                           | k_Unit_MovementType_Land_Bit | k_Unit_MovementType_Mountain_Bit;
+	if (((m_move_intersection & waterBits) != 0) && ((m_move_intersection & nonWaterBits) == 0))
 	{
 		bool   start_is_land;
 		bool    dest_is_land;
