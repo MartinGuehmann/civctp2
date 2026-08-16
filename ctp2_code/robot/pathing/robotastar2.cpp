@@ -75,12 +75,19 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 
 		bool occupied = (m_army->HasCargo() && (!m_army.CanAtLeastOneCargoUnloadAt(pos, false, !m_is_robot)));
 
+		// World::IsTunnel(pos) requires IsWater(pos) first, so a tunnel
+		// tile also satisfies IsWater/IsShallowWater below - without this,
+		// cargo standing on a tunnel (already disembarked onto its
+		// walkable surface) would be treated as still aboard the ship,
+		// same as if prev were open water.
+		bool const prevIsTunnel = g_theWorld->IsTunnel(prev);
+
 		if(occupied || wrong_cont)
 		{
 			if(  is_land
 			   &&
-			     (    g_theWorld->IsWater(prev)
-			       || g_theWorld->IsShallowWater(prev)
+			     (    (g_theWorld->IsWater(prev) && !prevIsTunnel)
+			       || (g_theWorld->IsShallowWater(prev) && !prevIsTunnel)
 			       || g_theWorld->IsCity(prev)
 			     )
 			  )
