@@ -162,25 +162,52 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 
 		if(g_theWorld->IsWater(prev) || g_theWorld->IsShallowWater(prev))
 		{
-			if
-			  (
-			       (   // If we land
-			           g_theWorld->IsLand(pos)
-			        || g_theWorld->IsMountain(pos)
-			       )
-			    && (
-			          ( g_theWorld->IsOccupiedByForeigner  (pos, m_owner) // If the target is a city
-			        && !g_theWorld->IsSurroundedByWater    (pos))
-			        ||  g_theWorld->IsNextToForeigner(pos, m_owner)
-			       )
-			  )
+			// A tunnel tile satisfies IsWater() too, so unlike a true coastal
+			// landing - where this gate fires exactly once, right as the ship
+			// puts cargo ashore - walking a tunnel chain re-triggers it at
+			// every single hop, since prev is a tunnel (= water) the whole
+			// way. Left unrestricted, that piles up danger cost for foreign
+			// presence anywhere along a long corridor, far from the actual
+			// target, instead of just discouraging landing too close to it.
+			// Only apply it once actually next to the destination.
+			bool posNextToDest = true;
+
+			if(prevIsTunnel)
 			{
-				cost += k_MOVE_ISDANGER_COST;
+				posNextToDest = false;
+				MapPoint neighbor;
+				for(sint32 dir = 0; dir <= SOUTH; ++dir)
+				{
+					if(pos.GetNeighborPosition(WORLD_DIRECTION(dir), neighbor) && neighbor == m_dest)
+					{
+						posNextToDest = true;
+						break;
+					}
+				}
 			}
-			// If we do not land, just avoid some units next, for instance bombardment units
-			else if(g_theWorld->IsNextToForeigner(pos, m_owner))
+
+			if(posNextToDest)
 			{
-				cost += k_MOVE_ISDANGER_COST;
+				if
+				  (
+				       (   // If we land
+				           g_theWorld->IsLand(pos)
+				        || g_theWorld->IsMountain(pos)
+				       )
+				    && (
+				          ( g_theWorld->IsOccupiedByForeigner  (pos, m_owner) // If the target is a city
+				        && !g_theWorld->IsSurroundedByWater    (pos))
+				        ||  g_theWorld->IsNextToForeigner(pos, m_owner)
+				       )
+				  )
+				{
+					cost += k_MOVE_ISDANGER_COST;
+				}
+				// If we do not land, just avoid some units next, for instance bombardment units
+				else if(g_theWorld->IsNextToForeigner(pos, m_owner))
+				{
+					cost += k_MOVE_ISDANGER_COST;
+				}
 			}
 		}
 
