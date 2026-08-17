@@ -113,6 +113,7 @@ World::World(const MapPoint & m, const int xw, const int yw)
     CityRadiusCallback      (),
     m_isYwrap               (yw),
     m_isXwrap               (xw),
+    m_continents_dirty      (FALSE),
     m_mapGenerator          (MAP_GENERATOR_PLUGIN),
     m_size                  (m),
     m_map                   (NULL),
@@ -210,6 +211,7 @@ void World::CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],
 
 World::World(CivArchive &archive, BOOL fromMapFile)
 :
+    m_continents_dirty      (FALSE),
     m_mapGenerator          (MAP_GENERATOR_PLUGIN),
     m_map                   (NULL),
     m_water_next_too_land   (NULL),

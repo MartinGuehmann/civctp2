@@ -97,6 +97,7 @@ void World::NumberContinents()
     GrowContinents();
 
     m_continents_are_numbered=TRUE;
+    m_continents_dirty=FALSE;
 
     while (g_tunnel_list)
     {
