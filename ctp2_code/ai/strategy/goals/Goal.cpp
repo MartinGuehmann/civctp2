@@ -5376,6 +5376,17 @@ bool Goal::FindTransporters(const Agent_ptr & agent_ptr, std::list< std::pair<Ut
 {
 	std::pair<Utility, Agent_ptr> transporter;
 
+	// A target city that's on water with no adjacent land or tunnel tile
+	// can't be reached by a regular transport at all - CanThisCargoUnloadAt
+	// rejects a non-submarine transport trying to unload directly into
+	// such a city (see issue civctp2/civctp2#334). Only consider
+	// submarine-class transports (e.g. the Crawler) for it.
+	MapPoint const targetPos = Get_Target_Pos();
+	bool const needsSubmarineTransport =
+	    g_theWorld->HasCity(targetPos)
+	 && g_theWorld->IsWater(targetPos)
+	 && !g_theWorld->HasAdjacentFreeLand(targetPos, m_playerId);
+
 	for
 	(
 	    Agent_List::iterator agent_iter  = m_agents.begin();
@@ -5411,6 +5422,23 @@ bool Goal::FindTransporters(const Agent_ptr & agent_ptr, std::list< std::pair<Ut
 		if(!possible_transport->CanReachTargetContinent(Get_Target_Pos()))
 		{
 			continue;
+		}
+
+		if(needsSubmarineTransport)
+		{
+			bool hasSubmarine = false;
+			Army const & transportArmy = possible_transport->Get_Army();
+			for(sint32 i = 0; i < transportArmy.Num(); ++i)
+			{
+				if(transportArmy.Get(i).IsSubmarine())
+				{
+					hasSubmarine = true;
+					break;
+				}
+			}
+
+			if(!hasSubmarine)
+				continue;
 		}
 
 		Utility  utility         = Goal::BAD_UTILITY;
