@@ -82,6 +82,24 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 		// same as if prev were open water.
 		bool const prevIsTunnel = g_theWorld->IsTunnel(prev);
 
+		// On an X-wrap map, x=0 should be seamlessly adjacent to x=width-1,
+		// not a dead end. Log continent IDs on both sides whenever the
+		// search actually looks at a tile near that seam, to check whether
+		// GrowWater/GrowLand assign matching IDs across it. Tightly gated
+		// so this doesn't flood the log for ordinary, non-seam moves.
+		sint32 const mapWidth = g_theWorld->GetWidth();
+		if(pos.x <= 2 || pos.x >= mapWidth - 2 || prev.x <= 2 || prev.x >= mapWidth - 2)
+		{
+			AI_DPRINTF(k_DBG_ASTAR, m_owner, -1, m_army.m_id,
+			    ("\tWRAP_DIAG: prev(%d,%d) pos(%d,%d) start(%d,%d) dest(%d,%d) mapWidth=%d contPrev=%d/%d contPos=%d/%d transDestCont=%d/%d wrong_cont=%d occupied=%d\n",
+			     prev.x, prev.y, pos.x, pos.y, m_start.x, m_start.y, m_dest.x, m_dest.y,
+			     mapWidth,
+			     g_theWorld->GetContinent(prev).GetLandContinent(), g_theWorld->GetContinent(prev).GetWaterContinent(),
+			     cont.GetLandContinent(), cont.GetWaterContinent(),
+			     m_transDestCont.GetLandContinent(), m_transDestCont.GetWaterContinent(),
+			     wrong_cont, occupied));
+		}
+
 		if(occupied || wrong_cont)
 		{
 			if(  is_land
