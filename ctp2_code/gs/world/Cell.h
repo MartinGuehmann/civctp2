@@ -131,9 +131,9 @@ class MapPoint;
 #define INVALID_CONTINENT -2
 #define SEARCHING_CONTINENT -1
 
-// A tunnel/canal tile is simultaneously land and water, so the single
-// m_continent_number below can't represent both memberships - a water
-// city connected to land only via such a tile ends up misclassified.
+// A tunnel/canal tile is simultaneously land and water, so a single
+// continent number can't represent both memberships - a water city
+// connected to land only via such a tile ends up misclassified.
 // Track the two separately instead.
 class ContinentIDs
 {
@@ -184,7 +184,10 @@ private:
 #ifdef BATTLE_FLAGS
 	uint16 m_battleFlags;
 #endif
-	sint16 m_continent_number;
+	// Superseded by m_continentIDs below, which can represent a tunnel's
+	// dual land/water membership; this single value can't. Kept only as
+	// unused save-format padding - do not read or write it.
+	sint16 m_unused;
 	sint8  m_gf;
 	sint8  m_terrain_type;
 	Unit   m_city;
@@ -289,7 +292,6 @@ public:
 	double GetFutureTerrainMoveCost() const;
 
 	bool GetIsChokePoint() const { return m_gf != 0; }
-	void SetContinent(sint16 val) { m_continent_number = val; }
 	ContinentIDs GetContinent() const { return m_continentIDs; }
 	void SetLandContinent (sint16 val) { m_continentIDs.SetLandContinent(val);  }
 	void SetWaterContinent(sint16 val) { m_continentIDs.SetWaterContinent(val); }

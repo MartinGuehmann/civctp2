@@ -343,8 +343,6 @@ public:
     bool NextPoint(MapPointNode *& search_list, MapPointNode *&finished_list,
         MapPoint & p);
 
-    void ResetCanalsTunnels();
-
     void GrowContinents();
     bool IsNewLand(MapPoint const & p) const;
     void GrowLand(MapPoint const & start);

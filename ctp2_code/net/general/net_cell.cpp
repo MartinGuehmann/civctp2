@@ -62,7 +62,6 @@ void NetCellData::Packetize(uint8 * buf, uint16 & size)
 	PUSHLONG(m_cell->m_env);
 	PUSHBYTE(m_cell->m_terrain_type);
 	PUSHSHORT(m_cell->m_move_cost);
-	PUSHSHORT(m_cell->m_continent_number);
 	PUSHSHORT(m_cell->GetWaterContinent());
 	PUSHSHORT(m_cell->GetLandContinent());
 	PUSHBYTE(m_cell->m_cellOwner);
@@ -95,7 +94,6 @@ void NetCellData::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 	if (old_move_cost != m_cell->m_move_cost)
 		g_theWorld->SetCapitolDistanceDirtyFlags(0xffffffff);
-	PULLSHORT(m_cell->m_continent_number);
 
 	sint16 waterCont, landCont;
 	PULLSHORT(waterCont);

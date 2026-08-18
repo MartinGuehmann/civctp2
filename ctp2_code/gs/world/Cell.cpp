@@ -107,7 +107,7 @@ Cell::Cell()
 #ifdef BATTLE_FLAGS
     m_battleFlags          (0),
 #endif
-    m_continent_number     (0),
+    m_unused               (0),
     m_gf                   (0),
     m_terrain_type         (-1),
     m_city                 (),
