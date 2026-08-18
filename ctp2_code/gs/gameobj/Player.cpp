@@ -3194,11 +3194,21 @@ void Player::RemoveTradeRoute(TradeRoute route, CAUSE_KILL_TRADE_ROUTE cause)
 		if(cause != CAUSE_KILL_TRADE_ROUTE_NO_INITIAL_CARAVANS) {
 			if (m_traderUnits->Num() == 0)
 			{
+				// Routes and caravans aren't 1:1 - a caravan provides shared
+				// transport-point capacity, not a per-route resource - so a
+				// player can legitimately have more routes than caravans
+				// left. When several routes get cancelled in succession and
+				// the pool runs dry partway through, later calls land here;
+				// there's nothing left to kill, so skip KillATrader() rather
+				// than calling it anyway and tripping its own Assert.
 				DPRINTF(k_DBG_GAMESTATE,
 				    ("Player::RemoveTradeRoute: no trader units left to remove - player %d, cause %d, cost %d, source 0x%lx, destination 0x%lx\n",
 				     m_owner, cause, route.GetCost(), route.GetSource().m_id, route.GetDestination().m_id));
 			}
-			KillATrader(); // removes a caravan/trade-unit
+			else
+			{
+				KillATrader(); // removes a caravan/trade-unit
+			}
 		}
 
 #if 0
