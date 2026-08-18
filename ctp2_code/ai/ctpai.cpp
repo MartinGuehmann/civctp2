@@ -2190,6 +2190,7 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 		{
 			refueling_distance = static_cast<sint32>(distance);
 			refueling_pos = tmp_pos;
+			found = (refueling_distance < num_tiles_to_empty);
 		}
 	}
 
