@@ -1713,12 +1713,11 @@ void Goal::Compute_Needed_Troop_Flow()
 			const StrategyRecord & strategy =
 				Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
 
-			sint32 offensive_garrison = 1; // Have at least one unit as garrison if this is not defined in strategies.txt
-			sint32 defensive_garrison = 0;
-			sint32 ranged_garrison    = 0;
-			strategy.GetOffensiveGarrisonCount(offensive_garrison);
-			strategy.GetDefensiveGarrisonCount(defensive_garrison);
-			strategy.GetRangedGarrisonCount(ranged_garrison);
+			// Have at least one unit as garrison if this is not defined in strategies.txt
+			sint32 offensive_garrison = strategy.HasOffensiveGarrisonCount()
+			                          ? strategy.GetOffensiveGarrisonCount() : 1;
+			sint32 defensive_garrison = strategy.GetDefensiveGarrisonCount();
+			sint32 ranged_garrison    = strategy.GetRangedGarrisonCount();
 
 			// Why only defensive units?
 			// Added ranged units - Calvitix

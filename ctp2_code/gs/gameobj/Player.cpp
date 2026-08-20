@@ -1424,12 +1424,9 @@ Unit Player::CreateCity(
 	const StrategyRecord & strategy =
 		Diplomat::GetDiplomat(m_owner).GetCurrentStrategy();
 
-	sint32 offensive_garrison = 0;
-	sint32 defensive_garrison = 0;
-	sint32 ranged_garrison    = 0;
-	strategy.GetOffensiveGarrisonCount(offensive_garrison);
-	strategy.GetDefensiveGarrisonCount(defensive_garrison);
-	strategy.GetRangedGarrisonCount(ranged_garrison);
+	sint32 offensive_garrison = strategy.GetOffensiveGarrisonCount();
+	sint32 defensive_garrison = strategy.GetDefensiveGarrisonCount();
+	sint32 ranged_garrison    = strategy.GetRangedGarrisonCount();
 
 	cityData->SetNeededGarrison(offensive_garrison + defensive_garrison + ranged_garrison);
 
