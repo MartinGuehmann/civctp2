@@ -3889,7 +3889,18 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 
 			if
 			  (
-			       first_army->Get_Army()->GetMovementTypeAir()
+			       (    first_army->Get_Army()->GetMovementTypeAir()
+			         // Sea transporters can't themselves enter a foreign
+			         // water-tile city, so for an underwater
+			         // target its cargo needs the same "carrier can't, cargo
+			         // can" handling air transporters already get: Unload
+			         // before the destination and let the cargo continue on foot
+			         // via any tunnel connection. Left scoped to water
+			         // targets only - a land target's full path stays
+			         // unsnipped, which is still useful to see on the map
+			         // for debugging.
+			         ||  g_theWorld->IsWater(dest_pos)
+			       )
 			   && !first_army->Get_Army()->TestOrderAny(order_rec)
 			   &&  first_army->Get_Army()->TestCargoOrderAny(order_rec)
 			  )
