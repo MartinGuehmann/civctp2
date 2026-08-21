@@ -28,7 +28,7 @@
 #
 #----------------------------------------------------------------------------
 
-# 27
+# 28
 
 ## 0 ##########################################################
 
@@ -222,6 +222,20 @@ UNIT_BUILD_LIST_RANGED {
 
 ## 21 #########################################################
 
+# All Category UNIT_CATEGORY_FLANKER/IsFlanker units, ordered by Attack
+UNIT_BUILD_LIST_FLANKERS {
+  Unit UNIT_KNIGHT
+  # Cut content: EnableAdvance ADVANCE_SUBNEURAL_ADS requires itself, so
+  # this can never actually be researched/built. Attack 30 puts it here,
+  # between Knight (25) and Cavalry (35).
+  Unit UNIT_ELEPHANT_WARRIOR
+  Unit UNIT_CAVALRY
+  Unit UNIT_TANK
+  Unit UNIT_FUSION_TANK
+}
+
+## 22 #########################################################
+
 UNIT_BUILD_LIST_SEA {
   Unit UNIT_WARRIOR
   Unit UNIT_HOPLITE
@@ -241,7 +255,7 @@ UNIT_BUILD_LIST_SEA {
   Unit UNIT_DREADNAUGHT
 }
 
-## 22 #########################################################
+## 23 #########################################################
 
 UNIT_BUILD_LIST_AIR {
   Unit UNIT_ARCHER
@@ -253,14 +267,14 @@ UNIT_BUILD_LIST_AIR {
   Unit UNIT_STEALTH_BOMBER
 }
 
-## 23 #########################################################
+## 24 #########################################################
 
 UNIT_BUILD_LIST_FREIGHT {
   Unit UNIT_CARAVAN
   Unit UNIT_Z_FREIGHT_TRANSPORT
 }
 
-## 24 #########################################################
+## 25 #########################################################
 
 UNIT_BUILD_LIST_NAVAL_SPECIAL {
   Unit UNIT_FIGHTER
@@ -276,7 +290,7 @@ UNIT_BUILD_LIST_NAVAL_SPECIAL {
   Unit UNIT_PLASMA_DESTROYER
 }
 
-## 25 #########################################################
+## 26 #########################################################
 
 UNIT_BUILD_LIST_AIR_SPECIAL {
   Unit UNIT_FIGHTER
@@ -284,7 +298,7 @@ UNIT_BUILD_LIST_AIR_SPECIAL {
   Unit UNIT_STEALTH_FIGHTER
 }
 
-## 26 #########################################################
+## 27 #########################################################
 
 UNIT_BUILD_LIST_MISSILE_SPECIAL {
   Unit UNIT_CRUISE_MISSILE
