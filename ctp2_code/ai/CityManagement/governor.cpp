@@ -3030,6 +3030,16 @@ void Governor::ComputeDesiredUnits()
 			strategy.GetRangedUnitsPercent(unit_support_percent_by_type);
 			break;
 
+		case BUILD_UNIT_LIST_FLANKERS:
+			garrison_count = strategy.GetFlankerGarrisonCount();
+			m_buildUnitList[list_num].m_perCityGarrison =
+				static_cast<sint16>(garrison_count);
+			m_buildUnitList[list_num].m_maximumGarrisonCount =
+				static_cast<sint16>(garrison_count * player_ptr->GetNumCities());
+
+			strategy.GetFlankerUnitsPercent(unit_support_percent_by_type);
+			break;
+
 		case BUILD_UNIT_LIST_SEA:
 			strategy.GetSeaUnitsPercent(unit_support_percent_by_type);
 			break;
@@ -3114,6 +3124,7 @@ void Governor::ComputeDesiredUnits()
 		case BUILD_UNIT_LIST_OFFENSE:
 		case BUILD_UNIT_LIST_DEFENSE:
 		case BUILD_UNIT_LIST_RANGED:
+		case BUILD_UNIT_LIST_FLANKERS:
 		case BUILD_UNIT_LIST_SEA:
 		case BUILD_UNIT_LIST_AIR:
 
@@ -3238,13 +3249,15 @@ void Governor::ComputeDesiredUnits()
 		}
 	}
 
-	m_buildUnitList[BUILD_UNIT_LIST_OFFENSE].m_garrisonCount = 0;
-	m_buildUnitList[BUILD_UNIT_LIST_DEFENSE].m_garrisonCount = 0;
-	m_buildUnitList[BUILD_UNIT_LIST_RANGED ].m_garrisonCount = 0;
+	m_buildUnitList[BUILD_UNIT_LIST_OFFENSE ].m_garrisonCount = 0;
+	m_buildUnitList[BUILD_UNIT_LIST_DEFENSE ].m_garrisonCount = 0;
+	m_buildUnitList[BUILD_UNIT_LIST_RANGED  ].m_garrisonCount = 0;
+	m_buildUnitList[BUILD_UNIT_LIST_FLANKERS].m_garrisonCount = 0;
 
 	sint32 desired_offense;
 	sint32 desired_defense;
 	sint32 desired_ranged;
+	sint32 desired_flankers;
 	MapPoint pos;
 
 	for (city_index = 0; city_index < num_cities; city_index++)
@@ -3254,9 +3267,10 @@ void Governor::ComputeDesiredUnits()
 		if (!unit.IsValid())
 			continue;
 
-		desired_offense = strategy.GetOffensiveGarrisonCount();
-		desired_defense = strategy.GetDefensiveGarrisonCount();
-		desired_ranged  = strategy.GetRangedGarrisonCount();
+		desired_offense  = strategy.GetOffensiveGarrisonCount();
+		desired_defense  = strategy.GetDefensiveGarrisonCount();
+		desired_ranged   = strategy.GetRangedGarrisonCount();
+		desired_flankers = strategy.GetFlankerGarrisonCount();
 
 		unit->GetPos(pos);
 		CellUnitList *  units_ptr   = g_theWorld->GetArmyPtr(pos);
@@ -3275,13 +3289,17 @@ void Governor::ComputeDesiredUnits()
 
 				if (armyUnit->GetType() == m_buildUnitList[BUILD_UNIT_LIST_RANGED].m_bestType)
 					desired_ranged--;
+
+				if (armyUnit->GetType() == m_buildUnitList[BUILD_UNIT_LIST_FLANKERS].m_bestType)
+					desired_flankers--;
 			}
 		}
 
 		Assert(unit->GetCityData());
 		if ( (desired_offense <= 0) &&
 			 (desired_defense <= 0) &&
-			 (desired_ranged <= 0) )
+			 (desired_ranged <= 0) &&
+			 (desired_flankers <= 0) )
 		{
 			unit->GetCityData()->SetGarrisonComplete(TRUE);
 		}
@@ -3306,6 +3324,12 @@ void Governor::ComputeDesiredUnits()
 		{
 			m_buildUnitList[BUILD_UNIT_LIST_RANGED].m_garrisonCount +=
 				static_cast<sint16>(desired_ranged);
+		}
+
+		if ( desired_flankers > 0 )
+		{
+			m_buildUnitList[BUILD_UNIT_LIST_FLANKERS].m_garrisonCount +=
+				static_cast<sint16>(desired_flankers);
 		}
 	}
 
@@ -4005,6 +4029,10 @@ const UnitBuildListRecord * Governor::GetBuildListRecord(const StrategyRecord & 
 	case BUILD_UNIT_LIST_RANGED:
 		Assert(strategy.HasRangedUnitList());
 		return strategy.HasRangedUnitList() ? strategy.GetRangedUnitListPtr() : NULL;
+
+	case BUILD_UNIT_LIST_FLANKERS:
+		Assert(strategy.HasFlankerUnitList());
+		return strategy.HasFlankerUnitList() ? strategy.GetFlankerUnitListPtr() : NULL;
 
 	case BUILD_UNIT_LIST_SEA:
 		Assert(strategy.HasSeaUnitList());

@@ -1718,6 +1718,7 @@ void Goal::Compute_Needed_Troop_Flow()
 			                          ? strategy.GetOffensiveGarrisonCount() : 1;
 			sint32 defensive_garrison = strategy.GetDefensiveGarrisonCount();
 			sint32 ranged_garrison    = strategy.GetRangedGarrisonCount();
+			sint32 flanker_garrison   = strategy.GetFlankerGarrisonCount();
 
 			// Why only defensive units?
 			// Added ranged units - Calvitix
@@ -1734,7 +1735,7 @@ void Goal::Compute_Needed_Troop_Flow()
 			//(see army_strength > operator) - Calvitix
 			if(!goal_record->GetForceMatchSpecial())
 			{
-				m_current_needed_strength.Set_Defenders(static_cast<sint8>(defensive_garrison + offensive_garrison));
+				m_current_needed_strength.Set_Defenders(static_cast<sint8>(defensive_garrison + offensive_garrison + flanker_garrison));
 				m_current_needed_strength.Set_Ranged_Units(static_cast<sint8>(ranged_garrison));
 			}
 

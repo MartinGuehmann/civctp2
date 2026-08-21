@@ -1427,8 +1427,9 @@ Unit Player::CreateCity(
 	sint32 offensive_garrison = strategy.GetOffensiveGarrisonCount();
 	sint32 defensive_garrison = strategy.GetDefensiveGarrisonCount();
 	sint32 ranged_garrison    = strategy.GetRangedGarrisonCount();
+	sint32 flanker_garrison   = strategy.GetFlankerGarrisonCount();
 
-	cityData->SetNeededGarrison(offensive_garrison + defensive_garrison + ranged_garrison);
+	cityData->SetNeededGarrison(offensive_garrison + defensive_garrison + ranged_garrison + flanker_garrison);
 
 	const StrategyRecord::ForceMatch *  force_match;
 	if(strategy.HasGarrison())

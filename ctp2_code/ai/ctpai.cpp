@@ -2040,7 +2040,8 @@ void CtpAi::ComputeCityGarrisons(const PLAYER_INDEX playerId )
 	sint32 offensive_garrison = strategy.GetOffensiveGarrisonCount();
 	sint32 defensive_garrison = strategy.GetDefensiveGarrisonCount();
 	sint32 ranged_garrison    = strategy.GetRangedGarrisonCount();
-	sint32 min_garrison = offensive_garrison + defensive_garrison + ranged_garrison;
+	sint32 flanker_garrison   = strategy.GetFlankerGarrisonCount();
+	sint32 min_garrison = offensive_garrison + defensive_garrison + ranged_garrison + flanker_garrison;
 
 	const StrategyRecord::ForceMatch *  force_match;
 	if(strategy.HasGarrison())

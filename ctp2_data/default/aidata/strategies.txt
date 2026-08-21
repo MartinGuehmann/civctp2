@@ -44,15 +44,15 @@
 //   and offense build lists and seperates the special untit build lists. So
 //   that there are now civs building Abolitionists.
 // - Increased priority for the refuel goal as it is now available for 
-//   units only that needs refueling. - April 30th 2005 Martin Gühmann
+//   units only that needs refueling. - April 30th 2005 Martin Gï¿½hmann
 // - Used the values of ApolytonPack-GoodMod for RoadUtilityBonus,
-//   ImproveProductionBonus and ImproveGrowthBonus. (Aug 26th 2005 Martin Gühmann)
+//   ImproveProductionBonus and ImproveGrowthBonus. (Aug 26th 2005 Martin Gï¿½hmann)
 // - Inreased SEIGE values for militarist and barbarian
 // - Diplomatic more emphasis on embassies
 // - Economic moe emphasis on piracy
 // - Ecotopian more defense oriented (temporary)
 // - Added build list sequence elements for small cities and for cities at their
-//   maximum size. (20-Aug-2009 Martin Gühmann)
+//   maximum size. (20-Aug-2009 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -302,9 +302,10 @@ STRATEGY_DEFAULT {
     UnitSupportPercent      0.15
 
     // Unit Percents must total to 1 (100%)
-    OffensiveUnitsPercent 0.20
-    DefensiveUnitsPercent 0.35
-    RangedUnitsPercent    0.35
+    OffensiveUnitsPercent 0.15
+    DefensiveUnitsPercent 0.30
+    RangedUnitsPercent    0.30
+    FlankerUnitsPercent   0.15
     SeaUnitsPercent       0.05
     AirUnitsPercent       0.05
 
@@ -332,6 +333,7 @@ STRATEGY_DEFAULT {
     OffensiveUnitList   UNIT_BUILD_LIST_OFFENSE
     DefensiveUnitList   UNIT_BUILD_LIST_DEFENSE
     RangedUnitList      UNIT_BUILD_LIST_RANGED
+    FlankerUnitList     UNIT_BUILD_LIST_FLANKERS
     SeaUnitList         UNIT_BUILD_LIST_SEA
     AirUnitList         UNIT_BUILD_LIST_AIR
 
@@ -682,9 +684,10 @@ STRATEGY_BARBARIAN {
 	UnitSupportPercent 1.0
 
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.60
+	OffensiveUnitsPercent 0.55
 	DefensiveUnitsPercent 0.00
-	RangedUnitsPercent    0.40
+	RangedUnitsPercent    0.35
+	FlankerUnitsPercent   0.10
 	SeaUnitsPercent       0.00
 	AirUnitsPercent       0.00
 
@@ -784,11 +787,12 @@ STRATEGY_SEIGE {
     AirTransportUnitList UNIT_BUILD_LIST_AIR_TRANSPORT
 
     // Unit Percents must total to 1 (100%)
-    OffensiveUnitsPercent 0.30
-    DefensiveUnitsPercent 0.20
-    RangedUnitsPercent    0.30
-    SeaUnitsPercent       0.10
-    AirUnitsPercent       0.10
+    OffensiveUnitsPercent 0.25
+    DefensiveUnitsPercent 0.15
+    RangedUnitsPercent    0.25
+    FlankerUnitsPercent   0.25
+    SeaUnitsPercent       0.05
+    AirUnitsPercent       0.05
 
     // Number of special units that should be built
     SeaTransportUnitsCount 6
@@ -864,11 +868,12 @@ STRATEGY_ATTACK {
 
 
     // Unit Percents must total to 1 (100%)
-    OffensiveUnitsPercent 0.30
-    DefensiveUnitsPercent 0.20
-    RangedUnitsPercent    0.30
-    SeaUnitsPercent       0.10
-    AirUnitsPercent       0.10
+    OffensiveUnitsPercent 0.25
+    DefensiveUnitsPercent 0.15
+    RangedUnitsPercent    0.25
+    FlankerUnitsPercent   0.25
+    SeaUnitsPercent       0.05
+    AirUnitsPercent       0.05
 
     // Number of special units that should be built
     SeaTransportUnitsCount 6
@@ -973,9 +978,10 @@ STRATEGY_DEFEND {
     AirTransportUnitList UNIT_BUILD_LIST_AIR
 
     // Unit Percents must total to 1 (100%)
-    OffensiveUnitsPercent 0.10
+    OffensiveUnitsPercent 0.05
     DefensiveUnitsPercent 0.40
-    RangedUnitsPercent    0.40
+    RangedUnitsPercent    0.35
+    FlankerUnitsPercent   0.10
     SeaUnitsPercent       0.05
     AirUnitsPercent       0.05
 
@@ -1092,9 +1098,10 @@ STRATEGY_AGRESSIVE_START {
 
 STRATEGY_ISLAND_NATION {
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.30
-	DefensiveUnitsPercent 0.20
-	RangedUnitsPercent    0.20
+	OffensiveUnitsPercent 0.20
+	DefensiveUnitsPercent 0.15
+	RangedUnitsPercent    0.15
+	FlankerUnitsPercent   0.20
 	SeaUnitsPercent       0.25
 	AirUnitsPercent       0.05
 
@@ -1109,9 +1116,10 @@ STRATEGY_ISLAND_NATION {
 
 STRATEGY_ISLAND_MILITARIST {
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.30
-	DefensiveUnitsPercent 0.20
-	RangedUnitsPercent    0.20
+	OffensiveUnitsPercent 0.20
+	DefensiveUnitsPercent 0.15
+	RangedUnitsPercent    0.15
+	FlankerUnitsPercent   0.20
 	SeaUnitsPercent       0.25
 	AirUnitsPercent       0.05
 
@@ -1125,9 +1133,10 @@ STRATEGY_ISLAND_MILITARIST {
 
 STRATEGY_ISLAND_DIPLOMATIC {
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.30
-	DefensiveUnitsPercent 0.20
-	RangedUnitsPercent    0.20
+	OffensiveUnitsPercent 0.20
+	DefensiveUnitsPercent 0.15
+	RangedUnitsPercent    0.15
+	FlankerUnitsPercent   0.20
 	SeaUnitsPercent       0.25
 	AirUnitsPercent       0.05
 
@@ -1141,9 +1150,10 @@ STRATEGY_ISLAND_DIPLOMATIC {
 
 STRATEGY_ISLAND_ECONOMIC {
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.30
-	DefensiveUnitsPercent 0.20
-	RangedUnitsPercent    0.20
+	OffensiveUnitsPercent 0.20
+	DefensiveUnitsPercent 0.15
+	RangedUnitsPercent    0.15
+	FlankerUnitsPercent   0.20
 	SeaUnitsPercent       0.25
 	AirUnitsPercent       0.05
 
@@ -1157,9 +1167,10 @@ STRATEGY_ISLAND_ECONOMIC {
 
 STRATEGY_ISLAND_SCIENTIST {
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.30
-	DefensiveUnitsPercent 0.20
-	RangedUnitsPercent    0.20
+	OffensiveUnitsPercent 0.20
+	DefensiveUnitsPercent 0.15
+	RangedUnitsPercent    0.15
+	FlankerUnitsPercent   0.20
 	SeaUnitsPercent       0.25
 	AirUnitsPercent       0.05
 
@@ -1173,9 +1184,10 @@ STRATEGY_ISLAND_SCIENTIST {
 
 STRATEGY_ISLAND_ECOTOPIAN {
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.30
-	DefensiveUnitsPercent 0.20
-	RangedUnitsPercent    0.20
+	OffensiveUnitsPercent 0.20
+	DefensiveUnitsPercent 0.15
+	RangedUnitsPercent    0.15
+	FlankerUnitsPercent   0.20
 	SeaUnitsPercent       0.25
 	AirUnitsPercent       0.05
 
@@ -1494,9 +1506,10 @@ STRATEGY_SCIENTIST_DEFAULT {
     UnitSupportPercent      0.10
 
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.20
-	DefensiveUnitsPercent 0.35
-	RangedUnitsPercent    0.35
+	OffensiveUnitsPercent 0.15
+	DefensiveUnitsPercent 0.30
+	RangedUnitsPercent    0.30
+	FlankerUnitsPercent   0.15
 	SeaUnitsPercent       0.05
 	AirUnitsPercent       0.05
 
@@ -1524,6 +1537,7 @@ STRATEGY_SCIENTIST_DEFAULT {
     OffensiveUnitList   UNIT_BUILD_LIST_OFFENSE
     DefensiveUnitList   UNIT_BUILD_LIST_DEFENSE
     RangedUnitList      UNIT_BUILD_LIST_RANGED
+    FlankerUnitList     UNIT_BUILD_LIST_FLANKERS
     SeaUnitList         UNIT_BUILD_LIST_SEA
     AirUnitList         UNIT_BUILD_LIST_AIR
 
@@ -2008,9 +2022,10 @@ STRATEGY_MILITARIST_DEFAULT {
     UnitSupportPercent      0.25
 
 	// Unit Percents must total to 1 (100%)
-    OffensiveUnitsPercent 0.25
-    DefensiveUnitsPercent 0.30
-    RangedUnitsPercent    0.25
+    OffensiveUnitsPercent 0.20
+    DefensiveUnitsPercent 0.15
+    RangedUnitsPercent    0.20
+    FlankerUnitsPercent   0.25
     SeaUnitsPercent       0.10
     AirUnitsPercent       0.10
 
@@ -2038,6 +2053,7 @@ STRATEGY_MILITARIST_DEFAULT {
     OffensiveUnitList   UNIT_BUILD_LIST_OFFENSE
     DefensiveUnitList   UNIT_BUILD_LIST_DEFENSE
     RangedUnitList      UNIT_BUILD_LIST_RANGED
+    FlankerUnitList     UNIT_BUILD_LIST_FLANKERS
     SeaUnitList         UNIT_BUILD_LIST_SEA
     AirUnitList         UNIT_BUILD_LIST_AIR
 
@@ -2530,9 +2546,10 @@ STRATEGY_ECONOMIC_DEFAULT {
     UnitSupportPercent      0.20
 
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.20
-	DefensiveUnitsPercent 0.35
-	RangedUnitsPercent    0.35
+	OffensiveUnitsPercent 0.15
+	DefensiveUnitsPercent 0.30
+	RangedUnitsPercent    0.30
+	FlankerUnitsPercent   0.15
 	SeaUnitsPercent       0.05
 	AirUnitsPercent       0.05
 
@@ -2560,6 +2577,7 @@ STRATEGY_ECONOMIC_DEFAULT {
     OffensiveUnitList   UNIT_BUILD_LIST_OFFENSE
     DefensiveUnitList   UNIT_BUILD_LIST_DEFENSE
     RangedUnitList      UNIT_BUILD_LIST_RANGED
+    FlankerUnitList     UNIT_BUILD_LIST_FLANKERS
     SeaUnitList         UNIT_BUILD_LIST_SEA
     AirUnitList         UNIT_BUILD_LIST_AIR
 
@@ -3043,9 +3061,10 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     UnitSupportPercent      0.20
 
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.20
-	DefensiveUnitsPercent 0.35
-	RangedUnitsPercent    0.35
+	OffensiveUnitsPercent 0.15
+	DefensiveUnitsPercent 0.30
+	RangedUnitsPercent    0.30
+	FlankerUnitsPercent   0.15
 	SeaUnitsPercent       0.05
 	AirUnitsPercent       0.05
 
@@ -3073,6 +3092,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     OffensiveUnitList   UNIT_BUILD_LIST_OFFENSE
     DefensiveUnitList   UNIT_BUILD_LIST_DEFENSE
     RangedUnitList      UNIT_BUILD_LIST_RANGED
+    FlankerUnitList     UNIT_BUILD_LIST_FLANKERS
     SeaUnitList         UNIT_BUILD_LIST_SEA
     AirUnitList         UNIT_BUILD_LIST_AIR
 
@@ -3556,9 +3576,10 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     UnitSupportPercent      0.20
 
 	// Unit Percents must total to 1 (100%)
-	OffensiveUnitsPercent 0.20
-	DefensiveUnitsPercent 0.35
-	RangedUnitsPercent    0.35
+	OffensiveUnitsPercent 0.15
+	DefensiveUnitsPercent 0.30
+	RangedUnitsPercent    0.30
+	FlankerUnitsPercent   0.15
 	SeaUnitsPercent       0.05
 	AirUnitsPercent       0.05
 
@@ -3586,6 +3607,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     OffensiveUnitList   UNIT_BUILD_LIST_OFFENSE
     DefensiveUnitList   UNIT_BUILD_LIST_DEFENSE
     RangedUnitList      UNIT_BUILD_LIST_RANGED
+    FlankerUnitList     UNIT_BUILD_LIST_FLANKERS
     SeaUnitList         UNIT_BUILD_LIST_SEA
     AirUnitList         UNIT_BUILD_LIST_AIR
 

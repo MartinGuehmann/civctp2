@@ -243,6 +243,7 @@ Strategy {
 	Bit (Float) OffensiveUnitsPercent
 	Bit (Float) DefensiveUnitsPercent
 	Bit (Float) RangedUnitsPercent
+	Bit (Float) FlankerUnitsPercent
 	Bit (Float) SeaUnitsPercent
 	Bit (Float) AirUnitsPercent
 
@@ -260,6 +261,7 @@ Strategy {
 	Bit (Record UnitBuildList) OffensiveUnitList
 	Bit (Record UnitBuildList) DefensiveUnitList
 	Bit (Record UnitBuildList) RangedUnitList
+	Bit (Record UnitBuildList) FlankerUnitList
 	Bit (Record UnitBuildList) SeaUnitList
 	Bit (Record UnitBuildList) AirUnitList
 
@@ -279,6 +281,7 @@ Strategy {
 	Bit (Int) OffensiveGarrisonCount = 0
 	Bit (Int) DefensiveGarrisonCount = 0
 	Bit (Int) RangedGarrisonCount = 0
+	Bit (Int) FlankerGarrisonCount = 0
 
 	// Additional units to reserve for garrison if the force match requires that
 	Int AdditionalGarrisonUnitsIfNeeded = 0
