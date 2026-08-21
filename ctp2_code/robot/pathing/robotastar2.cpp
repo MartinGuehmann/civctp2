@@ -278,6 +278,17 @@ bool RobotAstar2::AirliftPathCallback (const bool & can_enter,
 			}
 		}
 
+		// Protects the transporter itself, not its cargo - unlike a landing
+		// preference (m_dest is a single fixed tile, so cost added there
+		// can't steer anything), this applies to every other tile still in
+		// flight, where genuine alternate routes exist. Mirrors
+		// TransportPathCallback's "if we do not land, just avoid some units
+		// next" branch, which does the same for a ship still at sea.
+		if(pos != m_dest && g_theWorld->IsNextToForeigner(pos, m_owner))
+		{
+			cost += k_MOVE_ISDANGER_COST;
+		}
+
 		return true;
 	}
 	else
