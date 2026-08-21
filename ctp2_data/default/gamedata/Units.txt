@@ -1848,7 +1848,7 @@ UNIT_HOPLITE {
    Firepower 1
    Armor 1
    MaxHP 10
-   ShieldCost 175
+   ShieldCost 150
    PowerPoints 100
    ShieldHunger 1
    GoldHunger 1
@@ -4268,7 +4268,7 @@ UNIT_WARRIOR {
    DefaultIcon ICON_UNIT_WARRIOR
    DefaultSprite SPRITE_WARRIOR
    Category UNIT_CATEGORY_ATTACK
-   Attack 10
+   Attack 15
    Defense 10
    ZBRangeAttack 0
    Firepower 1
