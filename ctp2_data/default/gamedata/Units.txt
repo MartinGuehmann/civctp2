@@ -1791,7 +1791,7 @@ UNIT_FUSION_TANK {
    Firepower 5
    Armor 4
    MaxHP 10
-   ShieldCost 5250
+   ShieldCost 3700
    PowerPoints 7000
    ShieldHunger 50
    GoldHunger 130
@@ -2382,7 +2382,7 @@ UNIT_LEVIATHON {
    Firepower 6
    Armor 6
    MaxHP 10
-   ShieldCost 9000
+   ShieldCost 5000
    PowerPoints 12000
    ShieldHunger 100
    GoldHunger 250
