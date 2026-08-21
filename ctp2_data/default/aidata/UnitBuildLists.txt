@@ -179,12 +179,16 @@ UNIT_BUILD_LIST_ALL_SETTLER {
 
 ## 18 #########################################################
 
-# Category UNIT_CATEGORY_DEFENSE units
+# Category UNIT_CATEGORY_DEFENSE units, plus Paratrooper/Hover Infantry
+# (Category UNIT_CATEGORY_ATTACK) to cover the gap between Infantryman
+# and Leviathon
 UNIT_BUILD_LIST_DEFENSE {
   Unit UNIT_WARRIOR
   Unit UNIT_HOPLITE
   Unit UNIT_PIKEMEN
   Unit UNIT_INFANTRYMAN
+  Unit UNIT_PARATROOPER
+  Unit UNIT_HOVER_INFANTRY
   Unit UNIT_LEVIATHON
 }
 
@@ -192,14 +196,13 @@ UNIT_BUILD_LIST_DEFENSE {
 
 # Category UNIT_CATEGORY_ATTACK units
 UNIT_BUILD_LIST_OFFENSE {
-  Unit UNIT_WARRIOR
   Unit UNIT_HOPLITE
+  Unit UNIT_WARRIOR
 //  Unit UNIT_CHARIOT
   Unit UNIT_SWORDSMAN
   Unit UNIT_INFANTRYMAN
   Unit UNIT_FASCIST
   Unit UNIT_MACHINE_GUNNER
-  Unit UNIT_PARATROOPER
   Unit UNIT_MARINE
   Unit UNIT_HOVER_INFANTRY
 }
