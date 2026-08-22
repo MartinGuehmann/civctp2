@@ -4768,10 +4768,16 @@ void Goal::GroupTroops()
 	{
 		Agent_ptr agent1_ptr = (Agent_ptr) *agent1_iter;
 
+		// No cheap "nothing to group here" pre-check anymore -
+		// GetUnitsAtPos() (the tile's total unit count) was never scoped
+		// to this goal's own agents or to movement-type compatibility, so
+		// it could read as "still more to group" forever once separate
+		// movement-type stacks stop merging with each other. The inner
+		// loop below is already bounded by this goal's own agent count
+		// and correctly no-ops when nothing eligible is left.
 		if
 		  (
-		        agent1_ptr->GetUnitsAtPos() == agent1_ptr->Get_Army()->Num() // Nothing to group here
-		    ||  agent1_ptr->Get_Is_Dead()
+		        agent1_ptr->Get_Is_Dead()
 		    || !agent1_ptr->Get_Can_Be_Executed()
 		  )
 		{
@@ -4804,9 +4810,24 @@ void Goal::GroupTroops()
 				{
 					agent2_ptr->UnloadCargo();
 				}
-				else
+				else if
+				  (
+				       (agent1_ptr->Get_Army()->GetMovementType() &
+				        agent2_ptr->Get_Army()->GetMovementType()) != 0
+				  )
 				{
 					agent1_ptr->Group_With(agent2_ptr);
+				}
+				else
+				{
+					// No shared movement type - ArmyData::GetMovementType()
+					// intersects every member's bits, so grouping these two
+					// would zero out the combined army's movement mask and
+					// leave it unable to enter any tile at all
+					// (Cell::CanEnter is movement_mask & army_mask != 0,
+					// always false when army_mask is 0). Keep looking for a
+					// compatible partner instead of merging blindly.
+					continue;
 				}
 
 				// agent1_ptr has now been given an action this cycle (all
