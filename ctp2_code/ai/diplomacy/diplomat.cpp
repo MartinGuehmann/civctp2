@@ -2716,12 +2716,17 @@ void Diplomat::ExecuteResponse(const Response & response, bool runAI)
 	{
 		SetMyLastResponse(response.senderId, response);
 
-		// SetReceiverHasInitiative(receiver, true) only runs once
-		// GEV_NewProposal actually drains (ExecuteEventNewProposal is
-		// "only called by the event") - a response executed before that
-		// event has been processed would find the sender's copy still
-		// stale, tripping both asserts below together. Log the actual
-		// values to confirm (or rule out) that theory on the next hit.
+		// Seen tripping together right after a DipWizard AcceptButton/
+		// RejectButton click while observing a robot player's turn -
+		// matches GitHub #245: DipWizard::Display() only skips
+		// re-showing/resetting an already-open window when
+		// g_network.IsActive() (multiplayer only), so in single-player
+		// "watch the AI" mode a second proposal's window can reuse the
+		// first one's button positions before the click on the first
+		// lands, applying the click's response to a stale proposal the
+		// sender never actually made "with initiative". Log the actual
+		// values to confirm (or rule out) that this is really a stale
+		// Response rather than a genuine sender/receiver desync.
 		DPRINTF(k_DBG_DIPLOMACY,
 		    ("ExecuteResponse: sender %d receiver %d senderHasInitiative=%d senderLastProposalIsBad=%d\n",
 		     response.senderId, response.receiverId,
