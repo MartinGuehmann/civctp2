@@ -8235,6 +8235,17 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 
 			if(m_array[i].HasLeftMap())
 			{
+				// HasLeftMap() only comes from wormhole entry
+				// (UnitData::SetPos, k_UDF_HAS_LEFT_MAP), a leftover
+				// mechanic from this game's predecessor - MoveUnits wasn't
+				// written expecting an ordinary move to land a unit on a
+				// wormhole tile. The transition itself is already fully
+				// handled by SetPos by this point; log which unit/army and
+				// where, to see whether this is routine wormhole traffic
+				// before deciding whether the assert still makes sense.
+				DPRINTF(k_DBG_GAMESTATE,
+				    ("ArmyData::MoveUnits: unit 0x%lx (army 0x%lx, owner %d) left the map via wormhole at (%d,%d), moving from (%d,%d)\n",
+				     m_array[i].m_id, m_id, m_owner, pos.x, pos.y, oldPos.x, oldPos.y));
 				Assert(false);
 			}
 		}
