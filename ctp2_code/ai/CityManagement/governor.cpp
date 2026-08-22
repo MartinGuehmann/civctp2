@@ -2985,6 +2985,12 @@ void Governor::ComputeDesiredUnits()
 	sint32 needed_transport = Scheduler::GetScheduler(m_playerId).
 	                            GetMostNeededStrength().Get_Transport();
 
+	// Per-category percent for the six percent-of-support categories below,
+	// kept around (rather than a single scalar re-used each iteration) so
+	// they can be combined after the loop when more than one category
+	// shares the same best unit type.
+	double list_percent[BUILD_UNIT_LIST_MAX] = { 0.0 };
+
 	for (int list_num = 0; list_num < BUILD_UNIT_LIST_MAX; list_num++)
 	{
 		m_buildUnitList[list_num].m_perCityGarrison =  0;
@@ -2994,7 +3000,6 @@ void Governor::ComputeDesiredUnits()
 
 		sint32 desired_count                        =  0;
 		sint32 garrison_count                       =  0;
-		double unit_support_percent_by_type         =  0.0;
 
 		build_list_rec = GetBuildListRecord(strategy, (BUILD_UNIT_LIST) list_num);
 
@@ -3007,7 +3012,7 @@ void Governor::ComputeDesiredUnits()
 			m_buildUnitList[list_num].m_maximumGarrisonCount =
 				static_cast<sint16>(garrison_count * player_ptr->GetNumCities());
 
-			strategy.GetOffensiveUnitsPercent(unit_support_percent_by_type);
+			strategy.GetOffensiveUnitsPercent(list_percent[list_num]);
 			break;
 
 		case BUILD_UNIT_LIST_DEFENSE:
@@ -3017,7 +3022,7 @@ void Governor::ComputeDesiredUnits()
 			m_buildUnitList[list_num].m_maximumGarrisonCount =
 				static_cast<sint16>(garrison_count * player_ptr->GetNumCities());
 
-			strategy.GetDefensiveUnitsPercent(unit_support_percent_by_type);
+			strategy.GetDefensiveUnitsPercent(list_percent[list_num]);
 			break;
 
 		case BUILD_UNIT_LIST_RANGED:
@@ -3027,7 +3032,7 @@ void Governor::ComputeDesiredUnits()
 			m_buildUnitList[list_num].m_maximumGarrisonCount =
 				static_cast<sint16>(garrison_count * player_ptr->GetNumCities());
 
-			strategy.GetRangedUnitsPercent(unit_support_percent_by_type);
+			strategy.GetRangedUnitsPercent(list_percent[list_num]);
 			break;
 
 		case BUILD_UNIT_LIST_FLANKERS:
@@ -3037,15 +3042,15 @@ void Governor::ComputeDesiredUnits()
 			m_buildUnitList[list_num].m_maximumGarrisonCount =
 				static_cast<sint16>(garrison_count * player_ptr->GetNumCities());
 
-			strategy.GetFlankerUnitsPercent(unit_support_percent_by_type);
+			strategy.GetFlankerUnitsPercent(list_percent[list_num]);
 			break;
 
 		case BUILD_UNIT_LIST_SEA:
-			strategy.GetSeaUnitsPercent(unit_support_percent_by_type);
+			strategy.GetSeaUnitsPercent(list_percent[list_num]);
 			break;
 
 		case BUILD_UNIT_LIST_AIR:
-			strategy.GetAirUnitsPercent(unit_support_percent_by_type);
+			strategy.GetAirUnitsPercent(list_percent[list_num]);
 			break;
 
 		case BUILD_UNIT_LIST_SETTLER:
@@ -3127,49 +3132,12 @@ void Governor::ComputeDesiredUnits()
 		case BUILD_UNIT_LIST_FLANKERS:
 		case BUILD_UNIT_LIST_SEA:
 		case BUILD_UNIT_LIST_AIR:
-
-			total_unit_support_by_type =
-				static_cast<sint32>(total_unit_support * unit_support_percent_by_type);
-
-			if (best_unit_type >= 0)
-			{
-				total_unit_support_by_type += total_unallocated_support;
-				sint32 const bestUnitSupport = GetDBUnitRec(best_unit_type)->GetShieldHunger();
-
-				if (bestUnitSupport > 0)
-				{
-					Assert(total_unit_support_by_type >= 0);
-					m_buildUnitList[list_num].m_maximumCount =
-						static_cast<sint16>
-							(floor(static_cast<double>(total_unit_support_by_type) /
-								   bestUnitSupport
-								  )
-							);
-
-					total_unallocated_support = total_unit_support_by_type -
-						m_buildUnitList[list_num].m_maximumCount * bestUnitSupport;
-				}
-				else
-				{
-					m_buildUnitList[list_num].m_maximumCount =
-						static_cast<sint16>(total_unit_support_by_type);
-
-					total_unallocated_support = total_unit_support_by_type;
-				}
-				m_buildUnitList[list_num].m_desiredCount =
-					m_buildUnitList[list_num].m_maximumCount -
-					m_currentUnitCount[best_unit_type];
-
-				m_maximumUnitShieldCost +=
-					m_buildUnitList[list_num].m_maximumCount * bestUnitSupport;
-
-				m_currentUnitShieldCost +=
-					m_currentUnitCount[best_unit_type] * bestUnitSupport;
-			}
-			else
-			{
-				total_unallocated_support += total_unit_support_by_type;
-			}
+			// Percent-to-count conversion for these six is deferred to the
+			// combined pass right after this loop, so that categories
+			// sharing the same best unit type (m_currentUnitCount is a
+			// single count per unit type, not scoped per category) get
+			// their percentages combined instead of each independently
+			// computing a competing desired count against the same unit.
 			break;
 		case BUILD_UNIT_LIST_SETTLER:
 		case BUILD_UNIT_LIST_SEA_SETTLER:
@@ -3246,6 +3214,96 @@ void Governor::ComputeDesiredUnits()
 
 			Assert(false);
 			break;
+		}
+	}
+
+	// Convert the six percent-of-support categories' budgets into unit
+	// counts, combining any that currently share the same best unit type
+	// (e.g. Warrior/Swordsman shared by OFFENSE and FLANKERS before
+	// Feudalism unlocks Knight, or Paratrooper/Hover Infantry shared by
+	// DEFENSE and OFFENSE) instead of letting each independently claim a
+	// desired count against the same m_currentUnitCount entry.
+	{
+		BUILD_UNIT_LIST const k_percentBasedLists[] =
+		{
+			BUILD_UNIT_LIST_RANGED,
+			BUILD_UNIT_LIST_OFFENSE,
+			BUILD_UNIT_LIST_DEFENSE,
+			BUILD_UNIT_LIST_FLANKERS,
+			BUILD_UNIT_LIST_SEA,
+			BUILD_UNIT_LIST_AIR
+		};
+		sint32 const numPercentBasedLists =
+			sizeof(k_percentBasedLists) / sizeof(k_percentBasedLists[0]);
+
+		bool grouped[numPercentBasedLists];
+		std::fill_n(grouped, numPercentBasedLists, false);
+
+		for (sint32 i = 0; i < numPercentBasedLists; i++)
+		{
+			if (grouped[i])
+				continue;
+
+			BUILD_UNIT_LIST const list_i = k_percentBasedLists[i];
+			sint32 const best_unit_type = m_buildUnitList[list_i].m_bestType;
+
+			grouped[i] = true;
+
+			if (best_unit_type < 0)
+			{
+				total_unallocated_support += static_cast<sint32>
+					(total_unit_support * list_percent[list_i]);
+				continue;
+			}
+
+			double combined_percent = list_percent[list_i];
+
+			for (sint32 j = i + 1; j < numPercentBasedLists; j++)
+			{
+				if (!grouped[j] &&
+				    m_buildUnitList[k_percentBasedLists[j]].m_bestType == best_unit_type)
+				{
+					combined_percent += list_percent[k_percentBasedLists[j]];
+					grouped[j] = true;
+				}
+			}
+
+			total_unit_support_by_type =
+				static_cast<sint32>(total_unit_support * combined_percent) +
+				total_unallocated_support;
+
+			sint32 const bestUnitSupport = GetDBUnitRec(best_unit_type)->GetShieldHunger();
+			sint16 maximumCount;
+
+			if (bestUnitSupport > 0)
+			{
+				Assert(total_unit_support_by_type >= 0);
+				maximumCount = static_cast<sint16>
+					(floor(static_cast<double>(total_unit_support_by_type) / bestUnitSupport));
+
+				total_unallocated_support = total_unit_support_by_type -
+					maximumCount * bestUnitSupport;
+			}
+			else
+			{
+				maximumCount = static_cast<sint16>(total_unit_support_by_type);
+				total_unallocated_support = total_unit_support_by_type;
+			}
+
+			sint16 const desiredCount = static_cast<sint16>
+				(maximumCount - m_currentUnitCount[best_unit_type]);
+
+			m_maximumUnitShieldCost += maximumCount * bestUnitSupport;
+			m_currentUnitShieldCost += m_currentUnitCount[best_unit_type] * bestUnitSupport;
+
+			for (sint32 j = i; j < numPercentBasedLists; j++)
+			{
+				if (m_buildUnitList[k_percentBasedLists[j]].m_bestType == best_unit_type)
+				{
+					m_buildUnitList[k_percentBasedLists[j]].m_maximumCount = maximumCount;
+					m_buildUnitList[k_percentBasedLists[j]].m_desiredCount = desiredCount;
+				}
+			}
 		}
 	}
 
