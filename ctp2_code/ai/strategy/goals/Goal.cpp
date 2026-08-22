@@ -372,7 +372,35 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 		agent_ptr->ClearOrders();
 	}
 
+#if defined(_DEBUG) || defined(USE_LOGGING)
+	Squad_Strength before_removal = m_current_attacking_strength;
+#endif
+
 	m_current_attacking_strength.Remove_Agent_Strength(agent_ptr);
+
+#if defined(_DEBUG) || defined(USE_LOGGING)
+	if (!m_current_attacking_strength.NothingNeeded())
+	{
+		// Pinpoints the exact Rollback_Agent call that first drives a
+		// field negative (vs. Rollback_All_Agents's Assert, which only
+		// sees the already-summed end state) - distinguishes two possible
+		// causes: agent_ptr's own cached Get_Squad_Strength() already
+		// carrying a negative field (a ComputeStrength issue), vs. this
+		// goal's own running total not having had enough of that field
+		// to remove (an Add/Remove_Agent_Strength cache-mismatch, the
+		// same bug class as the two fixes referenced in Commit_Agent
+		// above, whose Assert(NothingNeeded()) this feeds into
+		// (Goal.cpp:1097)).
+		DPRINTF(k_DBG_SCHEDULER,
+		    ("\tRollback_Agent: removal drove a field negative - player %d, goal_type %d, army 0x%lx, owner %d\n",
+		     m_playerId, m_goal_type,
+		     agent_ptr->Get_Army().m_id,
+		     agent_ptr->Get_Army().IsValid() ? agent_ptr->Get_Army()->GetOwner() : -1));
+		before_removal.Log_Debug_Info_Unconditional(k_DBG_SCHEDULER, "current_attacking_strength before this removal");
+		agent_ptr->Get_Squad_Strength().Log_Debug_Info_Unconditional(k_DBG_SCHEDULER, "agent_ptr strength being removed");
+		m_current_attacking_strength.Log_Debug_Info_Unconditional(k_DBG_SCHEDULER, "current_attacking_strength after this removal");
+	}
+#endif
 
 	agent_iter = m_agents.erase(agent_iter);
 
