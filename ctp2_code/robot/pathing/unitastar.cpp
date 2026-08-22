@@ -1200,11 +1200,14 @@ bool UnitAstar::FindPath(
 	if (searchSucceeded) {
 		result = true;
 	} else {
-		DPRINTF(k_DBG_ASTAR, ("PATHFIND_DIAG: UnitAstar::FindPath failed from (%d,%d) to (%d,%d): %s, army 0x%lx move_union 0x%x move_intersection 0x%x\n",
+		DPRINTF(k_DBG_ASTAR, ("PATHFIND_DIAG: UnitAstar::FindPath failed from (%d,%d) to (%d,%d): %s, army 0x%lx move_union 0x%x move_intersection 0x%x, nodes_opened %d of cutoff %d (%s)\n",
 		                                 start.x, start.y, dest.x, dest.y,
 		                                 pretestPassed ? "PretestDest passed, full A* search failed"
 		                                               : "rejected by PretestDest before searching",
-		                                 m_army.m_id, move_union, move_intersection));
+		                                 m_army.m_id, move_union, move_intersection,
+		                                 nodes_opened, cutoff,
+		                                 nodes_opened >= cutoff ? "hit node budget, search may have been cut short"
+		                                                        : "search exhausted the reachable area on its own"));
 		if (no_bad_path) {
 			result = false;
 		} else {
