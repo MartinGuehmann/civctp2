@@ -2716,6 +2716,18 @@ void Diplomat::ExecuteResponse(const Response & response, bool runAI)
 	{
 		SetMyLastResponse(response.senderId, response);
 
+		// SetReceiverHasInitiative(receiver, true) only runs once
+		// GEV_NewProposal actually drains (ExecuteEventNewProposal is
+		// "only called by the event") - a response executed before that
+		// event has been processed would find the sender's copy still
+		// stale, tripping both asserts below together. Log the actual
+		// values to confirm (or rule out) that theory on the next hit.
+		DPRINTF(k_DBG_DIPLOMACY,
+		    ("ExecuteResponse: sender %d receiver %d senderHasInitiative=%d senderLastProposalIsBad=%d\n",
+		     response.senderId, response.receiverId,
+		     Diplomat::GetDiplomat(response.senderId).GetReceiverHasInitiative(response.receiverId),
+		     Diplomat::GetDiplomat(response.senderId).GetMyLastNewProposal(response.receiverId) == s_badNewProposal));
+
 		Assert(Diplomat::GetDiplomat(response.senderId).GetReceiverHasInitiative(response.receiverId) == true);
 		Assert(Diplomat::GetDiplomat(response.senderId).GetMyLastNewProposal(response.receiverId) != s_badNewProposal);
 	}
