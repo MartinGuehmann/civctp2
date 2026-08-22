@@ -226,8 +226,14 @@ UNIT_BUILD_LIST_RANGED {
 
 ## 21 #########################################################
 
-# All Category UNIT_CATEGORY_FLANKER/IsFlanker units, ordered by Attack
+# All Category UNIT_CATEGORY_FLANKER/IsFlanker units, ordered by Attack,
+# plus Warrior/Swordsman (Category UNIT_CATEGORY_ATTACK) as early-game
+# fallbacks - Knight needs Feudalism, so without them this list has no
+# turn-1 unit and its whole FlankerUnitsPercent share goes unused every
+# turn until then (see the discussion this caused)
 UNIT_BUILD_LIST_FLANKERS {
+  Unit UNIT_WARRIOR
+  Unit UNIT_SWORDSMAN
   Unit UNIT_KNIGHT
   # Cut content: EnableAdvance ADVANCE_SUBNEURAL_ADS requires itself, so
   # this can never actually be researched/built. Attack 30 puts it here,
