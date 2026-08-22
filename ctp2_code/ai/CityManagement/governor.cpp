@@ -3307,15 +3307,21 @@ void Governor::ComputeDesiredUnits()
 		}
 	}
 
-	m_buildUnitList[BUILD_UNIT_LIST_OFFENSE ].m_garrisonCount = 0;
-	m_buildUnitList[BUILD_UNIT_LIST_DEFENSE ].m_garrisonCount = 0;
-	m_buildUnitList[BUILD_UNIT_LIST_RANGED  ].m_garrisonCount = 0;
-	m_buildUnitList[BUILD_UNIT_LIST_FLANKERS].m_garrisonCount = 0;
+	BUILD_UNIT_LIST const k_garrisonLists[] =
+	{
+		BUILD_UNIT_LIST_OFFENSE,
+		BUILD_UNIT_LIST_DEFENSE,
+		BUILD_UNIT_LIST_RANGED,
+		BUILD_UNIT_LIST_FLANKERS
+	};
+	sint32 const numGarrisonLists =
+		sizeof(k_garrisonLists) / sizeof(k_garrisonLists[0]);
 
-	sint32 desired_offense;
-	sint32 desired_defense;
-	sint32 desired_ranged;
-	sint32 desired_flankers;
+	for (sint32 k = 0; k < numGarrisonLists; k++)
+	{
+		m_buildUnitList[k_garrisonLists[k]].m_garrisonCount = 0;
+	}
+
 	MapPoint pos;
 
 	for (city_index = 0; city_index < num_cities; city_index++)
@@ -3325,39 +3331,69 @@ void Governor::ComputeDesiredUnits()
 		if (!unit.IsValid())
 			continue;
 
-		desired_offense  = strategy.GetOffensiveGarrisonCount();
-		desired_defense  = strategy.GetDefensiveGarrisonCount();
-		desired_ranged   = strategy.GetRangedGarrisonCount();
-		desired_flankers = strategy.GetFlankerGarrisonCount();
+		sint32 desired[numGarrisonLists];
+		desired[0] = strategy.GetOffensiveGarrisonCount();
+		desired[1] = strategy.GetDefensiveGarrisonCount();
+		desired[2] = strategy.GetRangedGarrisonCount();
+		desired[3] = strategy.GetFlankerGarrisonCount();
 
 		unit->GetPos(pos);
 		CellUnitList *  units_ptr   = g_theWorld->GetArmyPtr(pos);
 		sint32          unitCount   = units_ptr ? units_ptr->Num() : 0;
-		for (sint32 unit_index = 0; unit_index < unitCount; unit_index++)
+
+		// As in ComputeDesiredUnits's combined pass above, a unit type can
+		// be the best pick for more than one garrison category at once -
+		// without grouping, the same physical unit would satisfy each
+		// category's minimum independently, letting a city report its
+		// garrison complete with fewer units than the sum of the
+		// configured minimums actually calls for.
+		bool grouped[numGarrisonLists];
+		std::fill_n(grouped, numGarrisonLists, false);
+
+		for (sint32 k = 0; k < numGarrisonLists; k++)
 		{
-			Unit    armyUnit    = units_ptr->Get(unit_index);
+			if (grouped[k])
+				continue;
 
-			if (armyUnit.IsValid())
+			grouped[k] = true;
+
+			sint32 const best_unit_type = m_buildUnitList[k_garrisonLists[k]].m_bestType;
+
+			if (best_unit_type < 0)
+				continue;
+
+			sint32 combined_desired = desired[k];
+
+			for (sint32 m = k + 1; m < numGarrisonLists; m++)
 			{
-				if (armyUnit->GetType() == m_buildUnitList[BUILD_UNIT_LIST_OFFENSE].m_bestType)
-					desired_offense--;
+				if (!grouped[m] &&
+				    m_buildUnitList[k_garrisonLists[m]].m_bestType == best_unit_type)
+				{
+					combined_desired += desired[m];
+					grouped[m] = true;
+				}
+			}
 
-				if (armyUnit->GetType() == m_buildUnitList[BUILD_UNIT_LIST_DEFENSE].m_bestType)
-					desired_defense--;
+			for (sint32 unit_index = 0; unit_index < unitCount; unit_index++)
+			{
+				Unit armyUnit = units_ptr->Get(unit_index);
 
-				if (armyUnit->GetType() == m_buildUnitList[BUILD_UNIT_LIST_RANGED].m_bestType)
-					desired_ranged--;
+				if (armyUnit.IsValid() && armyUnit->GetType() == best_unit_type)
+					combined_desired--;
+			}
 
-				if (armyUnit->GetType() == m_buildUnitList[BUILD_UNIT_LIST_FLANKERS].m_bestType)
-					desired_flankers--;
+			for (sint32 m = 0; m < numGarrisonLists; m++)
+			{
+				if (m_buildUnitList[k_garrisonLists[m]].m_bestType == best_unit_type)
+					desired[m] = combined_desired;
 			}
 		}
 
 		Assert(unit->GetCityData());
-		if ( (desired_offense <= 0) &&
-			 (desired_defense <= 0) &&
-			 (desired_ranged <= 0) &&
-			 (desired_flankers <= 0) )
+		if ( (desired[0] <= 0) &&
+			 (desired[1] <= 0) &&
+			 (desired[2] <= 0) &&
+			 (desired[3] <= 0) )
 		{
 			unit->GetCityData()->SetGarrisonComplete(TRUE);
 		}
@@ -3366,28 +3402,13 @@ void Governor::ComputeDesiredUnits()
 			unit->GetCityData()->SetGarrisonComplete(FALSE);
 		}
 
-		if ( desired_offense > 0)
+		for (sint32 k = 0; k < numGarrisonLists; k++)
 		{
-			m_buildUnitList[BUILD_UNIT_LIST_OFFENSE].m_garrisonCount +=
-				static_cast<sint16>(desired_offense);
-		}
-
-		if ( desired_defense > 0 )
-		{
-			m_buildUnitList[BUILD_UNIT_LIST_DEFENSE].m_garrisonCount +=
-				static_cast<sint16>(desired_defense);
-		}
-
-		if ( desired_ranged > 0 )
-		{
-			m_buildUnitList[BUILD_UNIT_LIST_RANGED].m_garrisonCount +=
-				static_cast<sint16>(desired_ranged);
-		}
-
-		if ( desired_flankers > 0 )
-		{
-			m_buildUnitList[BUILD_UNIT_LIST_FLANKERS].m_garrisonCount +=
-				static_cast<sint16>(desired_flankers);
+			if (desired[k] > 0)
+			{
+				m_buildUnitList[k_garrisonLists[k]].m_garrisonCount +=
+					static_cast<sint16>(desired[k]);
+			}
 		}
 	}
 
