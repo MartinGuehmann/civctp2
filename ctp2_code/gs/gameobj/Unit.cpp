@@ -235,6 +235,29 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 			     m_id, owner, cause, killedBy, pos.x, pos.y,
 			     cell ? cell->GetNumUnits() : -1,
 			     cell ? cell->GetCity().m_id : 0));
+
+			// Was this unit's own bookkeeping already out of sync with
+			// the world before this removal was even attempted? Compare
+			// this unit's recorded pos against its army's, and list what
+			// the cell actually has instead - to tell a position/army
+			// desync apart from a genuine double-kill (see the still-
+			// unidentified double-kill path noted in Unit::KillUnit).
+			Army army = GetArmy();
+			DPRINTF(k_DBG_GAMESTATE,
+			    ("Unit::RemoveAllReferences: unit's army 0x%lx pos (%d,%d) %s unit's own pos\n",
+			     army.m_id,
+			     army.IsValid() ? army->RetPos().x : -1,
+			     army.IsValid() ? army->RetPos().y : -1,
+			     (army.IsValid() && army->RetPos() == pos) ? "matches" : "DIFFERS FROM"));
+			if (cell)
+			{
+				for (sint32 ci = 0; ci < cell->GetNumUnits(); ci++)
+				{
+					DPRINTF(k_DBG_GAMESTATE,
+					    ("Unit::RemoveAllReferences: cell actually contains unit 0x%lx\n",
+					     cell->AccessUnit(ci).m_id));
+				}
+			}
 		}
 		Assert(r);
 	}
