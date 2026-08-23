@@ -3863,7 +3863,7 @@ STRATEGY_DEFENSE_NONE {
     // its cities undfended.
 
     // Minimum number of units to keep in cities as a garrison
-    OffensiveGarrisonCount  0
+    OffensiveGarrisonCount  1
     DefensiveGarrisonCount  1
     RangedGarrisonCount     0
 
@@ -3883,7 +3883,7 @@ STRATEGY_DEFENSE_NONE {
 STRATEGY_DEFENSE_VERY_LOW {
 
     // minimum number of units to keep in cities as a garrison
-    OffensiveGarrisonCount  0
+    OffensiveGarrisonCount  1
     DefensiveGarrisonCount  1
     RangedGarrisonCount     0
 }
@@ -3891,7 +3891,7 @@ STRATEGY_DEFENSE_VERY_LOW {
 STRATEGY_DEFENSE_LOW {
 
     // minimum number of units to keep in cities as a garrison
-    OffensiveGarrisonCount  0
+    OffensiveGarrisonCount  1
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
 }
