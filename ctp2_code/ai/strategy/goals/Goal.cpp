@@ -1223,6 +1223,19 @@ void Goal::Commit_Transport_Agents()
 
 void Goal::Remove_Matches()
 {
+	// A goal that missed a recent Prune_Goals cutoff (m_goals only holds
+	// this cycle's max_eval/max_exec survivors, m_goals_of_type holds
+	// every goal) stops getting resynced by Scheduler::Recompute_Goal_
+	// Strength(), which only walks m_goals - while Compute_Agent_Strength()
+	// keeps refreshing its still-committed agents' caches regardless
+	// (e.g. to cargo strength once one boards a transport, a different
+	// quantity than what was added at commit time, see Agent::Compute_
+	// Squad_Strength). Resync right before rolling back so the removal
+	// below always subtracts against a tracker that reflects what these
+	// agents currently actually carry, not what they carried whenever
+	// this goal was last in m_goals.
+	Recompute_Current_Attacking_Strength();
+
 	Rollback_All_Agents();
 
 	m_matches.clear();
