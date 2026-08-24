@@ -299,6 +299,41 @@ const TerrainImprovementRecord *terrainutil_GetBestAirfield(sint32 player, const
 	}
 }
 
+const TerrainImprovementRecord *terrainutil_GetBestDetector(sint32 player, const MapPoint &pos)
+{
+	sint32 bestIndex = -1;
+	sint32 bestRange = -1;
+
+	for(sint32 i = 0; i < g_theTerrainImprovementDB->NumRecords(); i++) {
+		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(i);
+
+		const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
+		if(!effect) continue;
+
+		if(!effect->GetRadar() && !effect->GetListeningPost()) continue;
+
+		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
+
+		sint32 visionRange = 0;
+		effect->GetVisionRange(visionRange);
+		sint32 radarRange = 0;
+		effect->GetRadarRange(radarRange);
+
+		sint32 range = visionRange + radarRange;
+		if(range <= bestRange)
+			continue;
+
+		bestRange = range;
+		bestIndex = i;
+	}
+
+	if(bestIndex >= 0) {
+		return g_theTerrainImprovementDB->Get(bestIndex);
+	} else {
+		return NULL;
+	}
+}
+
 sint32 terrainutil_GetTimeToBuild(const MapPoint &pos, sint32 fromType, sint32 toType)
 {
 	return 10;
