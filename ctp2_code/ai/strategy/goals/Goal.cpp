@@ -4479,12 +4479,15 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 		check_dest = true;
 
 	// A stack that has already filled up to k_MAX_ARMY_SIZE on its own
-	// (the same completeness test Goal::RallyComplete() uses per-agent)
 	// never needs to wait on the rest of the goal's stragglers - let it
-	// go, regardless of the goal's shared m_sub_task.
+	// go, regardless of the goal's shared m_sub_task. Deliberately just
+	// this army's own size, not IsArmyPosFilled()/IsOneArmyAtPos() (that
+	// pair also demands nothing else share the tile - the wrong ask
+	// here, that's RallyComplete()'s "has grouping fully converged"
+	// question, not "is this stack big enough to go").
 	bool     waiting_for_buddies = !Ok_To_Rally()
 	                            && m_sub_task == SUB_TASK_RALLY
-	                            && !(the_army->IsArmyPosFilled() && the_army->IsOneArmyAtPos())
+	                            && the_army->Get_Army()->Num() < k_MAX_ARMY_SIZE
 	                            && g_theWorld->IsOnSameContinent(goal_pos, the_army->Get_Pos())
 	                            && g_theWorld->IsLand(goal_pos)
 	                            && g_theWorld->IsLand(the_army->Get_Pos());
@@ -5143,7 +5146,7 @@ bool Goal::RallyTroops()
 	// GetRallyAgent() only falls back to an already-full stack as the
 	// anchor when every candidate is in a full city - let it go straight
 	// to the goal instead of sitting here as an anchor for nobody.
-	if(rallyAgent->IsArmyPosFilled() && rallyAgent->IsOneArmyAtPos())
+	if(rallyAgent->Get_Army()->Num() >= k_MAX_ARMY_SIZE)
 	{
 		MapPoint rallyAgentGoalPos = Get_Target_Pos(rallyAgent->Get_Army());
 		GotoGoalTaskSolution(rallyAgent, rallyAgentGoalPos);
@@ -5183,11 +5186,12 @@ bool Goal::RallyTroops()
 			continue;
 		}
 
-		if(agent_ptr->IsArmyPosFilled() && agent_ptr->IsOneArmyAtPos())
+		if(agent_ptr->Get_Army()->Num() >= k_MAX_ARMY_SIZE)
 		{
-			// This stack is already complete on its own (the same test
-			// RallyComplete() uses) - send it straight to the goal
-			// instead of detouring via the rally point.
+			// This stack is already complete on its own - send it
+			// straight to the goal instead of detouring via the rally
+			// point. Just this army's own size, not IsArmyPosFilled()/
+			// IsOneArmyAtPos() - see GotoGoalTaskSolution's comment.
 			MapPoint agentGoalPos = Get_Target_Pos(agent_ptr->Get_Army());
 			GotoGoalTaskSolution(agent_ptr, agentGoalPos);
 			continue;
