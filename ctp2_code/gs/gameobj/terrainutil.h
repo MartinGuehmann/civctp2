@@ -48,6 +48,7 @@ class Unit;
 void terrainutil_Initialize();
 
 const TerrainImprovementRecord *terrainutil_GetBestRoad(sint32 player, const MapPoint &pos);
+const TerrainImprovementRecord *terrainutil_GetBestAirfield(sint32 player, const MapPoint &pos);
 
 sint32 terrainutil_GetTimeToBuild(const MapPoint &pos, sint32 fromType, sint32 toType);
 

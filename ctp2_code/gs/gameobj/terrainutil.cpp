@@ -264,6 +264,24 @@ const TerrainImprovementRecord *terrainutil_GetBestRoad(sint32 player, const Map
 	}
 }
 
+const TerrainImprovementRecord *terrainutil_GetBestAirfield(sint32 player, const MapPoint &pos)
+{
+	for(sint32 i = 0; i < g_theTerrainImprovementDB->NumRecords(); i++) {
+		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(i);
+
+		const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
+		if(!effect) continue;
+
+		if(!effect->GetAirport()) continue;
+
+		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
+
+		return rec;
+	}
+
+	return NULL;
+}
+
 sint32 terrainutil_GetTimeToBuild(const MapPoint &pos, sint32 fromType, sint32 toType)
 {
 	return 10;
