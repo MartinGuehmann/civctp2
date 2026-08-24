@@ -339,6 +339,7 @@ public:
 	sint32 GetNumDBImprovements() const;
 	sint32 GetNumPillagableTerrainImprovements() const;
 	sint32 GetDBImprovement(sint32 index) const;
+	bool HasTerrainImprovementOfType(sint32 type) const;
 	bool HasTerrainImprovementOrInFuture(sint32 type) const;
 
 #ifdef BATTLE_FLAGS

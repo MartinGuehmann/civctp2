@@ -1127,10 +1127,12 @@ double Cell::GetFutureTerrainMoveCost() const
 
 //----------------------------------------------------------------------------
 //
-// Name       : Cell::HasTerrainImprovementOrInFuture
+// Name       : Cell::HasTerrainImprovementOfType
 //
-// Description: Checks whether a TerrainImprovment of type is in Cell, whether
-//              complete or under construction
+// Description: Checks whether a TerrainImprovement of type is in Cell,
+//              whether complete or under construction - with no fallback
+//              for tiles with neither (see HasTerrainImprovementOrInFuture
+//              for the road-priority caller that needs one).
 //
 // Parameters : sint32 type                 : type of TerrainImprovement that
 //                                            is to checked whether it is there
@@ -1143,7 +1145,7 @@ double Cell::GetFutureTerrainMoveCost() const
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-bool Cell::HasTerrainImprovementOrInFuture(sint32 type) const
+bool Cell::HasTerrainImprovementOfType(sint32 type) const
 {
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--)
 	{
@@ -1159,7 +1161,34 @@ bool Cell::HasTerrainImprovementOrInFuture(sint32 type) const
 		}
 	}
 
-	return !FutureMoveCostsAreReallyBig();
+	return false;
+}
+
+//----------------------------------------------------------------------------
+//
+// Name       : Cell::HasTerrainImprovementOrInFuture
+//
+// Description: Checks whether a TerrainImprovment of type is in Cell, whether
+//              complete or under construction - or, if neither, whether this
+//              tile's future move costs aren't bad enough to be worth a road
+//              anyway. Road-priority-specific; for a plain "is this exact
+//              improvement type there or being built" check with no such
+//              fallback, use HasTerrainImprovementOfType instead.
+//
+// Parameters : sint32 type                 : type of TerrainImprovement that
+//                                            is to checked whether it is there
+//                                            or under construction
+//
+// Globals    : -
+//
+// Returns    : bool
+//
+// Remark(s)  : -
+//
+//----------------------------------------------------------------------------
+bool Cell::HasTerrainImprovementOrInFuture(sint32 type) const
+{
+	return HasTerrainImprovementOfType(type) || !FutureMoveCostsAreReallyBig();
 }
 
 //----------------------------------------------------------------------------
