@@ -4478,8 +4478,13 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 	else
 		check_dest = true;
 
+	// A stack that has already filled up to k_MAX_ARMY_SIZE on its own
+	// (the same completeness test Goal::RallyComplete() uses per-agent)
+	// never needs to wait on the rest of the goal's stragglers - let it
+	// go, regardless of the goal's shared m_sub_task.
 	bool     waiting_for_buddies = !Ok_To_Rally()
 	                            && m_sub_task == SUB_TASK_RALLY
+	                            && !(the_army->IsArmyPosFilled() && the_army->IsOneArmyAtPos())
 	                            && g_theWorld->IsOnSameContinent(goal_pos, the_army->Get_Pos())
 	                            && g_theWorld->IsLand(goal_pos)
 	                            && g_theWorld->IsLand(the_army->Get_Pos());
@@ -5135,7 +5140,18 @@ bool Goal::RallyTroops()
 		rallyAgent->UnloadCargo();
 	}
 
-	rallyAgent->WaitHere(Get_Target_Pos(rallyAgent->Get_Army()));
+	// GetRallyAgent() only falls back to an already-full stack as the
+	// anchor when every candidate is in a full city - let it go straight
+	// to the goal instead of sitting here as an anchor for nobody.
+	if(rallyAgent->IsArmyPosFilled() && rallyAgent->IsOneArmyAtPos())
+	{
+		MapPoint rallyAgentGoalPos = Get_Target_Pos(rallyAgent->Get_Army());
+		GotoGoalTaskSolution(rallyAgent, rallyAgentGoalPos);
+	}
+	else
+	{
+		rallyAgent->WaitHere(Get_Target_Pos(rallyAgent->Get_Army()));
+	}
 
 	Squad_Strength strength = m_current_attacking_strength;
 
@@ -5167,13 +5183,13 @@ bool Goal::RallyTroops()
 			continue;
 		}
 
-		if
-		  (
-		       agent_ptr->Get_Army()->Num() >= k_MAX_ARMY_SIZE
-		    && rallyPos.IsNextTo(agent_ptr->Get_Pos())
-		  )
+		if(agent_ptr->IsArmyPosFilled() && agent_ptr->IsOneArmyAtPos())
 		{
-			agent_ptr->WaitHere(Get_Target_Pos(agent_ptr->Get_Army()));
+			// This stack is already complete on its own (the same test
+			// RallyComplete() uses) - send it straight to the goal
+			// instead of detouring via the rally point.
+			MapPoint agentGoalPos = Get_Target_Pos(agent_ptr->Get_Army());
+			GotoGoalTaskSolution(agent_ptr, agentGoalPos);
 			continue;
 		}
 
