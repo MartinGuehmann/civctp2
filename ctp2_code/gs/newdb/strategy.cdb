@@ -163,6 +163,15 @@ Strategy {
 	// bonus for building road improvements
 	Bit(Float) RoadUtilityBonus
 
+	// bonus for building an Airfield/Fort/detector-class (Listening Post/
+	// Radar Station/Sonar Buoy) installation - given a default so callers
+	// get a safe direct-return getter instead of an easily-discarded bool
+	// (see RoadUtilityBonus above, which lacks one and is an unconfirmed
+	// suspect for governor.cpp's own uninitialized-bonus warning)
+	Bit(Float) AirfieldUtilityBonus = 5.0
+	Bit(Float) FortUtilityBonus = 5.0
+	Bit(Float) DetectorUtilityBonus = 5.0
+
 	// bonus for building production improvements
 	Bit(Float) ImproveProductionBonus
 

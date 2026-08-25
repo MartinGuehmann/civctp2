@@ -1191,9 +1191,10 @@ void Governor::ComputeInstallationPriorities()
 	UnitDynamicArray *  cityList    = player_ptr->GetAllCitiesList();
 	sint32 const        num_cities  = cityList ? cityList->Num() : 0;
 
-	/// @todo Give each installation kind its own strategy-tunable utility
-	/// weight (like RoadUtilityBonus) instead of this shared placeholder.
-	double const installationUtility = 10.0;
+	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
+	double const airfieldUtility = strategy.GetAirfieldUtilityBonus();
+	double const fortUtility     = strategy.GetFortUtilityBonus();
+	double const detectorUtility = strategy.GetDetectorUtilityBonus();
 
 	for (sint32 city_index = 0; city_index < num_cities; city_index++)
 	{
@@ -1202,12 +1203,12 @@ void Governor::ComputeInstallationPriorities()
 		if (!city.CD()->GetUseGovernor())
 			continue;
 
-		AddInstallationPriority(city, terrainutil_GetBestAirfield, terrainutil_IsAirfieldEffect, installationUtility);
+		AddInstallationPriority(city, terrainutil_GetBestAirfield, terrainutil_IsAirfieldEffect, airfieldUtility);
 		// Forts and detectors only make sense facing outward at the
 		// empire's edge - require a border tile, so purely interior
 		// cities never get one.
-		AddInstallationPriority(city, terrainutil_GetBestFort,     terrainutil_IsFortEffect,     installationUtility, true);
-		AddInstallationPriority(city, terrainutil_GetBestDetector, terrainutil_IsDetectorEffect, installationUtility, true);
+		AddInstallationPriority(city, terrainutil_GetBestFort,     terrainutil_IsFortEffect,     fortUtility,     true);
+		AddInstallationPriority(city, terrainutil_GetBestDetector, terrainutil_IsDetectorEffect, detectorUtility, true);
 	}
 }
 
