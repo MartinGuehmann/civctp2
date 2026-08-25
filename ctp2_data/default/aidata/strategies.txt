@@ -362,6 +362,7 @@ STRATEGY_DEFAULT {
     OffensiveGarrisonCount  0
     DefensiveGarrisonCount  0
     RangedGarrisonCount     0
+    FlankerGarrisonCount    0
 
     // For each city with an empty build queue, build from
     // first sequence that applies
@@ -724,6 +725,7 @@ STRATEGY_BARBARIAN {
 	OffensiveGarrisonCount 0
 	DefensiveGarrisonCount 0
 	RangedGarrisonCount 0
+	FlankerGarrisonCount 0
 
 	// For each city with an empty build queue, build from first sequence that applies
 
@@ -1575,6 +1577,7 @@ STRATEGY_SCIENTIST_DEFAULT {
     OffensiveGarrisonCount  0
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 
     // For each city with an empty build queue, build from
     // first sequence that applies
@@ -2100,6 +2103,7 @@ STRATEGY_MILITARIST_DEFAULT {
     OffensiveGarrisonCount  0
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 
     // For each city with an empty build queue, build from
     // first sequence that applies
@@ -2633,6 +2637,7 @@ STRATEGY_ECONOMIC_DEFAULT {
     OffensiveGarrisonCount  0
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 
     // For each city with an empty build queue, build from
     // first sequence that applies
@@ -3157,6 +3162,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     OffensiveGarrisonCount  0
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 
     // For each city with an empty build queue, build from
     // first sequence that applies
@@ -3681,6 +3687,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     OffensiveGarrisonCount  0
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 
     // For each city with an empty build queue, build from
     // first sequence that applies
@@ -3920,6 +3927,7 @@ STRATEGY_DEFENSE_NONE {
     OffensiveGarrisonCount  1
     DefensiveGarrisonCount  1
     RangedGarrisonCount     0
+    FlankerGarrisonCount    0
 
     // The actual number of units could be higher, if they are needed to repress slave uprisings
     // But additional units can also be assigned to garrison if the treat level requires.
@@ -3940,6 +3948,7 @@ STRATEGY_DEFENSE_VERY_LOW {
     OffensiveGarrisonCount  1
     DefensiveGarrisonCount  1
     RangedGarrisonCount     0
+    FlankerGarrisonCount    0
 }
 
 STRATEGY_DEFENSE_LOW {
@@ -3948,6 +3957,7 @@ STRATEGY_DEFENSE_LOW {
     OffensiveGarrisonCount  1
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 }
 
 STRATEGY_DEFENSE_MEDIUM {
@@ -3956,6 +3966,7 @@ STRATEGY_DEFENSE_MEDIUM {
     OffensiveGarrisonCount  1
     DefensiveGarrisonCount  1
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 }
 
 STRATEGY_DEFENSE_HIGH {
@@ -3964,6 +3975,7 @@ STRATEGY_DEFENSE_HIGH {
     OffensiveGarrisonCount  1
     DefensiveGarrisonCount  2
     RangedGarrisonCount     1
+    FlankerGarrisonCount    0
 }
 
 STRATEGY_DEFENSE_VERY_HIGH {
@@ -3971,7 +3983,8 @@ STRATEGY_DEFENSE_VERY_HIGH {
     // minimum number of units to keep in cities as a garrison
     OffensiveGarrisonCount  1
     DefensiveGarrisonCount  2
-    RangedGarrisonCount     2
+    RangedGarrisonCount     1
+    FlankerGarrisonCount    1
 }
 
 STRATEGY_DEFENSE_PARANOIA {
@@ -3979,7 +3992,8 @@ STRATEGY_DEFENSE_PARANOIA {
     // minimum number of units to keep in cities as a garrison
     OffensiveGarrisonCount  2
     DefensiveGarrisonCount  2
-    RangedGarrisonCount     2
+    RangedGarrisonCount     1
+    FlankerGarrisonCount    1
 }
 
 ////////////////////////////////////////
