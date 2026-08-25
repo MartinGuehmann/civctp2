@@ -81,16 +81,17 @@ class Governor;
 #include "player.h"         // PLAYER_INDEX, PLAYER_UNASSIGNED
 #include "StrategyRecord.h" // StrategyRecord
 #include "settlemap.h"
+#include "TerrainImprovementRecord.h" // TerrainImprovementRecord::Effect
 
 class Path;
 class CivArchive;
 class CityData;
+class Cell;
 class BuildingBuildListRecord;
 class BuildListSequenceRecord;
 class WonderBuildListRecord;
 class UnitBuildListRecord;
 class SlicContext;
-class TerrainImprovementRecord;
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -248,8 +249,10 @@ public:
 	void ComputeRoadPriorities();
 
 	typedef const TerrainImprovementRecord *(*BestInstallationFinder)(sint32 player, const MapPoint & pos);
+	typedef bool (*InstallationEffectQualifier)(const TerrainImprovementRecord::Effect * effect);
 	bool IsBorderTile(const MapPoint & pos) const;
-	bool AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility, bool requireBorderTile = false);
+	bool WouldDestroyUnrelatedImprovement(const Cell * cell, const TerrainImprovementRecord * newRec, const MapPoint & pos, InstallationEffectQualifier isSameKind) const;
+	bool AddInstallationPriority(const Unit & city, BestInstallationFinder finder, InstallationEffectQualifier isSameKind, const double & utility, bool requireBorderTile = false);
 	void ComputeInstallationPriorities();
 
 	void PlaceTileImprovements();

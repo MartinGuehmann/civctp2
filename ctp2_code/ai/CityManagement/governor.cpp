@@ -1026,6 +1026,50 @@ bool Governor::IsBorderTile(const MapPoint & pos) const
 
 //----------------------------------------------------------------------------
 //
+// Name       : Governor::WouldDestroyUnrelatedImprovement
+//
+// Description: Checks whether building newRec on this cell would silently
+//              destroy an existing improvement that isn't itself a prior
+//              tier of the same installation kind (e.g. a Farm, as opposed
+//              to a Listening Post being upgraded to a Radar Station).
+//
+// Parameters : cell:       The cell being considered.
+//              newRec:     The improvement type that would be built.
+//              pos:        Position of cell (to resolve terrain effects).
+//              isSameKind: terrainutil_IsAirfieldEffect/IsFortEffect/
+//                          IsDetectorEffect - matching whichever finder
+//                          produced newRec.
+//
+// Globals    : g_theTerrainImprovementDB
+//
+// Returns    : bool: true if something not of the same kind would be lost.
+//
+// Remark(s)  : Mirrors Cell::InsertDBImprovement's own auto-remove-on-
+//              completion logic (existingRec->GetClass() & newRec->
+//              GetExcludes()) - an existing improvement whose class isn't
+//              excluded by newRec would simply coexist untouched (e.g. a
+//              Road), so it's never a reason to skip a tile.
+//
+//----------------------------------------------------------------------------
+bool Governor::WouldDestroyUnrelatedImprovement(const Cell * cell, const TerrainImprovementRecord * newRec, const MapPoint & pos, InstallationEffectQualifier isSameKind) const
+{
+	for(sint32 index = 0; index < cell->GetNumDBImprovements(); index++)
+	{
+		sint32 const                      existingType = cell->GetDBImprovement(index);
+		const TerrainImprovementRecord *  existingRec  = g_theTerrainImprovementDB->Get(existingType);
+
+		if((existingRec->GetClass() & newRec->GetExcludes()) == 0)
+			continue;
+
+		if(!isSameKind(terrainutil_GetTerrainEffect(existingRec, pos)))
+			return true;
+	}
+
+	return false;
+}
+
+//----------------------------------------------------------------------------
+//
 // Name       : Governor::AddInstallationPriority
 //
 // Description: Looks for a spot to build one Airfield/Fort/detector-class
@@ -1033,15 +1077,21 @@ bool Governor::IsBorderTile(const MapPoint & pos) const
 //              it doesn't already have (or isn't already building) one
 //              anywhere in its territory.
 //
-// Parameters : city:   The city to place an installation for.
-//              finder: terrainutil_GetBestAirfield/GetBestFort/GetBestDetector
-//                      - resolves the best buildable type of this kind at a
-//                        given position, or NULL if none is buildable there.
-//              utility: Priority value to give the resulting TiGoal.
-//              requireBorderTile: if true (detectors), a candidate tile must
-//                      also face outward - see IsBorderTile. A city with no
-//                      such tile anywhere (not on the empire's edge) simply
-//                      never finds a candidate.
+// Parameters : city:       The city to place an installation for.
+//              finder:     terrainutil_GetBestAirfield/GetBestFort/
+//                          GetBestDetector - resolves the best buildable
+//                          type of this kind at a given position, or NULL
+//                          if none is buildable there.
+//              isSameKind: terrainutil_IsAirfieldEffect/IsFortEffect/
+//                          IsDetectorEffect - matching qualifier, used to
+//                          tell an upgrade (previous tier of the same kind)
+//                          apart from an unrelated improvement that would
+//                          be destroyed by building here.
+//              utility:    Priority value to give the resulting TiGoal.
+//              requireBorderTile: if true (detectors, forts), a candidate
+//                      tile must also face outward - see IsBorderTile. A
+//                      city with no such tile anywhere (not on the
+//                      empire's edge) simply never finds a candidate.
 //
 // Globals    : g_theWorld, g_theConstDB
 //
@@ -1056,7 +1106,7 @@ bool Governor::IsBorderTile(const MapPoint & pos) const
 //              anywhere (found on any ring) cancels placing a second one.
 //
 //----------------------------------------------------------------------------
-bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility, bool requireBorderTile)
+bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder finder, InstallationEffectQualifier isSameKind, const double & utility, bool requireBorderTile)
 {
 	MapPoint const cityPos = city.RetPos();
 	sint32 const   borderRadius = g_theConstDB->Get(0)->GetBorderIntRadius();
@@ -1092,6 +1142,9 @@ bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder
 			}
 
 			if(requireBorderTile && !IsBorderTile(pos))
+				continue;
+
+			if(WouldDestroyUnrelatedImprovement(cell, rec, pos, isSameKind))
 				continue;
 
 			if(!foundCandidate)
@@ -1149,12 +1202,12 @@ void Governor::ComputeInstallationPriorities()
 		if (!city.CD()->GetUseGovernor())
 			continue;
 
-		AddInstallationPriority(city, terrainutil_GetBestAirfield, installationUtility);
+		AddInstallationPriority(city, terrainutil_GetBestAirfield, terrainutil_IsAirfieldEffect, installationUtility);
 		// Forts and detectors only make sense facing outward at the
 		// empire's edge - require a border tile, so purely interior
 		// cities never get one.
-		AddInstallationPriority(city, terrainutil_GetBestFort,     installationUtility, true);
-		AddInstallationPriority(city, terrainutil_GetBestDetector, installationUtility, true);
+		AddInstallationPriority(city, terrainutil_GetBestFort,     terrainutil_IsFortEffect,     installationUtility, true);
+		AddInstallationPriority(city, terrainutil_GetBestDetector, terrainutil_IsDetectorEffect, installationUtility, true);
 	}
 }
 

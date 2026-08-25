@@ -264,6 +264,22 @@ const TerrainImprovementRecord *terrainutil_GetBestRoad(sint32 player, const Map
 	}
 }
 
+bool terrainutil_IsAirfieldEffect(const TerrainImprovementRecord::Effect *effect)
+{
+	return effect && effect->GetAirport();
+}
+
+bool terrainutil_IsDetectorEffect(const TerrainImprovementRecord::Effect *effect)
+{
+	return effect && (effect->GetRadar() || effect->GetListeningPost());
+}
+
+bool terrainutil_IsFortEffect(const TerrainImprovementRecord::Effect *effect)
+{
+	double bonus;
+	return effect && effect->GetDefenseBonus(bonus) && bonus > 0.0;
+}
+
 const TerrainImprovementRecord *terrainutil_GetBestAirfield(sint32 player, const MapPoint &pos)
 {
 	sint32 bestIndex = -1;
@@ -273,9 +289,7 @@ const TerrainImprovementRecord *terrainutil_GetBestAirfield(sint32 player, const
 		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(i);
 
 		const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
-		if(!effect) continue;
-
-		if(!effect->GetAirport()) continue;
+		if(!terrainutil_IsAirfieldEffect(effect)) continue;
 
 		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
 
@@ -308,9 +322,7 @@ const TerrainImprovementRecord *terrainutil_GetBestDetector(sint32 player, const
 		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(i);
 
 		const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
-		if(!effect) continue;
-
-		if(!effect->GetRadar() && !effect->GetListeningPost()) continue;
+		if(!terrainutil_IsDetectorEffect(effect)) continue;
 
 		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
 
@@ -343,14 +355,12 @@ const TerrainImprovementRecord *terrainutil_GetBestFort(sint32 player, const Map
 		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(i);
 
 		const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
-		if(!effect) continue;
-
-		double bonus;
-		if(!effect->GetDefenseBonus(bonus) || bonus <= 0.0)
-			continue;
+		if(!terrainutil_IsFortEffect(effect)) continue;
 
 		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
 
+		double bonus;
+		effect->GetDefenseBonus(bonus);
 		if(bonus <= bestBonus)
 			continue;
 
