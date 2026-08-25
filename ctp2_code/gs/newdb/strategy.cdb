@@ -168,9 +168,9 @@ Strategy {
 	// get a safe direct-return getter instead of an easily-discarded bool
 	// (see RoadUtilityBonus above, which lacks one and is an unconfirmed
 	// suspect for governor.cpp's own uninitialized-bonus warning)
-	Bit(Float) AirfieldUtilityBonus = 5.0
-	Bit(Float) FortUtilityBonus = 5.0
-	Bit(Float) DetectorUtilityBonus = 5.0
+	Bit(Float) AirfieldUtilityBonus = 100.0
+	Bit(Float) FortUtilityBonus = 100.0
+	Bit(Float) DetectorUtilityBonus = 100.0
 
 	// bonus for building production improvements
 	Bit(Float) ImproveProductionBonus

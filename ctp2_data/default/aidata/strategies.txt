@@ -191,6 +191,15 @@ STRATEGY_DEFAULT {
     // bonus for building road tile improvements
     RoadUtilityBonus  300
 
+    // bonus for building an Airfield installation
+    AirfieldUtilityBonus  120
+
+    // bonus for building a Fort installation
+    FortUtilityBonus  100
+
+    // bonus for building a detector-class (Listening Post/Radar Station/Sonar Buoy) installation
+    DetectorUtilityBonus  100
+
     // bonus for building production tile improvements
     ImproveProductionBonus  150
 
@@ -1395,6 +1404,15 @@ STRATEGY_SCIENTIST_DEFAULT {
     // bonus for building road tile improvements
     RoadUtilityBonus  300
 
+    // bonus for building an Airfield installation
+    AirfieldUtilityBonus  100
+
+    // bonus for building a Fort installation
+    FortUtilityBonus  75
+
+    // bonus for building a detector-class (Listening Post/Radar Station/Sonar Buoy) installation
+    DetectorUtilityBonus  90
+
     // bonus for building production tile improvements
     ImproveProductionBonus  120
 
@@ -1910,6 +1928,15 @@ STRATEGY_MILITARIST_DEFAULT {
 
     // bonus for building road tile improvements
     RoadUtilityBonus  350
+
+    // bonus for building an Airfield installation
+    AirfieldUtilityBonus  180
+
+    // bonus for building a Fort installation
+    FortUtilityBonus  200
+
+    // bonus for building a detector-class (Listening Post/Radar Station/Sonar Buoy) installation
+    DetectorUtilityBonus  150
 
     // bonus for building production tile improvements
     ImproveProductionBonus  160
@@ -2435,6 +2462,15 @@ STRATEGY_ECONOMIC_DEFAULT {
     // bonus for building road tile improvements
     RoadUtilityBonus  300
 
+    // bonus for building an Airfield installation
+    AirfieldUtilityBonus  100
+
+    // bonus for building a Fort installation
+    FortUtilityBonus  75
+
+    // bonus for building a detector-class (Listening Post/Radar Station/Sonar Buoy) installation
+    DetectorUtilityBonus  90
+
     // bonus for building production tile improvements
     ImproveProductionBonus  110
 
@@ -2950,6 +2986,15 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     // bonus for building road tile improvements
     RoadUtilityBonus  300
 
+    // bonus for building an Airfield installation
+    AirfieldUtilityBonus  90
+
+    // bonus for building a Fort installation
+    FortUtilityBonus  60
+
+    // bonus for building a detector-class (Listening Post/Radar Station/Sonar Buoy) installation
+    DetectorUtilityBonus  80
+
     // bonus for building production tile improvements
     ImproveProductionBonus  100
 
@@ -3464,6 +3509,15 @@ STRATEGY_DIPLOMATIC_DEFAULT {
 
     // bonus for building road tile improvements
     RoadUtilityBonus  300
+
+    // bonus for building an Airfield installation
+    AirfieldUtilityBonus  90
+
+    // bonus for building a Fort installation
+    FortUtilityBonus  60
+
+    // bonus for building a detector-class (Listening Post/Radar Station/Sonar Buoy) installation
+    DetectorUtilityBonus  90
 
     // bonus for building production tile improvements
     ImproveProductionBonus  120
