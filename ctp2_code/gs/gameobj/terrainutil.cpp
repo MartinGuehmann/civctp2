@@ -334,6 +334,37 @@ const TerrainImprovementRecord *terrainutil_GetBestDetector(sint32 player, const
 	}
 }
 
+const TerrainImprovementRecord *terrainutil_GetBestFort(sint32 player, const MapPoint &pos)
+{
+	sint32 bestIndex = -1;
+	double bestBonus = 0.0;
+
+	for(sint32 i = 0; i < g_theTerrainImprovementDB->NumRecords(); i++) {
+		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(i);
+
+		const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
+		if(!effect) continue;
+
+		double bonus;
+		if(!effect->GetDefenseBonus(bonus) || bonus <= 0.0)
+			continue;
+
+		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
+
+		if(bonus <= bestBonus)
+			continue;
+
+		bestBonus = bonus;
+		bestIndex = i;
+	}
+
+	if(bestIndex >= 0) {
+		return g_theTerrainImprovementDB->Get(bestIndex);
+	} else {
+		return NULL;
+	}
+}
+
 sint32 terrainutil_GetTimeToBuild(const MapPoint &pos, sint32 fromType, sint32 toType)
 {
 	return 10;
