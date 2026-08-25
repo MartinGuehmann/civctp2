@@ -1150,9 +1150,10 @@ void Governor::ComputeInstallationPriorities()
 			continue;
 
 		AddInstallationPriority(city, terrainutil_GetBestAirfield, installationUtility);
-		AddInstallationPriority(city, terrainutil_GetBestFort,     installationUtility);
-		// Detectors only make sense facing outward at the empire's edge -
-		// require a border tile, so purely interior cities never get one.
+		// Forts and detectors only make sense facing outward at the
+		// empire's edge - require a border tile, so purely interior
+		// cities never get one.
+		AddInstallationPriority(city, terrainutil_GetBestFort,     installationUtility, true);
 		AddInstallationPriority(city, terrainutil_GetBestDetector, installationUtility, true);
 	}
 }
