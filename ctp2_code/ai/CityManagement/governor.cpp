@@ -994,6 +994,126 @@ void Governor::ComputeRoadPriorities()
 	s_CityPairList.clear();
 }
 
+//----------------------------------------------------------------------------
+//
+// Name       : Governor::AddInstallationPriority
+//
+// Description: Looks for a spot to build one Airfield/Fort/detector-class
+//              installation (whichever finder identifies) for this city, if
+//              it doesn't already have (or isn't already building) one
+//              anywhere in its territory.
+//
+// Parameters : city:   The city to place an installation for.
+//              finder: terrainutil_GetBestAirfield/GetBestFort/GetBestDetector
+//                      - resolves the best buildable type of this kind at a
+//                        given position, or NULL if none is buildable there.
+//              utility: Priority value to give the resulting TiGoal.
+//
+// Globals    : g_theWorld, g_theConstDB
+//
+// Returns    : bool: true if a goal was queued.
+//
+// Remark(s)  : Searches ring by ring outward-in, starting at the city's
+//              fixed border radius and working down toward its (smaller,
+//              size-dependent) collection area, so an installation lands on
+//              the outskirts and doesn't intervene with worked tiles unless
+//              nothing else is free. The whole territory is always scanned
+//              even after a candidate is found, so an existing instance
+//              anywhere (found on any ring) cancels placing a second one.
+//
+//----------------------------------------------------------------------------
+bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility)
+{
+	MapPoint const cityPos = city.RetPos();
+	sint32 const   borderRadius = g_theConstDB->Get(0)->GetBorderIntRadius();
+
+	bool    alreadyHasOne  = false;
+	bool    foundCandidate = false;
+	TiGoal  candidate;
+
+	for(sint32 ring = borderRadius; ring >= 1 && !alreadyHasOne; ring--)
+	{
+		CircleIterator it(cityPos, ring, ring - 1);
+
+		for(it.Start(); !it.End() && !alreadyHasOne; it.Next())
+		{
+			MapPoint const pos  = it.Pos();
+			Cell *         cell = g_theWorld->GetCell(pos);
+
+			if(cell->GetCityOwner() != city)
+				continue;
+
+			const TerrainImprovementRecord * rec = finder(m_playerId, pos);
+			if(!rec)
+				continue;
+
+			if(cell->HasTerrainImprovementOfType(rec->GetIndex()))
+			{
+				alreadyHasOne = true;
+				break;
+			}
+
+			if(!foundCandidate)
+			{
+				candidate.type    = rec->GetIndex();
+				candidate.pos     = pos;
+				candidate.utility = utility;
+				foundCandidate    = true;
+			}
+		}
+	}
+
+	if(alreadyHasOne || !foundCandidate)
+		return false;
+
+	m_tileImprovementGoals.push_back(candidate);
+	return true;
+}
+
+//----------------------------------------------------------------------------
+//
+// Name       : Governor::ComputeInstallationPriorities
+//
+// Description: Queues up to one Airfield, one Fort, and one detector-class
+//              installation (Listening Post/Radar Station/Sonar Buoy) per
+//              city, for cities the AI hasn't given one to yet.
+//
+// Parameters : -
+//
+// Globals    : g_player
+//
+// Returns    : -
+//
+// Remark(s)  : Called from PlaceTileImprovements alongside
+//              ComputeRoadPriorities - feeds the same m_tileImprovementGoals
+//              queue, sorted and budget-capped there like every other tile
+//              improvement goal.
+//
+//----------------------------------------------------------------------------
+void Governor::ComputeInstallationPriorities()
+{
+	Player *            player_ptr  = g_player[m_playerId];
+	Assert(player_ptr);
+	UnitDynamicArray *  cityList    = player_ptr->GetAllCitiesList();
+	sint32 const        num_cities  = cityList ? cityList->Num() : 0;
+
+	/// @todo Give each installation kind its own strategy-tunable utility
+	/// weight (like RoadUtilityBonus) instead of this shared placeholder.
+	double const installationUtility = 10.0;
+
+	for (sint32 city_index = 0; city_index < num_cities; city_index++)
+	{
+		Unit const & city = cityList->Get(city_index);
+
+		if (!city.CD()->GetUseGovernor())
+			continue;
+
+		AddInstallationPriority(city, terrainutil_GetBestAirfield, installationUtility);
+		AddInstallationPriority(city, terrainutil_GetBestFort,     installationUtility);
+		AddInstallationPriority(city, terrainutil_GetBestDetector, installationUtility);
+	}
+}
+
 bool Governor::IsInCityPairList(sint32 city, sint32 neighborCity) const
 {
 	for(size_t i = 0; i < s_CityPairList.size(); ++i)
@@ -1025,7 +1145,8 @@ void Governor::PlaceTileImprovements()
 	strategy.GetPublicWorksReserve(reserve_pw);
 
 	m_tileImprovementGoals.clear();
-	ComputeRoadPriorities();    // may add to m_tileImprovementGoals
+	ComputeRoadPriorities();          // may add to m_tileImprovementGoals
+	ComputeInstallationPriorities();  // may add to m_tileImprovementGoals
 
 	TiGoal ti_goal;
 	UnitDynamicArray *  cityList    = player_ptr->GetAllCitiesList();

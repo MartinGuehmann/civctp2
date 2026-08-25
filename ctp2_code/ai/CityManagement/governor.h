@@ -90,6 +90,7 @@ class BuildListSequenceRecord;
 class WonderBuildListRecord;
 class UnitBuildListRecord;
 class SlicContext;
+class TerrainImprovementRecord;
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -245,6 +246,10 @@ public:
 	bool AddRoadPriority(Path & path, const double & priority_delta);
 
 	void ComputeRoadPriorities();
+
+	typedef const TerrainImprovementRecord *(*BestInstallationFinder)(sint32 player, const MapPoint & pos);
+	bool AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility);
+	void ComputeInstallationPriorities();
 
 	void PlaceTileImprovements();
 
