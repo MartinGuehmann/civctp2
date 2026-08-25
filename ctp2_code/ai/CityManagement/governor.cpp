@@ -996,6 +996,36 @@ void Governor::ComputeRoadPriorities()
 
 //----------------------------------------------------------------------------
 //
+// Name       : Governor::IsBorderTile
+//
+// Description: Checks whether any neighbor of pos belongs to someone other
+//              than this player (a foreign or unclaimed tile) - i.e.
+//              whether pos itself faces outward at the empire's edge.
+//
+// Parameters : pos: Position to check.
+//
+// Globals    : g_theWorld
+//
+// Returns    : bool
+//
+//----------------------------------------------------------------------------
+bool Governor::IsBorderTile(const MapPoint & pos) const
+{
+	for(sint32 dd = 0; dd < (sint32)NOWHERE; dd++)
+	{
+		MapPoint npos;
+		if(pos.GetNeighborPosition((WORLD_DIRECTION)dd, npos)
+		&& g_theWorld->GetCell(npos)->GetOwner() != m_playerId)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//----------------------------------------------------------------------------
+//
 // Name       : Governor::AddInstallationPriority
 //
 // Description: Looks for a spot to build one Airfield/Fort/detector-class
@@ -1008,6 +1038,10 @@ void Governor::ComputeRoadPriorities()
 //                      - resolves the best buildable type of this kind at a
 //                        given position, or NULL if none is buildable there.
 //              utility: Priority value to give the resulting TiGoal.
+//              requireBorderTile: if true (detectors), a candidate tile must
+//                      also face outward - see IsBorderTile. A city with no
+//                      such tile anywhere (not on the empire's edge) simply
+//                      never finds a candidate.
 //
 // Globals    : g_theWorld, g_theConstDB
 //
@@ -1022,7 +1056,7 @@ void Governor::ComputeRoadPriorities()
 //              anywhere (found on any ring) cancels placing a second one.
 //
 //----------------------------------------------------------------------------
-bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility)
+bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility, bool requireBorderTile)
 {
 	MapPoint const cityPos = city.RetPos();
 	sint32 const   borderRadius = g_theConstDB->Get(0)->GetBorderIntRadius();
@@ -1049,9 +1083,16 @@ bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder
 
 			if(cell->HasTerrainImprovementOfType(rec->GetIndex()))
 			{
+				// Counts regardless of requireBorderTile - an existing
+				// instance anywhere (even one not facing the border,
+				// e.g. built by a human, or from before this rule
+				// existed) still means this city already has one.
 				alreadyHasOne = true;
 				break;
 			}
+
+			if(requireBorderTile && !IsBorderTile(pos))
+				continue;
 
 			if(!foundCandidate)
 			{
@@ -1110,7 +1151,9 @@ void Governor::ComputeInstallationPriorities()
 
 		AddInstallationPriority(city, terrainutil_GetBestAirfield, installationUtility);
 		AddInstallationPriority(city, terrainutil_GetBestFort,     installationUtility);
-		AddInstallationPriority(city, terrainutil_GetBestDetector, installationUtility);
+		// Detectors only make sense facing outward at the empire's edge -
+		// require a border tile, so purely interior cities never get one.
+		AddInstallationPriority(city, terrainutil_GetBestDetector, installationUtility, true);
 	}
 }
 

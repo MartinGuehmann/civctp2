@@ -248,7 +248,8 @@ public:
 	void ComputeRoadPriorities();
 
 	typedef const TerrainImprovementRecord *(*BestInstallationFinder)(sint32 player, const MapPoint & pos);
-	bool AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility);
+	bool IsBorderTile(const MapPoint & pos) const;
+	bool AddInstallationPriority(const Unit & city, BestInstallationFinder finder, const double & utility, bool requireBorderTile = false);
 	void ComputeInstallationPriorities();
 
 	void PlaceTileImprovements();
