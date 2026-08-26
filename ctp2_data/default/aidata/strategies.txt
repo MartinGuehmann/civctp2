@@ -1331,9 +1331,9 @@ STRATEGY_SCIENTIST_DEFAULT {
     // GOVERNMENT_VIRTUAL_DEMOCRACY best government in the group (city limit 60)
     Government  GOVERNMENT_VIRTUAL_DEMOCRACY
     Government  GOVERNMENT_ECOTOPIA
-    // GOVERNMENT_CORPORATE_REPUBLIC best government in the group (city limit 45)
-    Government  GOVERNMENT_CORPORATE_REPUBLIC
+    // GOVERNMENT_TECHNOCRACY best government in the group (city limit 45)
     Government  GOVERNMENT_TECHNOCRACY
+    Government  GOVERNMENT_CORPORATE_REPUBLIC
     // GOVERNMENT_DEMOCRACY best government in the group (city limit 35)
     Government  GOVERNMENT_DEMOCRACY
     Government  GOVERNMENT_COMMUNISM
@@ -1854,9 +1854,9 @@ STRATEGY_MILITARIST_DEFAULT {
     //
 
     // good for war
-    // GOVERNMENT_VIRTUAL_DEMOCRACY best government in the group (city limit 60)
-    Government  GOVERNMENT_VIRTUAL_DEMOCRACY
+    // GOVERNMENT_ECOTOPIA best government in the group (city limit 60)
     Government  GOVERNMENT_ECOTOPIA
+    Government  GOVERNMENT_VIRTUAL_DEMOCRACY
     // GOVERNMENT_TECHNOCRACY best government in the group (city limit 45)
     Government  GOVERNMENT_TECHNOCRACY
     Government  GOVERNMENT_CORPORATE_REPUBLIC
