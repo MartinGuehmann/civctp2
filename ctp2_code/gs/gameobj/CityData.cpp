@@ -8941,10 +8941,10 @@ void CityData::AdjustSizeIndices()
 
 	sint32 oldSizeIndex = m_sizeIndex;
 #if defined(NEW_RESOURCE_PROCESS)
-	ComputeSizeIndexes(WorkerCount(),
+	ComputeSizeIndexes(WorkerCount() + SlaveCount(),
 	                   m_sizeIndex);
 #else
-	ComputeSizeIndexes(WorkerCount(),
+	ComputeSizeIndexes(WorkerCount() + SlaveCount(),
 	                   m_sizeIndex,
 	                   m_workerFullUtilizationIndex,
 	                   m_workerPartialUtilizationIndex);
