@@ -586,6 +586,7 @@ public:
     void InformPlayersOfFloodingCatastrophe(void) ;
 
     void ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner);
+    void SyncInstallationOwners(const MapPoint &point, sint32 toOwner);
     void CutImprovements(const MapPoint &point);
     double GetDefenseBonus(const MapPoint &point) const;
     bool IsAirfield(const MapPoint &point) const;

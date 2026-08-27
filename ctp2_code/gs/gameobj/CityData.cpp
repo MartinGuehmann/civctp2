@@ -6816,6 +6816,7 @@ void CityData::ResetCityOwner(sint32 owner)
 	{
 		g_theWorld->GetCell(it.Pos())->SetCityOwner(m_home_city);
 		g_theWorld->GetCell(it.Pos())->SetOwner(owner);
+		g_theWorld->SyncInstallationOwners(it.Pos(), owner);
 		g_network.Block(owner);
 		g_network.Enqueue(g_theWorld->GetCell(it.Pos()), it.Pos().x, it.Pos().y);
 		g_network.Unblock(owner);

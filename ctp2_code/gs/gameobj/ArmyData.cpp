@@ -5375,7 +5375,12 @@ ORDER_RESULT ArmyData::Pillage(bool test_ownership)
 		{ // && (terrainutil_CanBeCaptured(m_pos))) {
 			if (cellOwner != m_owner)
 			{
-				cell->SetOwner(m_owner);
+				// ChangeOwner() checks cell->GetOwner() == fromOwner before
+				// doing anything, including syncing any installation on this
+				// tile to the new owner - a direct SetOwner() here first
+				// would make that check see the new owner already and skip
+				// the whole thing, including the installation sync. Let
+				// ChangeOwner() do the assignment itself.
 				g_theWorld->ChangeOwner(pos, cellOwner, m_owner);
 				g_player[cellOwner]->m_gold->AddGold(goldcost); //may crash because of barbs?
 				g_player[m_owner]->m_gold->SubGold(goldcost);
