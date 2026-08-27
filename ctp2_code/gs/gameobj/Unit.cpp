@@ -249,6 +249,18 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 			     army.IsValid() ? army->RetPos().x : -1,
 			     army.IsValid() ? army->RetPos().y : -1,
 			     (army.IsValid() && army->RetPos() == pos) ? "matches" : "DIFFERS FROM"));
+			// A playtest log ruled out the position/army desync theory
+			// above (always "matches"), but showed the cell instead
+			// holding a single, unrelated unit - consistent with this
+			// unit's whole army already having been consolidated off the
+			// cell (e.g. as a side effect of an earlier sibling kill in
+			// the same CTP2Combat::KillUnits batch) before this unit's own
+			// deferred GEV_KillUnit got to run. Log the army's own
+			// remaining member count to confirm or rule that out.
+			DPRINTF(k_DBG_GAMESTATE,
+			    ("Unit::RemoveAllReferences: unit's army 0x%lx IsValid=%d Num=%d\n",
+			     army.m_id, army.IsValid(),
+			     army.IsValid() ? army->Num() : -1));
 			if (cell)
 			{
 				for (sint32 ci = 0; ci < cell->GetNumUnits(); ci++)
