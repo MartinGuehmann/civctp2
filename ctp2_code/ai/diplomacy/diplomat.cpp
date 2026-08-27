@@ -5211,7 +5211,14 @@ bool Diplomat::DesireWarWith(const PLAYER_INDEX foreignerId) const
 {
 	Assert(foreignerId >= 0);
 	Assert(static_cast<size_t>(foreignerId) < m_desireWarWith.size());
-	Assert(m_desireWarWith[foreignerId] == ComputeDesireWarWith(foreignerId))
+	// The cache (ComputeAllDesireWarWith/UpdateDesireWarWith) always stores
+	// false for foreignerId == m_playerId without even calling
+	// ComputeDesireWarWith - "do I desire war with myself" is meaningless.
+	// Match that exclusion here too, or any caller that queries self (e.g.
+	// intelligencewindow.cpp's embassy icon draw, when the UI slot happens
+	// to be the viewed player's own index) trips this needlessly.
+	Assert(m_desireWarWith[foreignerId] ==
+	       ((foreignerId != m_playerId) && ComputeDesireWarWith(foreignerId)))
 
 	if (foreignerId >= 0 && static_cast<size_t>(foreignerId) < m_desireWarWith.size())
 		return m_desireWarWith[foreignerId];
