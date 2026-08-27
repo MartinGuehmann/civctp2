@@ -5211,14 +5211,7 @@ bool Diplomat::DesireWarWith(const PLAYER_INDEX foreignerId) const
 {
 	Assert(foreignerId >= 0);
 	Assert(static_cast<size_t>(foreignerId) < m_desireWarWith.size());
-	// The cache (ComputeAllDesireWarWith/UpdateDesireWarWith) always stores
-	// false for foreignerId == m_playerId without even calling
-	// ComputeDesireWarWith - "do I desire war with myself" is meaningless.
-	// Match that exclusion here too, or any caller that queries self (e.g.
-	// intelligencewindow.cpp's embassy icon draw, when the UI slot happens
-	// to be the viewed player's own index) trips this needlessly.
-	Assert(m_desireWarWith[foreignerId] ==
-	       ((foreignerId != m_playerId) && ComputeDesireWarWith(foreignerId)))
+	Assert(m_desireWarWith[foreignerId] == ComputeDesireWarWith(foreignerId))
 
 	if (foreignerId >= 0 && static_cast<size_t>(foreignerId) < m_desireWarWith.size())
 		return m_desireWarWith[foreignerId];
@@ -5344,6 +5337,15 @@ sint32 Diplomat::GetWeakestEnemy() const
 
 bool Diplomat::IsBestHotwarEnemy(const PLAYER_INDEX foreignerId) const
 {
+	// You can't be your own hotwar enemy. Without this, foreignerId ==
+	// m_playerId seeds the scan below with your own relative-strength-vs-
+	// yourself as the baseline and weakest_enemy == m_playerId - if you
+	// have no active wars at all (the common case), nothing in the loop
+	// ever has a chance to replace that placeholder, and the function
+	// returns true: "yes, I am my own best hotwar enemy."
+	if (foreignerId == m_playerId)
+		return false;
+
 	Player *    foreigner_ptr = g_player[foreignerId];
 	if (foreigner_ptr == NULL)
 		return false;
