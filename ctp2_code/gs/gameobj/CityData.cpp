@@ -5930,9 +5930,18 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 				Cell *cell = g_theWorld->GetCell(pos);
 				if(cell->GetCanDie())
 				{
-					cell->Kill();
-
+					// CutImprovements() kills installations synchronously
+					// (Installation::Kill() -> RemoveAllReferences()), which
+					// looks up its own vision range via the terrain it's
+					// still standing on to know how much vision to retract.
+					// Do this before Kill() flips the terrain to
+					// TERRAIN_DEAD, or that lookup finds no TerrainEffect
+					// for Dead terrain (neither Airfields nor Fortifications
+					// define one), fails, and silently skips retracting the
+					// installation's vision entirely.
 					g_theWorld->CutImprovements(pos);
+
+					cell->Kill();
 
 					cell->CalcTerrainMoveCost();
 					MapPoint nonConstPos = pos;
