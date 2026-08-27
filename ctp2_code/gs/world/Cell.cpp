@@ -773,6 +773,14 @@ void Cell::RemoveImprovement(const TerrainImprovement &imp)
 
 void Cell::SetOwner(sint32 owner)
 {
+	// Diagnostic: m_cellOwner is a sint8, and m_playerLandArea[] below is
+	// indexed by owner+1 with no bounds check at all - a caller passing
+	// anything outside [-1, k_MAX_PLAYERS-1] silently truncates into
+	// m_cellOwner (feeding bad colors into ColorSet::GetColor() far away,
+	// e.g. via RadarMap/UnseenCell) and, worse, corrupts m_playerLandArea
+	// out of bounds right here. Catch the actual offending call site
+	// instead of its delayed symptoms.
+	Assert(owner >= -1 && owner < k_MAX_PLAYERS);
 
 	m_playerLandArea[m_cellOwner+1]--;
 	m_cellOwner = (sint8)owner;
