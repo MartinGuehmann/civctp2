@@ -1321,6 +1321,19 @@ void ArmyData::GroupUnit(Unit unit)
 		}
 		else
 		{
+			// Diagnostic: a playtest log caught this failing right next to
+			// a transport unloading at the same tile, one order apart in
+			// the same processing cycle - same root cause as UnitData::
+			// ChangeArmy's own !Flag(k_UDF_IS_IN_TRANSPORT) assert just
+			// downstream of here. Confirm whether this unit is genuinely
+			// the transport's just-unloaded cargo (an unload/group
+			// ordering race, since Unload() clears the transport flag with
+			// no per-unit log line to check against) or a stale grouping
+			// order for a unit still boarded somewhere else entirely.
+			DPRINTF(k_DBG_GAMESTATE,
+			    ("ArmyData::GroupUnit: unit 0x%lx IsInTransport=%d transport 0x%lx\n",
+			     unit.m_id, unit.Flag(k_UDF_IS_IN_TRANSPORT),
+			     unit.GetTransport().m_id));
 			Assert(unit.GetArmy().IsValid());
 		}
 
