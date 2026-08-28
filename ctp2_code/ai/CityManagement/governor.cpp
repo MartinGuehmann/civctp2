@@ -876,10 +876,18 @@ void Governor::OptimizeSliders(SlidersSetting & sliders_setting) const
 	}
 }
 
-bool Governor::AddRoadPriority(Path & path, const double & priority_delta)
+bool Governor::AddRoadPriority(Path & path, const double & priority_delta, const CityData * city)
 {
-	double bonus;
-	Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy().GetRoadUtilityBonus(bonus);
+	double bonus = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy().GetRoadUtilityBonus();
+
+	// The element governing the originating city's current build-list
+	// sequence carries its own road bonus on top of the strategy-wide one,
+	// same as FindBestTileImprovement's Improve*Bonus handling. A road
+	// connects two cities; this uses the one the search started from.
+	const StrategyRecord::BuildListSequenceElement *elem =
+	    GetMatchingSequenceElement(city);
+	if(elem)
+		bonus += elem->GetRoadUtilityBonus();
 
 	TiGoal ti_goal;
 	ti_goal.utility =  bonus * priority_delta;
@@ -983,7 +991,7 @@ void Governor::ComputeRoadPriorities()
 				total_cost ))
 			{
 				Assert(0 < found_path.Num());
-				if(AddRoadPriority(found_path, threat_rank))
+				if(AddRoadPriority(found_path, threat_rank, city_unit.CD()))
 					break;
 			}
 		}
@@ -1192,9 +1200,6 @@ void Governor::ComputeInstallationPriorities()
 	sint32 const        num_cities  = cityList ? cityList->Num() : 0;
 
 	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
-	double const airfieldUtility = strategy.GetAirfieldUtilityBonus();
-	double const fortUtility     = strategy.GetFortUtilityBonus();
-	double const detectorUtility = strategy.GetDetectorUtilityBonus();
 
 	for (sint32 city_index = 0; city_index < num_cities; city_index++)
 	{
@@ -1202,6 +1207,22 @@ void Governor::ComputeInstallationPriorities()
 
 		if (!city.CD()->GetUseGovernor())
 			continue;
+
+		// The element governing this city's current build-list sequence
+		// carries its own installation bonuses on top of the strategy-wide
+		// ones, same as FindBestTileImprovement's Improve*Bonus handling.
+		const StrategyRecord::BuildListSequenceElement *elem =
+		    GetMatchingSequenceElement(city.CD());
+
+		double airfieldUtility = strategy.GetAirfieldUtilityBonus();
+		double fortUtility     = strategy.GetFortUtilityBonus();
+		double detectorUtility = strategy.GetDetectorUtilityBonus();
+		if(elem)
+		{
+			airfieldUtility += elem->GetAirfieldUtilityBonus();
+			fortUtility     += elem->GetFortUtilityBonus();
+			detectorUtility += elem->GetDetectorUtilityBonus();
+		}
 
 		AddInstallationPriority(city, terrainutil_GetBestAirfield, terrainutil_IsAirfieldEffect, airfieldUtility);
 		// Forts and detectors only make sense facing outward at the

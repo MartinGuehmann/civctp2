@@ -244,7 +244,7 @@ public:
 	bool FoodSliderReachedMin(SlidersSetting & sliders_setting) const;
 	// End of sliders
 
-	bool AddRoadPriority(Path & path, const double & priority_delta);
+	bool AddRoadPriority(Path & path, const double & priority_delta, const CityData * city);
 
 	void ComputeRoadPriorities();
 

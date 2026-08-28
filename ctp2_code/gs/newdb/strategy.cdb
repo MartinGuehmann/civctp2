@@ -160,14 +160,17 @@ Strategy {
 	// stored PW must exceed cost to fix + threshold
 	Bit(Int) FixPollutionThreshold
 
-	// bonus for building road improvements
-	Bit(Float) RoadUtilityBonus
+	// bonus for building road improvements - given a default (matching the
+	// lowest real value in strategies.txt, 300/350) so callers get a safe
+	// direct-return getter; confirmed via governor.cpp's own
+	// -Wmaybe-uninitialized warning on AddRoadPriority's "bonus" pointing
+	// straight at this field's bool-discarding getter once a second read
+	// was added nearby
+	Bit(Float) RoadUtilityBonus = 300.0
 
 	// bonus for building an Airfield/Fort/detector-class (Listening Post/
 	// Radar Station/Sonar Buoy) installation - given a default so callers
 	// get a safe direct-return getter instead of an easily-discarded bool
-	// (see RoadUtilityBonus above, which lacks one and is an unconfirmed
-	// suspect for governor.cpp's own uninitialized-bonus warning)
 	Bit(Float) AirfieldUtilityBonus = 100.0
 	Bit(Float) FortUtilityBonus = 100.0
 	Bit(Float) DetectorUtilityBonus = 100.0
@@ -338,6 +341,13 @@ Strategy {
 		Bit (Float) ImproveProductionBonus = 0.0
 		Bit (Float) ImproveGrowthBonus = 0.0
 		Bit (Float) ImproveGoldBonus = 0.0
+
+		// Same idea as the Improve*Bonus fields above, for the other
+		// strategy-wide tile-improvement bonuses.
+		Bit (Float) RoadUtilityBonus = 0.0
+		Bit (Float) AirfieldUtilityBonus = 0.0
+		Bit (Float) FortUtilityBonus = 0.0
+		Bit (Float) DetectorUtilityBonus = 0.0
 	}
 
 	// for each city with an empty build queue, build from first sequence that applies
