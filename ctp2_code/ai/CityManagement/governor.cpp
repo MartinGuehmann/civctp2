@@ -595,11 +595,10 @@ void Governor::SliderTests::CalcTests(PLAYER_INDEX playerId)
 	const StrategyRecord & strategy =
 		Diplomat::GetDiplomat(playerId).GetCurrentStrategy();
 
-	double deficit_spending;
+	double deficit_spending = strategy.GetDeficitSpending();
 	sint32 min_happiness = g_theConstDB->Get(0)->GetRiotLevel(); // Have a default value if strategy.GetMinimumHappiness is not present
 	double max_wage_percent;
 
-	strategy.GetDeficitSpending(deficit_spending);
 	strategy.GetMinimumHappiness(min_happiness);
 	strategy.GetMaximumWagePercent(max_wage_percent);
 
@@ -1785,7 +1784,7 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 		return;
 
 	sint32 type;
-	sint32 tmp_bonus;
+	sint32 tmp_bonus = 0;
 	const TerrainImprovementRecord *rec;
 	const TerrainImprovementRecord::Effect *effect;
 

@@ -108,7 +108,11 @@ Strategy {
 	bit(Int) MinimumHappiness
 
 	// set maximum deficit spending percent (ie. spend up to 10% of our savings each turn)
-	bit(Float) DeficitSpending
+	// - given a default (matching the value every strategy currently sets)
+	// so callers get a safe direct-return getter instead of an
+	// easily-discarded bool; confirmed via governor.cpp's own
+	// -Wmaybe-uninitialized warning on SliderTests::CalcTests
+	bit(Float) DeficitSpending = 0.1
 
 	// set maximum percent of gold that should ever be spent on wages to not choke science
 	bit(Float) MaximumWagePercent
