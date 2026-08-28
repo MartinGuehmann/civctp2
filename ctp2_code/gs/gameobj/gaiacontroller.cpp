@@ -22,7 +22,7 @@
 // Modifications from the original Activision code:
 //
 // - Fixed neutral tile improvment bug by preventing the game
-//   from reading invalid memory, by Martin Gühmann.
+//   from reading invalid memory, by Martin Gï¿½hmann.
 //
 //----------------------------------------------------------------------------
 
@@ -322,7 +322,7 @@ STDEHANDLER(GaiaController_CutImprovements)
 	Cell *cell = g_theWorld->GetCell(pos);
 	owner = cell->GetOwner();
 
-	//Added by Martin Gühmann to prevent
+	//Added by Martin Gï¿½hmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
@@ -366,7 +366,7 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	//Added by Martin Gühmann to prevent
+	//Added by Martin Gï¿½hmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
@@ -1100,7 +1100,7 @@ void GaiaController::ComputeTowerPositions()
 
 			if(candidate_iter->first > 0)
 			{
-				candidate_iter->first =+ ScoreTowerPosition(candidate_iter->second, empire_pos, towers, radius);
+				candidate_iter->first += ScoreTowerPosition(candidate_iter->second, empire_pos, towers, radius);
 				candidate_iter++;
 			}
 			else
