@@ -376,6 +376,7 @@ STRATEGY_DEFAULT {
         Bottom 0.2 
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -386,6 +387,7 @@ STRATEGY_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -411,6 +413,8 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
+        ImproveProductionBonus  50
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -419,6 +423,7 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -427,6 +432,9 @@ STRATEGY_DEFAULT {
         Top 0.2 
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -435,6 +443,7 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -446,6 +455,7 @@ STRATEGY_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -454,6 +464,11 @@ STRATEGY_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
+        FortUtilityBonus  60
+        DetectorUtilityBonus  60
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -477,6 +492,7 @@ STRATEGY_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -1594,6 +1610,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.2 
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -1604,6 +1621,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -1629,6 +1647,8 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
+        ImproveProductionBonus  50
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -1637,6 +1657,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -1645,6 +1666,9 @@ STRATEGY_SCIENTIST_DEFAULT {
         Top 0.2 
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -1653,6 +1677,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -1664,6 +1689,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -1672,6 +1698,11 @@ STRATEGY_SCIENTIST_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
+        FortUtilityBonus  60
+        DetectorUtilityBonus  60
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -1695,6 +1726,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -2123,6 +2155,7 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.2 
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2133,6 +2166,7 @@ STRATEGY_MILITARIST_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2158,6 +2192,8 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
+        ImproveProductionBonus  50
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2166,6 +2202,7 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -2174,6 +2211,9 @@ STRATEGY_MILITARIST_DEFAULT {
         Top 0.2 
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2182,6 +2222,7 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -2193,6 +2234,7 @@ STRATEGY_MILITARIST_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -2201,6 +2243,11 @@ STRATEGY_MILITARIST_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
+        FortUtilityBonus  60
+        DetectorUtilityBonus  60
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2224,6 +2271,7 @@ STRATEGY_MILITARIST_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -2660,6 +2708,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.2 
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2670,6 +2719,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2695,6 +2745,8 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
+        ImproveProductionBonus  50
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2703,6 +2755,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -2711,6 +2764,9 @@ STRATEGY_ECONOMIC_DEFAULT {
         Top 0.2 
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2719,6 +2775,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -2730,6 +2787,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -2738,6 +2796,11 @@ STRATEGY_ECONOMIC_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
+        FortUtilityBonus  60
+        DetectorUtilityBonus  60
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2761,6 +2824,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3188,6 +3252,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.2 
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3198,6 +3263,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3223,6 +3289,8 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
+        ImproveProductionBonus  50
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3231,6 +3299,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -3239,6 +3308,9 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Top 0.2 
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3247,6 +3319,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -3258,6 +3331,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3266,6 +3340,11 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
+        FortUtilityBonus  60
+        DetectorUtilityBonus  60
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3289,6 +3368,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3716,6 +3796,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.2 
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3726,6 +3807,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
+        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3751,6 +3833,8 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
+        ImproveProductionBonus  50
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3759,6 +3843,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -3767,6 +3852,9 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Top 0.2 
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3775,6 +3863,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
+        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -3786,6 +3875,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3794,6 +3884,11 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
+        FortUtilityBonus  60
+        DetectorUtilityBonus  60
+        RoadUtilityBonus  80
+        ImproveProductionBonus  40
+        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3817,6 +3912,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
+        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
