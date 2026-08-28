@@ -4167,6 +4167,57 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 		Assert(best_elem);
 	}
 
+#if defined(_DEBUG) || defined(USE_LOGGING)
+	// Diagnostic: which BuildListSequence category did this city match,
+	// and where does it currently rank on the relevant dimension? Lets a
+	// playtest log show whether cities actually rotate through categories
+	// over time, or whether the same cities stay locked into the same
+	// (e.g. WONDERS) category turn after turn.
+	{
+		const char * rankKind = "none";
+		double       matchRank = 0.0;
+
+		if(best_elem->GetProductionCities())
+		{
+			rankKind  = "Production";
+			matchRank = MapAnalysis::GetMapAnalysis().GetProductionRank(city);
+		}
+		else if(best_elem->GetGrowthCities())
+		{
+			rankKind  = "Growth";
+			matchRank = MapAnalysis::GetMapAnalysis().GetGrowthRank(city);
+		}
+		else if(best_elem->GetCommerceCities())
+		{
+			rankKind  = "Commerce";
+			matchRank = MapAnalysis::GetMapAnalysis().GetCommerceRank(city);
+		}
+		else if(best_elem->GetHappyCities())
+		{
+			rankKind  = "Happiness";
+			matchRank = MapAnalysis::GetMapAnalysis().GetHappinessRank(city);
+		}
+		else if(best_elem->GetThreatenedCities())
+		{
+			rankKind  = "Threat";
+			matchRank = MapAnalysis::GetMapAnalysis().GetThreatRank(city);
+		}
+		else if(best_elem->GetPowerCities())
+		{
+			rankKind  = "Power";
+			matchRank = MapAnalysis::GetMapAnalysis().GetPowerRank(city);
+		}
+
+		const BuildListSequenceRecord * matched_seq = best_elem->GetBuildListSequence();
+
+		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: city %s -> sequence %s (rank kind %s, rank %f)\n",
+		        const_cast<CityData *>(city)->GetName(),
+		        matched_seq ? matched_seq->GetNameText() : "NULL",
+		        rankKind,
+		        matchRank));
+	}
+#endif
+
 	return best_elem;
 }
 
