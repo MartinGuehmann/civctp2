@@ -345,6 +345,14 @@ private:
 
 	const BuildListSequenceRecord * GetMatchingSequence(const CityData *city, const bool human_city, StringId & advice, bool & noUnits) const;
 
+	// The BuildListSequenceElement GetMatchingSequence would resolve into a
+	// BuildListSequenceRecord for this city - exposed on its own so callers
+	// that need the element itself (e.g. its per-element tile-improvement
+	// bonuses) don't have to re-run the same matching loop. NULL for a
+	// human-governed city (GetMatchingSequence's own early-return path,
+	// which never goes through element matching at all).
+	const StrategyRecord::BuildListSequenceElement * GetMatchingSequenceElement(const CityData *city) const;
+
 	bool HasStopBuildings(const StrategyRecord::BuildListSequenceElement* elem, const CityData* cd) const;
 
 	sint32 GetNeededUnitType(const CityData *city, sint32 & list_num) const;

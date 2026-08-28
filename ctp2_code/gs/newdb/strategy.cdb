@@ -329,6 +329,15 @@ Strategy {
 		Bit (Int) MaxRawHappiness    // Maximum Happiness allowed without entertainers and sliders to use this list
 		Bit CanBuildWonders          // Only applied if there are wonders buildable
 		Bit NoUnits                  // Ignores GarrisonUnitBuildList and AllUnitBuildList from the build list sequence
+
+		// Additional tile-improvement bonuses on top of the strategy-wide
+		// ImproveProductionBonus/ImproveGrowthBonus/ImproveGoldBonus, applied
+		// only to cities currently matching this element - lets a single
+		// strategy fine-tune tile-improvement choice per situation instead
+		// of just per personality.
+		Bit (Float) ImproveProductionBonus = 0.0
+		Bit (Float) ImproveGrowthBonus = 0.0
+		Bit (Float) ImproveGoldBonus = 0.0
 	}
 
 	// for each city with an empty build queue, build from first sequence that applies

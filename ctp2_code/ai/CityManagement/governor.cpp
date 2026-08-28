@@ -1368,6 +1368,12 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	CityData* city = city_owner.GetCityData();
 	Assert(city);
 
+	// The element governing this city's current build-list sequence (NULL
+	// for a human-governed city) carries its own tile-improvement bonuses
+	// on top of the strategy-wide ones below - lets a single strategy
+	// fine-tune improvement choice per situation, not just per personality.
+	const StrategyRecord::BuildListSequenceElement *elem = GetMatchingSequenceElement(city);
+
 	double growth_rank     = the_map.GetGrowthRank    (city);
 	double production_rank = the_map.GetProductionRank(city);
 //	double gold_rank       = the_map.GetCommerceRank  (city);
@@ -1447,6 +1453,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		goal.type = best_growth_improvement;
 
 		strategy.GetImproveGrowthBonus(bonus);
+		if(elem)
+			bonus += elem->GetImproveGrowthBonus();
 		goal.utility = bonus * terr_food_rank;
 
 		if(growth_rank < 0.2){
@@ -1474,6 +1482,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 			if(terrain_type != terrainutil_GetDead())
 			{
 				strategy.GetImproveGrowthBonus(bonus);
+				if(elem)
+					bonus += elem->GetImproveGrowthBonus();
 				goal.utility = bonus * terr_food_rank;
 
 				if(growth_rank < 0.2)
@@ -1510,6 +1520,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		goal.type = best_production_improvement;
 
 		strategy.GetImproveProductionBonus(bonus);
+		if(elem)
+			bonus += elem->GetImproveProductionBonus();
 		goal.utility =  bonus * terr_prod_rank;
 
 		if(production_rank > 0.8)
@@ -1543,6 +1555,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		goal.type = best_gold_improvement;
 
 		bonus = strategy.GetImproveGoldBonus();
+		if(elem)
+			bonus += elem->GetImproveGoldBonus();
 		goal.utility = bonus * terr_gold_rank;
 
 		if(production_rank > 0.8)
@@ -1571,6 +1585,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 			if(terrain_type != terrainutil_GetDead())
 			{
 				bonus = strategy.GetImproveGoldBonus();
+				if(elem)
+					bonus += elem->GetImproveGoldBonus();
 				goal.utility = bonus * terr_gold_rank;
 
 				if(production_rank > 0.8)
@@ -1615,6 +1631,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 			if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformHillsImprovement(), pos, false))
 			{
 				strategy.GetImproveProductionBonus(bonus);
+				if(elem)
+					bonus += elem->GetImproveProductionBonus();
 				goal.utility =  bonus * (1.0-production_rank);
 				goal.type = terrainutil_GetTerraformHillsImprovement();
 			}
@@ -1623,6 +1641,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		{
 			if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformGrasslandImprovement(), pos, false)){
 				strategy.GetImproveGrowthBonus(bonus);
+				if(elem)
+					bonus += elem->GetImproveGrowthBonus();
 				goal.utility =  bonus * (1.0-growth_rank);
 				goal.type = terrainutil_GetTerraformGrasslandImprovement();
 			}
@@ -3949,11 +3969,9 @@ bool Governor::HasStopBuildings(const StrategyRecord::BuildListSequenceElement* 
 	}
 }
 
-const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *city, const bool human_city, StringId & advice, bool & noUnits) const
+const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceElement(const CityData *city) const
 {
 	Assert(city);
-	if (city->GetUseGovernor() && human_city)
-		return g_theBuildListSequenceDB->Get(city->GetBuildListSequenceIndex());
 
 	Assert(g_player[m_playerId]);
 	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
@@ -4139,15 +4157,27 @@ const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *ci
 		}
 	}
 
-	advice = -1;
-
 	if (best_elem == NULL)
 	{
 		best_elem = strategy.GetBuildListSequenceElement(i-1);
 		Assert(best_elem);
-		if (best_elem == NULL)
-			return g_theBuildListSequenceDB->Get(0);
 	}
+
+	return best_elem;
+}
+
+const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *city, const bool human_city, StringId & advice, bool & noUnits) const
+{
+	Assert(city);
+	if (city->GetUseGovernor() && human_city)
+		return g_theBuildListSequenceDB->Get(city->GetBuildListSequenceIndex());
+
+	const StrategyRecord::BuildListSequenceElement *best_elem = GetMatchingSequenceElement(city);
+
+	advice = -1;
+
+	if (best_elem == NULL)
+		return g_theBuildListSequenceDB->Get(0);
 
 	noUnits = best_elem->GetNoUnits();
 
