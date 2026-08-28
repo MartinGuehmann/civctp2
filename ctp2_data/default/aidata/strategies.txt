@@ -206,6 +206,9 @@ STRATEGY_DEFAULT {
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
 
+    // bonus for building gold tile improvements
+    ImproveGoldBonus  120
+
     // bonus to apply to cells with goods
     ImproveGoodBonus  75
 
@@ -1421,6 +1424,9 @@ STRATEGY_SCIENTIST_DEFAULT {
     // bonus for building growth tile improvements
     ImproveGrowthBonus  130
 
+    // bonus for building gold tile improvements
+    ImproveGoldBonus  90
+
     // bonus to apply to cells with goods
     ImproveGoodBonus  75
 
@@ -1946,6 +1952,9 @@ STRATEGY_MILITARIST_DEFAULT {
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
+
+    // bonus for building gold tile improvements
+    ImproveGoldBonus  90
 
     // bonus to apply to cells with goods
     ImproveGoodBonus  75
@@ -2481,6 +2490,9 @@ STRATEGY_ECONOMIC_DEFAULT {
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
 
+    // bonus for building gold tile improvements
+    ImproveGoldBonus  180
+
     // bonus to apply to cells with goods
     ImproveGoodBonus  75
 
@@ -3006,6 +3018,9 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     // bonus for building growth tile improvements
     ImproveGrowthBonus  150
 
+    // bonus for building gold tile improvements
+    ImproveGoldBonus  90
+
     // bonus to apply to cells with goods
     ImproveGoodBonus  75
 
@@ -3530,6 +3545,9 @@ STRATEGY_DIPLOMATIC_DEFAULT {
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  130
+
+    // bonus for building gold tile improvements
+    ImproveGoldBonus  120
 
     // bonus to apply to cells with goods
     ImproveGoodBonus  75
