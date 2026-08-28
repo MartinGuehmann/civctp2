@@ -22,7 +22,7 @@
 // Modifications from the original Activision code:
 //
 // - Fixed neutral tile improvment bug by preventing the game
-//   from reading invalid memory, by Martin Gï¿½hmann.
+//   from reading invalid memory, by Martin Gühmann.
 //
 //----------------------------------------------------------------------------
 
@@ -322,7 +322,7 @@ STDEHANDLER(GaiaController_CutImprovements)
 	Cell *cell = g_theWorld->GetCell(pos);
 	owner = cell->GetOwner();
 
-	//Added by Martin Gï¿½hmann to prevent
+	//Added by Martin Gühmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
@@ -366,7 +366,7 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	//Added by Martin Gï¿½hmann to prevent
+	//Added by Martin Gühmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
