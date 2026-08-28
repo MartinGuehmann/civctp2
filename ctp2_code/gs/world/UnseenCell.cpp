@@ -608,10 +608,9 @@ sint32 UnseenCell::GetFoodProduced() const
 		const TerrainImprovementRecord::Effect * effect =
 		    terrainutil_GetTerrainEffect(impRec, m_terrain_type);
 
-		sint32 bonus = 0;
-		if (effect && effect->GetBonusFood(bonus))
+		if (effect)
 		{
-			food += bonus;
+			food += effect->GetBonusFood();
 		}
 	}
 
@@ -694,10 +693,9 @@ sint32 UnseenCell::GetShieldsProduced() const
 			g_theTerrainImprovementDB->Get(type);
 		const TerrainImprovementRecord::Effect * effect =
 		    terrainutil_GetTerrainEffect(impRec, m_terrain_type);
-		sint32 bonus;
-		if(effect && effect->GetBonusProduction(bonus))
+		if(effect)
 		{
-			shield += bonus;
+			shield += effect->GetBonusProduction();
 		}
 	}
 
@@ -780,9 +778,8 @@ sint32 UnseenCell::GetGoldProduced() const
 		    g_theTerrainImprovementDB->Get(type);
 		const TerrainImprovementRecord::Effect * effect =
 		    terrainutil_GetTerrainEffect(impRec, m_terrain_type);
-		sint32 bonus;
-		if(effect && effect->GetBonusGold(bonus)) {
-			gold += bonus;
+		if(effect) {
+			gold += effect->GetBonusGold();
 		}
 	}
 

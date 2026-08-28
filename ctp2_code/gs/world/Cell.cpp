@@ -390,9 +390,8 @@ sint32 Cell::GetFoodProduced() const
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 			const TerrainImprovementRecord::Effect *effect;
 			effect = terrainutil_GetTerrainEffect(impRec, m_terrain_type);
-			sint32 bonus = 0;
-			if(effect && effect->GetBonusFood(bonus)) {
-				food += bonus;
+			if(effect) {
+				food += effect->GetBonusFood();
 			}
 		}
 	}
@@ -489,9 +488,8 @@ sint32 Cell::GetShieldsProduced() const
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 			const TerrainImprovementRecord::Effect *effect;
 			effect = terrainutil_GetTerrainEffect(impRec, m_terrain_type);
-			sint32 bonus;
-			if(effect && effect->GetBonusProduction(bonus)) {
-				shield += bonus;
+			if(effect) {
+				shield += effect->GetBonusProduction();
 			}
 		}
 	}
@@ -588,9 +586,8 @@ sint32 Cell::GetGoldProduced() const
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 			const TerrainImprovementRecord::Effect *effect;
 			effect = terrainutil_GetTerrainEffect(impRec, m_terrain_type);
-			sint32 bonus;
-			if(effect && effect->GetBonusGold(bonus)) {
-				gold += bonus;
+			if(effect) {
+				gold += effect->GetBonusGold();
 			}
 		}
 	}

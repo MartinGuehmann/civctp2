@@ -1374,7 +1374,6 @@ void Governor::PlaceTileImprovements()
 //----------------------------------------------------------------------------
 bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32 &bonusFood, sint32 &bonusProduction, sint32 &bonusCommerce) const
 {
-	sint32 tmp_bonus;
 	sint32 terrain;
 	const TerrainImprovementRecord *rec;
 	const TerrainImprovementRecord::Effect *effect;
@@ -1461,14 +1460,9 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		rec = g_theTerrainImprovementDB->Get(best_growth_improvement);
 		effect = terrainutil_GetTerrainEffect(rec, pos);
 
-		effect->GetBonusFood(tmp_bonus);
-		bonusFood += tmp_bonus;
-
-		effect->GetBonusProduction(tmp_bonus);
-		bonusProduction += tmp_bonus;
-
-		effect->GetBonusGold(tmp_bonus);
-		bonusCommerce += tmp_bonus;
+		bonusFood += effect->GetBonusFood();
+		bonusProduction += effect->GetBonusProduction();
+		bonusCommerce += effect->GetBonusGold();
 
 		goal.type = best_growth_improvement;
 
@@ -1528,14 +1522,9 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		rec = g_theTerrainImprovementDB->Get(best_production_improvement);
 		effect = terrainutil_GetTerrainEffect(rec, pos);
 
-		effect->GetBonusFood(tmp_bonus);
-		bonusFood += tmp_bonus;
-
-		effect->GetBonusProduction(tmp_bonus);
-		bonusProduction += tmp_bonus;
-
-		effect->GetBonusGold(tmp_bonus);
-		bonusCommerce += tmp_bonus;
+		bonusFood += effect->GetBonusFood();
+		bonusProduction += effect->GetBonusProduction();
+		bonusCommerce += effect->GetBonusGold();
 
 		goal.type = best_production_improvement;
 
@@ -1563,14 +1552,9 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		rec = g_theTerrainImprovementDB->Get(best_gold_improvement);
 		effect = terrainutil_GetTerrainEffect(rec, pos);
 
-		effect->GetBonusFood(tmp_bonus);
-		bonusFood += tmp_bonus;
-
-		effect->GetBonusProduction(tmp_bonus);
-		bonusProduction += tmp_bonus;
-
-		effect->GetBonusGold(tmp_bonus);
-		bonusCommerce += tmp_bonus;
+		bonusFood += effect->GetBonusFood();
+		bonusProduction += effect->GetBonusProduction();
+		bonusCommerce += effect->GetBonusGold();
 
 		goal.type = best_gold_improvement;
 
@@ -1810,21 +1794,21 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 			current_class |= rec->GetClass();
 		}
 
-		if(effect->GetBonusFood(tmp_bonus)
-		&& tmp_bonus > max_bonus_food
-		){
+		tmp_bonus = effect->GetBonusFood();
+		if(tmp_bonus > max_bonus_food)
+		{
 			max_bonus_food = tmp_bonus;
 		}
 
-		if(effect->GetBonusProduction(tmp_bonus)
-		&& tmp_bonus > max_bonus_prod
-		){
+		tmp_bonus = effect->GetBonusProduction();
+		if(tmp_bonus > max_bonus_prod)
+		{
 			max_bonus_prod = tmp_bonus;
 		}
 
-		if(effect->GetBonusGold(tmp_bonus)
-		&& tmp_bonus > max_bonus_gold
-		){
+		tmp_bonus = effect->GetBonusGold();
+		if(tmp_bonus > max_bonus_gold)
+		{
 			max_bonus_gold = tmp_bonus;
 		}
 	}
@@ -1847,23 +1831,23 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 		effect = terrainutil_GetTerrainEffect(rec, terrain_type);
 		if(effect)
 		{
-			if(effect->GetBonusFood(tmp_bonus)
-			&& tmp_bonus > max_bonus_food
-			){
+			tmp_bonus = effect->GetBonusFood();
+			if(tmp_bonus > max_bonus_food)
+			{
 				food_imp = type;
 				max_bonus_food = tmp_bonus;
 			}
 
-			if(effect->GetBonusProduction(tmp_bonus)
-			&& tmp_bonus > max_bonus_prod
-			){
+			tmp_bonus = effect->GetBonusProduction();
+			if(tmp_bonus > max_bonus_prod)
+			{
 				prod_imp = type;
 				max_bonus_prod = tmp_bonus;
 			}
 
-			if(effect->GetBonusGold(tmp_bonus)
-			&& tmp_bonus > max_bonus_gold
-			){
+			tmp_bonus = effect->GetBonusGold();
+			if(tmp_bonus > max_bonus_gold)
+			{
 				gold_imp = type;
 				max_bonus_gold = tmp_bonus;
 			}
