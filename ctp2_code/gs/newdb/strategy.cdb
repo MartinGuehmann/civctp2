@@ -178,6 +178,10 @@ Strategy {
 	// bonus for building growth improvements
 	Bit(Float) ImproveGrowthBonus
 
+	// bonus for building gold improvements - given a default so callers get
+	// a safe direct-return getter (see AirfieldUtilityBonus above)
+	Bit(Float) ImproveGoldBonus = 0.0
+
 	// bonus to apply to cells with goods
 	Bit(Float) ImproveGoodBonus
 

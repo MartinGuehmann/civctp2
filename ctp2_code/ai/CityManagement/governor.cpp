@@ -1542,7 +1542,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 
 		goal.type = best_gold_improvement;
 
-		strategy.GetImproveProductionBonus(bonus);
+		bonus = strategy.GetImproveGoldBonus();
 		goal.utility = bonus * terr_gold_rank;
 
 		if(production_rank > 0.8)
@@ -1570,7 +1570,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 
 			if(terrain_type != terrainutil_GetDead())
 			{
-				strategy.GetImproveProductionBonus(bonus);
+				bonus = strategy.GetImproveGoldBonus();
 				goal.utility = bonus * terr_gold_rank;
 
 				if(production_rank > 0.8)
