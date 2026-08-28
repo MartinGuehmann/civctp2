@@ -40,6 +40,7 @@
 #include "Unit.h"
 #include "World.h"
 #include "player.h"
+#include "gaiacontroller.h"
 #include "Cell.h"
 #include "TurnCnt.h"
 #include "SelItem.h"
@@ -324,6 +325,18 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 									  m_id, m_owner, toOwner));
 	}
 
+	// Endgame-flagged installations (Processing Towers) are counted per
+	// owner by that owner's own GaiaController (m_numTowersBuilt /
+	// RecomputeCoverage). It only ever hears about that via the
+	// GEV_ImprovementComplete/GEV_CutImprovements event handlers (build/
+	// destroy) and, for buildings/wonders only, GEV_CaptureCity - an
+	// ordinary ownership change like this one (ArmyData::Pillage, city
+	// capture without destruction, border/territory shift, player death)
+	// was never told, so the old owner's count and coverage would go
+	// stale and the new owner's would never see this tower at all.
+	bool const isEndgameTower =
+		(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)m_type)) != 0;
+
 	if(m_owner >= 0 && g_player[m_owner] != NULL)
 	{
 		g_player[m_owner]->RemoveInstallationReferences(Installation(m_id));
@@ -335,11 +348,23 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 		{
 			g_player[m_owner]->RemoveUnitVision(m_point, visionRange);
 		}
+
+		if(isEndgameTower && g_player[m_owner]->GetGaiaController())
+		{
+			g_player[m_owner]->GetGaiaController()->
+				HandleTerrImprovementChange(m_type, m_point, -1);
+		}
 	}
 
 	if(toOwner >= 0)
 	{
 		g_player[toOwner]->AddInstallation(Installation(m_id));
+
+		if(isEndgameTower && g_player[toOwner]->GetGaiaController())
+		{
+			g_player[toOwner]->GetGaiaController()->
+				HandleTerrImprovementChange(m_type, m_point, 1);
+		}
 	}
 
 	m_owner = toOwner;
