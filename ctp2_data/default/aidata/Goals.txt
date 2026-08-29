@@ -126,7 +126,14 @@ GOAL_SEIGE {
   RallyFirst
   NoRollback
   NeverSatisfied
-  IsGlobalGoal
+
+  # Normally the AI determines the prioity of a goal
+  # by evaluating the units that could be used for the
+  # goal, too. For instance how far they are away.
+  # IsGlobalGoal makes the AI ignoring the unit positions.
+  # However, this is not necessary, so disabled. But it is
+  # still in the code.
+  #IsGlobalGoal
 
   SquadClass:CanAttack
   SquadClass:CanDefend
