@@ -320,6 +320,19 @@ sint32 InstallationData::AirfieldLastUsed() const
 
 void InstallationData::ChangeOwner(sint32 toOwner)
 {
+	// CityInfluenceIterator.cpp's border/influence flood-fill (ExpandBorders/
+	// ExpandInfluence/GenerateBorders) calls World::SyncInstallationOwners()
+	// - and so this - on every tile in a city's radius unconditionally,
+	// including tiles already owned by that same player; unlike
+	// World::ChangeOwner()'s own recursion, it has no "did the owner
+	// actually change" guard. Skip the no-op case here instead: nothing
+	// below (network sync, old/new owner reference and vision churn,
+	// GaiaController bookkeeping) needs to run when the owner isn't
+	// actually changing.
+	if(toOwner == m_owner) {
+		return;
+	}
+
 	if(g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_INSTALLATION_OWNER,
 									  m_id, m_owner, toOwner));
