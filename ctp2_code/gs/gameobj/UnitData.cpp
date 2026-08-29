@@ -1094,10 +1094,21 @@ bool UnitData::UnloadCargo(const MapPoint &unload_pos, Army &debark, sint32 &cou
 			passenger .SetPosAndNothingElse(m_pos); // unload_pos?
 			passenger .UnsetIsInTransport();
 
-			if(m_pos == unload_pos) {
-				g_theWorld->InsertUnit(m_pos, passenger);
-			}
-		//	else will be handled when the unit moves
+			// Used to call g_theWorld->InsertUnit(m_pos, passenger) here
+			// whenever the unload target was this transport's own tile
+			// (e.g. a beach assault, CanBeachAssault - see
+			// UNIT_MARINE - attacking directly from a Crawler without
+			// first stepping onto a separate land tile). A passenger
+			// can't actually, independently occupy the transport's own
+			// tile (a Marine has no water movement type), so registering
+			// it there mixed its entry into the same cell/QuadTree slot
+			// as the transport's own unit - confirmed via a playtest
+			// where a beach-assaulting Marine's own death repeatedly
+			// failed to find itself registered at that tile at all
+			// (Unit.cpp's RemoveUnitReference-failure diagnostic; the
+			// cell only ever reported the still-present Crawler). Now
+			// deferred uniformly to "will be handled when the unit
+			// moves" for every unload target, not just adjacent ones.
 
 			passenger.AddUnitVision();
 
