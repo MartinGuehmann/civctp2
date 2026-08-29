@@ -377,10 +377,11 @@ void ScienceVictoryDialog::UpdateConstructionMap(
 		for(sint32 x = 0; x < g_theWorld->GetWidth(); x++) {
 			if(gaiaController->GetCoverage().Get(x, y))
 				// COLOR_YELLOW is a saturated pure yellow reused all over
-				// the UI (health bars, danger flashes, chart lines) - use
-				// the softer, still-yellow COLOR_SELECT_0 instead so the
-				// coverage overlay reads distinctly on the radar map.
-				m_map->SetMapOverlayCell(MapPoint(x, y), COLOR_SELECT_0);
+				// the UI (health bars, danger flashes, chart lines).
+				// COLOR_SELECT_0 was too close to it to tell apart at a
+				// glance; COLOR_SELECT_2 (a darker, more olive gold) reads
+				// more distinctly on the radar map.
+				m_map->SetMapOverlayCell(MapPoint(x, y), COLOR_SELECT_2);
 		}
 	}
 
