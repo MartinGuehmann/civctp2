@@ -3727,8 +3727,20 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 
 			declare_war &= (turns_since_last_war > 5 || turns_since_last_war < 0);
 
-			declare_war &= (AtWarCount() == 0); // On your continet 
+			declare_war &= (AtWarCount() == 0); // On your continet
 
+			// m_desireWarWith[foreignerId] can go stale by the time this
+			// runs: SetDiplomaticState() fires from a deferred, per-
+			// foreigner GEV_NextDiplomaticState event, and an earlier
+			// foreigner's own event in the same batch may have already
+			// declared war (DeclareWar() only refreshes its own two
+			// parties' full caches - see its comment - not every other
+			// queued foreigner) or otherwise changed state this depends
+			// on. This is the single most consequential read of this
+			// value (it gates an actual war declaration below), so
+			// refresh it right here rather than trust whatever is
+			// already cached.
+			UpdateDesireWarWith(foreignerId);
 			declare_war &= DesireWarWith(foreignerId);
 
 			declare_war &= !m_personality->GetTrustworthinessChaotic();
