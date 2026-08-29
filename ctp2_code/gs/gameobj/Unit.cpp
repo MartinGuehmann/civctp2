@@ -265,9 +265,21 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 			{
 				for (sint32 ci = 0; ci < cell->GetNumUnits(); ci++)
 				{
+					// A playtest hit showed the army valid with exactly 1
+					// member (this unit) - ruling out the sibling-kill
+					// theory above too - while the cell already held one
+					// unrelated survivor instead. Log that survivor's own
+					// owner/army to check whether it's the winning side's
+					// combatant having already consolidated onto this tile
+					// (e.g. via GEV_BattleAftermath, which combatevent.cpp
+					// deliberately runs before this unit's own deferred
+					// GEV_KillUnit) ahead of this removal.
+					Unit    other      = cell->AccessUnit(ci);
+					Army    otherArmy  = other.IsValid() ? other.GetArmy() : Army();
 					DPRINTF(k_DBG_GAMESTATE,
-					    ("Unit::RemoveAllReferences: cell actually contains unit 0x%lx\n",
-					     cell->AccessUnit(ci).m_id));
+					    ("Unit::RemoveAllReferences: cell actually contains unit 0x%lx owner %d army 0x%lx\n",
+					     other.m_id, other.IsValid() ? other.GetOwner() : -1,
+					     otherArmy.m_id));
 				}
 			}
 		}
