@@ -884,7 +884,7 @@ bool Governor::AddRoadPriority(Path & path, const double & priority_delta, const
 	// same as FindBestTileImprovement's Improve*Bonus handling. A road
 	// connects two cities; this uses the one the search started from.
 	const StrategyRecord::BuildListSequenceElement *elem =
-	    GetMatchingSequenceElement(city, false);
+	    GetMatchingSequenceElement(city);
 	if(elem)
 		bonus += elem->GetRoadUtilityBonus();
 
@@ -1211,7 +1211,7 @@ void Governor::ComputeInstallationPriorities()
 		// carries its own installation bonuses on top of the strategy-wide
 		// ones, same as FindBestTileImprovement's Improve*Bonus handling.
 		const StrategyRecord::BuildListSequenceElement *elem =
-		    GetMatchingSequenceElement(city.CD(), false);
+		    GetMatchingSequenceElement(city.CD());
 
 		double airfieldUtility = strategy.GetAirfieldUtilityBonus();
 		double fortUtility     = strategy.GetFortUtilityBonus();
@@ -1391,7 +1391,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	// for a human-governed city) carries its own tile-improvement bonuses
 	// on top of the strategy-wide ones below - lets a single strategy
 	// fine-tune improvement choice per situation, not just per personality.
-	const StrategyRecord::BuildListSequenceElement *elem = GetMatchingSequenceElement(city, false);
+	const StrategyRecord::BuildListSequenceElement *elem = GetMatchingSequenceElement(city);
 
 	double growth_rank     = the_map.GetGrowthRank    (city);
 	double production_rank = the_map.GetProductionRank(city);
