@@ -4976,7 +4976,28 @@ MapPoint Goal::MoveAwayFromTargetCity(Agent_ptr rallyAgent)
 					// Search for a cell without an army
 					rallyPos = tempPos;
 					if(!GotoGoalTaskSolution(rallyAgent, rallyPos))
+					{
+						// tempPos already passed every check this function
+						// itself makes (empty, same continent, enterable) -
+						// so a GotoGoalTaskSolution failure here means the
+						// pathfind itself couldn't reach it. Log what we
+						// know to see why on the next playtest, rather than
+						// assume blind - this is a rare (1 hit/800 turns),
+						// not-yet-explained failure.
+						const Unit & first_unit = rallyAgent->Get_Army()->Get(0);
+						DPRINTF(k_DBG_SCHEDULER,
+						    ("GOAL %x (%s): MoveAwayFromTargetCity: GotoGoalTaskSolution failed for army 0x%lx, unit type %d (%s), from (x=%d,y=%d) to (x=%d,y=%d), target (x=%d,y=%d), HasCargo %d\n",
+						     this,
+						     g_theGoalDB->Get(m_goal_type)->GetNameText(),
+						     rallyAgent->Get_Army().m_id,
+						     first_unit.GetType(),
+						     g_theUnitDB->GetNameStr(first_unit.GetType()),
+						     rallyAgent->Get_Pos().x, rallyAgent->Get_Pos().y,
+						     tempPos.x, tempPos.y,
+						     targetPos.x, targetPos.y,
+						     rallyAgent->Get_Army()->HasCargo()));
 						Assert(false);
+					}
 
 					break;
 				}
