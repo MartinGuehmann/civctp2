@@ -8155,18 +8155,21 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 		anyVisible = anyVisible || (m_array[i].GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()));
 		// EMOD - Rebasing of units, especially aircraft - code removed trying to create a code that automatically moves a unit from a
 		//city to another city anywhere in the world and costing that unit 1 move.
-
-		if(m_array[i].GetDBRec()->GetCanRebase())
-		{
-			if (!IsOccupiedByForeigner(pos))
-			{
-				if(g_theWorld->HasCity(pos)
-				|| terrainutil_HasAirfield(pos)
-				){  //add unit later?
-					m_array[i].SetPosition(pos);
-				}
-			}
-		}
+		//
+		// This used to call m_array[i].SetPosition(pos) directly here for
+		// rebase-capable units - which inserts into g_theUnitTree at pos
+		// without first removing the unit's existing entry there (unlike
+		// World::RemoveUnitReference()+MoveToPosition() below, which every
+		// unit - rebase-capable or not - already goes through right after
+		// this). The leaked old QuadTree entry was still reachable via
+		// g_theUnitTree->GetPos(obj), which reads the unit's own (already
+		// updated) position, not where it's actually still registered -
+		// corrupting the tree for whatever legitimate removal stumbled
+		// into that stale node later (confirmed via a playtest hitting
+		// QuadTree.h's Assert(m_se)-style quadrant checks in unrelated
+		// armies' ordinary moves). Removed: the code below already
+		// repositions every unit correctly and unconditionally, so this
+		// was purely redundant as well as the actual bug.
 		//end EMOD
 
 		if(g_theWorld->GetCell(pos)->GetNumUnits() > k_MAX_ARMY_SIZE)
