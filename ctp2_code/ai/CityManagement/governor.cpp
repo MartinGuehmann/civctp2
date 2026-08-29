@@ -884,7 +884,7 @@ bool Governor::AddRoadPriority(Path & path, const double & priority_delta, const
 	// same as FindBestTileImprovement's Improve*Bonus handling. A road
 	// connects two cities; this uses the one the search started from.
 	const StrategyRecord::BuildListSequenceElement *elem =
-	    GetMatchingSequenceElement(city);
+	    GetMatchingSequenceElement(city, false);
 	if(elem)
 		bonus += elem->GetRoadUtilityBonus();
 
@@ -1211,7 +1211,7 @@ void Governor::ComputeInstallationPriorities()
 		// carries its own installation bonuses on top of the strategy-wide
 		// ones, same as FindBestTileImprovement's Improve*Bonus handling.
 		const StrategyRecord::BuildListSequenceElement *elem =
-		    GetMatchingSequenceElement(city.CD());
+		    GetMatchingSequenceElement(city.CD(), false);
 
 		double airfieldUtility = strategy.GetAirfieldUtilityBonus();
 		double fortUtility     = strategy.GetFortUtilityBonus();
@@ -1391,7 +1391,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	// for a human-governed city) carries its own tile-improvement bonuses
 	// on top of the strategy-wide ones below - lets a single strategy
 	// fine-tune improvement choice per situation, not just per personality.
-	const StrategyRecord::BuildListSequenceElement *elem = GetMatchingSequenceElement(city);
+	const StrategyRecord::BuildListSequenceElement *elem = GetMatchingSequenceElement(city, false);
 
 	double growth_rank     = the_map.GetGrowthRank    (city);
 	double production_rank = the_map.GetProductionRank(city);
@@ -3973,7 +3973,7 @@ bool Governor::HasStopBuildings(const StrategyRecord::BuildListSequenceElement* 
 	}
 }
 
-const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceElement(const CityData *city) const
+const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceElement(const CityData *city, bool isBuildDecision) const
 {
 	Assert(city);
 
@@ -4173,6 +4173,15 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 	// playtest log show whether cities actually rotate through categories
 	// over time, or whether the same cities stay locked into the same
 	// (e.g. WONDERS) category turn after turn.
+	//
+	// GetMatchingSequenceElement() is also called from FindBestTileImprovement/
+	// AddRoadPriority/ComputeInstallationPriorities (once per candidate
+	// tile/road/installation, not once per city per turn) purely to read
+	// the matched element's own bonus fields - logging unconditionally
+	// counted those lookups too, inflating a city's hit count ~27x above
+	// its actual once-per-turn build decision. isBuildDecision is true
+	// only for the real decision call, GetMatchingSequence() below.
+	if (isBuildDecision)
 	{
 		const char * rankKind = "none";
 		double       matchRank = 0.0;
@@ -4227,7 +4236,7 @@ const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *ci
 	if (city->GetUseGovernor() && human_city)
 		return g_theBuildListSequenceDB->Get(city->GetBuildListSequenceIndex());
 
-	const StrategyRecord::BuildListSequenceElement *best_elem = GetMatchingSequenceElement(city);
+	const StrategyRecord::BuildListSequenceElement *best_elem = GetMatchingSequenceElement(city, true);
 
 	advice = -1;
 

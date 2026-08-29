@@ -351,7 +351,7 @@ private:
 	// bonuses) don't have to re-run the same matching loop. NULL for a
 	// human-governed city (GetMatchingSequence's own early-return path,
 	// which never goes through element matching at all).
-	const StrategyRecord::BuildListSequenceElement * GetMatchingSequenceElement(const CityData *city) const;
+	const StrategyRecord::BuildListSequenceElement * GetMatchingSequenceElement(const CityData *city, bool isBuildDecision = false) const;
 
 	bool HasStopBuildings(const StrategyRecord::BuildListSequenceElement* elem, const CityData* cd) const;
 
