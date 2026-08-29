@@ -747,8 +747,18 @@ RadarMapCell::Type RadarRenderWorld::GetMapCellValue(const MapPoint & worldPos) 
 		landColor = static_cast<COLOR>(COLOR_TERRAIN_0 + g_tiledMap->GetVisibleTerrainType(worldPos));
 	}
 
-	const COLOR waterColor = isLand ? COLOR_BLACK : static_cast<COLOR>(COLOR_TERRAIN_0 +
+	COLOR waterColor = isLand ? COLOR_BLACK : static_cast<COLOR>(COLOR_TERRAIN_0 +
 			(m_radarProperties.m_displayTerrain ? g_tiledMap->GetVisibleTerrainType(worldPos) : TERRAIN_WATER_DEEP));
+	// The original (pre-RadarMapCell::Type) RadarTileColor() returned one
+	// unified color for the whole tile when overlaid, covering land and
+	// water alike. This land/water-crossing renderer only ever wired the
+	// overlay into landColor above, silently dropping overlay coverage on
+	// water tiles (isLand uses landColor, water uses waterColor - see
+	// RadarMapCell::GetPixel16()). Apply it here too, to match.
+	if (overlayColor != COLOR_MAX)
+	{
+		waterColor = overlayColor;
+	}
 	return RadarMapCell::createValue(landColor, waterColor, isLand);
 }
 
