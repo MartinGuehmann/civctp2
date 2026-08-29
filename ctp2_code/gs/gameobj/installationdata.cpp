@@ -341,9 +341,22 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 	{
 		g_player[m_owner]->RemoveInstallationReferences(Installation(m_id));
 
+		// Just RemoveUnitVision() below - it already does exactly what this
+		// used to duplicate. Before the vision objects were unified (see
+		// "On screen vision is now the vision of the visible player instead
+		// of a copy"), this called g_tiledMap->GetLocalVision()->RemoveVisible()
+		// directly, a *separate* screen-only copy, so it was harmless. Now
+		// g_tiledMap->GetLocalVision() (via RemoveUnitVision()'s director
+		// path) and g_player[m_owner]->m_vision are the same reference-
+		// counted object, so calling both here double-decremented every
+		// tile in the installation's vision circle on every ownership
+		// change - and even single-decremented tiles for installations
+		// with no vision at all (visionRange <= 0), since this call wasn't
+		// guarded like AddInstallation()'s matching AddVisible() is. Over
+		// many territory/ownership changes this silently drained vision
+		// ref-counts empire-wide, including at tiles this installation
+		// never actually contributed to.
 		double visionRange = terrainutil_GetVisionRange(m_type, m_point);
-		g_player[m_owner]->m_vision->RemoveVisible(m_point, visionRange);
-
 		if(visionRange > 0)
 		{
 			g_player[m_owner]->RemoveUnitVision(m_point, visionRange);
