@@ -11,7 +11,7 @@
 //
 // THIS FILE IS NOT GENERATED OR SUPPORTED BY ACTIVISION.
 //
-// This material has been developed at apolyton.net by the Apolyton CtP2 
+// This material has been developed at apolyton.net by the Apolyton CtP2
 // Source Code Project. Contact the authors at ctp2source@apolyton.net.
 //
 //----------------------------------------------------------------------------
@@ -21,38 +21,38 @@
 // Note: Possibly incomplte
 //
 // - Added STRATEGY_TOO_MANY_CITIES and STRATEGY_NO_REVOLUTON to allow the AI
-//   to adjust its strategy if it is too many cities and if it has too many 
+//   to adjust its strategy if it is too many cities and if it has too many
 //   cities and the wonder build that gives revolting cities to the wonder
 //   owner.
 // - Added new goals so that the AI can use the according orders.
 // - Reduced garrison counts to free the according units to other tasks.
 // - Reduced MinSettleDistance if it was 7 to 6 to avoid gaps in the territory
 //   of the AI.
-// - Doubled SeaTransportUnitsCount for the default strategies so that the AI 
-//   has more transporters available. This is only good for maps with more 
+// - Doubled SeaTransportUnitsCount for the default strategies so that the AI
+//   has more transporters available. This is only good for maps with more
 //   than one continent. Some source code modifications are necessary.
 // - Increased SpecialUnitsCount so that the AI builds more special units.
 //   However here seems to be something broken as the AI only builds a few
 //   special units.
 // - Set EntertainerPercent to 0 in all PopAssignmentElement's, as it stands
 //   now full happiness is not a very big advantage and partial happiness
-//   doesn't add so much. And a minimum amount of entertainers is added 
+//   doesn't add so much. And a minimum amount of entertainers is added
 //   anyway to keep the city from rioting.
 // - Lowered MinimumHappiness to 72 so that the AI adjusts the sliders later.
 // - Redesigned BuildListSequenceElement entries based on MedPack/ApolytonPack/GoodMod
-// - Replaced build list by those from GoodMod/Mymod, this sepeartes defense 
+// - Replaced build list by those from GoodMod/Mymod, this sepeartes defense
 //   and offense build lists and seperates the special untit build lists. So
 //   that there are now civs building Abolitionists.
-// - Increased priority for the refuel goal as it is now available for 
-//   units only that needs refueling. - April 30th 2005 Martin G�hmann
+// - Increased priority for the refuel goal as it is now available for
+//   units only that needs refueling. - April 30th 2005 Martin Gühmann
 // - Used the values of ApolytonPack-GoodMod for RoadUtilityBonus,
-//   ImproveProductionBonus and ImproveGrowthBonus. (Aug 26th 2005 Martin G�hmann)
+//   ImproveProductionBonus and ImproveGrowthBonus. (Aug 26th 2005 Martin Gühmann)
 // - Inreased SEIGE values for militarist and barbarian
 // - Diplomatic more emphasis on embassies
 // - Economic moe emphasis on piracy
 // - Ecotopian more defense oriented (temporary)
 // - Added build list sequence elements for small cities and for cities at their
-//   maximum size. (20-Aug-2009 Martin G�hmann)
+//   maximum size. (20-Aug-2009 Martin Gühmann)
 //
 //----------------------------------------------------------------------------
 
@@ -292,7 +292,7 @@ STRATEGY_DEFAULT {
     // number of armies to try and disband units from per round
     DisbandArmyCount    2
 
-    // minimum distance between settled cities 
+    // minimum distance between settled cities
     // (eg. new cities must be founded atleast 2 cells from nearest cities collection border)
     MinSettleDistance   4
 
@@ -303,7 +303,7 @@ STRATEGY_DEFAULT {
     // BUILD LISTS
     //
 
-    // Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+    // Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
     // used when deciding what city to rush buy in
     RushBuyThreatBonus 10
 
@@ -373,10 +373,10 @@ STRATEGY_DEFAULT {
     BuildListSequenceElement {
         Priority 10000
         BuildListSequence BUILD_LIST_SEQUENCE_GROWTH
-        Bottom 0.2 
+        Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -387,7 +387,7 @@ STRATEGY_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -413,8 +413,8 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-        ImproveProductionBonus  50
-        AirfieldUtilityBonus  40
+#        ImproveProductionBonus  50
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -423,18 +423,18 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.2 
+        Top 0.2
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -443,7 +443,7 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -455,7 +455,7 @@ STRATEGY_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -464,11 +464,11 @@ STRATEGY_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
-        FortUtilityBonus  60
-        DetectorUtilityBonus  60
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        FortUtilityBonus  60
+#        DetectorUtilityBonus  60
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -492,7 +492,7 @@ STRATEGY_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -702,7 +702,7 @@ STRATEGY_BARBARIAN {
 	// BUILD LISTS
 	//
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -802,7 +802,7 @@ STRATEGY_SEIGE {
     // BUILD LISTS
     //
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -886,7 +886,7 @@ STRATEGY_ATTACK {
     // BUILD LISTS
     //
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -944,7 +944,7 @@ STRATEGY_ATTACK {
 	PreemptiveStrikeRiskRatio 0.25
 
 	// when do we have enough nukes to wipe them off the map?
-	// (eg. if having less than 3 nukes to every 4 enemy cities prevents 
+	// (eg. if having less than 3 nukes to every 4 enemy cities prevents
 	//  us from launching, specify 0.75)
 	PreemptiveStrikeSuperiorityRatio 0.75
 
@@ -994,7 +994,7 @@ STRATEGY_DEFEND {
     // BUILD LISTS
     //
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -1032,7 +1032,7 @@ STRATEGY_DEFEND {
     BuildListSequenceElement {
         Priority 10500
         BuildListSequence BUILD_LIST_SEQUENCE_DEFENSE
-        Top 0.5 //WW from .7 
+        Top 0.5 //WW from .7
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
     }
@@ -1077,7 +1077,7 @@ STRATEGY_CAREFUL_START {
     BuildListSequenceElement {
         Priority 9100
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.6 
+        Top 0.6
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
     }
@@ -1104,7 +1104,7 @@ STRATEGY_AGRESSIVE_START {
     BuildListSequenceElement {
         Priority 10100
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.6 
+        Top 0.6
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
     }
@@ -1139,8 +1139,8 @@ STRATEGY_ISLAND_NATION {
 
 	// decreased maximum percent of conventional units to build before
 	// building special units of specified type
-	BuildTransportProductionLevel 0.20 
-	BuildSettlerProductionLevel	0.20 
+	BuildTransportProductionLevel 0.20
+	BuildSettlerProductionLevel	0.20
 }
 
 
@@ -1157,8 +1157,8 @@ STRATEGY_ISLAND_MILITARIST {
 
 	// decreased maximum percent of conventional units to build before
 	// building special units of specified type
-	BuildTransportProductionLevel 0.20 
-	BuildSettlerProductionLevel	0.20 
+	BuildTransportProductionLevel 0.20
+	BuildSettlerProductionLevel	0.20
 }
 
 STRATEGY_ISLAND_DIPLOMATIC {
@@ -1174,8 +1174,8 @@ STRATEGY_ISLAND_DIPLOMATIC {
 
 	// decreased maximum percent of conventional units to build before
 	// building special units of specified type
-	BuildTransportProductionLevel 0.20 
-	BuildSettlerProductionLevel	0.20 
+	BuildTransportProductionLevel 0.20
+	BuildSettlerProductionLevel	0.20
 }
 
 STRATEGY_ISLAND_ECONOMIC {
@@ -1191,8 +1191,8 @@ STRATEGY_ISLAND_ECONOMIC {
 
 	// decreased maximum percent of conventional units to build before
 	// building special units of specified type
-	BuildTransportProductionLevel 0.20 
-	BuildSettlerProductionLevel	0.20 
+	BuildTransportProductionLevel 0.20
+	BuildSettlerProductionLevel	0.20
 }
 
 STRATEGY_ISLAND_SCIENTIST {
@@ -1208,8 +1208,8 @@ STRATEGY_ISLAND_SCIENTIST {
 
 	// decreased maximum percent of conventional units to build before
 	// building special units of specified type
-	BuildTransportProductionLevel 0.20 
-	BuildSettlerProductionLevel	0.20 
+	BuildTransportProductionLevel 0.20
+	BuildSettlerProductionLevel	0.20
 }
 
 STRATEGY_ISLAND_ECOTOPIAN {
@@ -1225,8 +1225,8 @@ STRATEGY_ISLAND_ECOTOPIAN {
 
 	// decreased maximum percent of conventional units to build before
 	// building special units of specified type
-	BuildTransportProductionLevel 0.20 
-	BuildSettlerProductionLevel	0.20 
+	BuildTransportProductionLevel 0.20
+	BuildSettlerProductionLevel	0.20
 }
 
 ////////////////////////////////////////
@@ -1526,7 +1526,7 @@ STRATEGY_SCIENTIST_DEFAULT {
     // number of armies to try and disband units from per round
     DisbandArmyCount    4
 
-	// minimum distance between settled cities 
+	// minimum distance between settled cities
 	// (eg. new cities must be founded atleast 2 cells from nearest cities collection border)
     MinSettleDistance   4
 
@@ -1537,7 +1537,7 @@ STRATEGY_SCIENTIST_DEFAULT {
 	// BUILD LISTS
 	//
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -1607,10 +1607,10 @@ STRATEGY_SCIENTIST_DEFAULT {
     BuildListSequenceElement {
         Priority 10000
         BuildListSequence BUILD_LIST_SEQUENCE_GROWTH
-        Bottom 0.2 
+        Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -1621,7 +1621,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -1647,8 +1647,8 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-        ImproveProductionBonus  50
-        AirfieldUtilityBonus  40
+#        ImproveProductionBonus  50
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -1657,18 +1657,18 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.2 
+        Top 0.2
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -1677,7 +1677,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -1689,7 +1689,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -1698,11 +1698,11 @@ STRATEGY_SCIENTIST_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
-        FortUtilityBonus  60
-        DetectorUtilityBonus  60
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        FortUtilityBonus  60
+#        DetectorUtilityBonus  60
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -1726,7 +1726,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -1858,7 +1858,7 @@ STRATEGY_MILITARIST_DEFAULT {
     }
 
     PopAssignmentElement {
-        // percent of workers after minimums have been achieved that 
+        // percent of workers after minimums have been achieved that
         // should be used as specialists
         Specialists         0.5
 
@@ -2071,7 +2071,7 @@ STRATEGY_MILITARIST_DEFAULT {
     // number of armies to try and disband units from per round
     DisbandArmyCount    8
 
-	// minimum distance between settled cities 
+	// minimum distance between settled cities
 	// (eg. new cities must be founded atleast 2 cells from nearest cities collection border)
     MinSettleDistance   4
 
@@ -2082,7 +2082,7 @@ STRATEGY_MILITARIST_DEFAULT {
 	// BUILD LISTS
 	//
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -2152,10 +2152,10 @@ STRATEGY_MILITARIST_DEFAULT {
     BuildListSequenceElement {
         Priority 10000
         BuildListSequence BUILD_LIST_SEQUENCE_GROWTH
-        Bottom 0.2 
+        Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2166,7 +2166,7 @@ STRATEGY_MILITARIST_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2192,8 +2192,8 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-        ImproveProductionBonus  50
-        AirfieldUtilityBonus  40
+#        ImproveProductionBonus  50
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2202,18 +2202,18 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.2 
+        Top 0.2
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2222,7 +2222,7 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -2234,7 +2234,7 @@ STRATEGY_MILITARIST_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -2243,11 +2243,11 @@ STRATEGY_MILITARIST_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
-        FortUtilityBonus  60
-        DetectorUtilityBonus  60
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        FortUtilityBonus  60
+#        DetectorUtilityBonus  60
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2271,7 +2271,7 @@ STRATEGY_MILITARIST_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -2455,9 +2455,9 @@ STRATEGY_ECONOMIC_DEFAULT {
     Government  GOVERNMENT_TYRANNY
 
     // other governments
-    // Government  GOVERNMENT_ECOTOPIA 
+    // Government  GOVERNMENT_ECOTOPIA
     // Government  GOVERNMENT_TECHNOCRACY
-    // Government  GOVERNMENT_COMMUNISM 
+    // Government  GOVERNMENT_COMMUNISM
     // Government  GOVERNMENT_FASCISM
     // Government  GOVERNMENT_REPUBLIC
     // Government  GOVERNMENT_MONARCHY
@@ -2624,7 +2624,7 @@ STRATEGY_ECONOMIC_DEFAULT {
     // number of armies to try and disband units from per round
     DisbandArmyCount    3
 
-	// minimum distance between settled cities 
+	// minimum distance between settled cities
 	// (eg. new cities must be founded atleast 2 cells from nearest cities collection border)
     MinSettleDistance   4
 
@@ -2635,7 +2635,7 @@ STRATEGY_ECONOMIC_DEFAULT {
 	// BUILD LISTS
 	//
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -2705,10 +2705,10 @@ STRATEGY_ECONOMIC_DEFAULT {
     BuildListSequenceElement {
         Priority 10000
         BuildListSequence BUILD_LIST_SEQUENCE_GROWTH
-        Bottom 0.2 
+        Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2719,7 +2719,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -2745,8 +2745,8 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-        ImproveProductionBonus  50
-        AirfieldUtilityBonus  40
+#        ImproveProductionBonus  50
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2755,18 +2755,18 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.2 
+        Top 0.2
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2775,7 +2775,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -2787,7 +2787,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -2796,11 +2796,11 @@ STRATEGY_ECONOMIC_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
-        FortUtilityBonus  60
-        DetectorUtilityBonus  60
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        FortUtilityBonus  60
+#        DetectorUtilityBonus  60
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -2824,7 +2824,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3168,7 +3168,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     // number of armies to try and disband units from per round
     DisbandArmyCount    4
 
-	// minimum distance between settled cities 
+	// minimum distance between settled cities
 	// (eg. new cities must be founded atleast 2 cells from nearest cities collection border)
     MinSettleDistance   4
 
@@ -3179,7 +3179,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
 	// BUILD LISTS
 	//
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -3249,10 +3249,10 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     BuildListSequenceElement {
         Priority 10000
         BuildListSequence BUILD_LIST_SEQUENCE_GROWTH
-        Bottom 0.2 
+        Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3263,7 +3263,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3289,8 +3289,8 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-        ImproveProductionBonus  50
-        AirfieldUtilityBonus  40
+#        ImproveProductionBonus  50
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3299,18 +3299,18 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.2 
+        Top 0.2
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3319,7 +3319,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -3331,7 +3331,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3340,11 +3340,11 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
-        FortUtilityBonus  60
-        DetectorUtilityBonus  60
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        FortUtilityBonus  60
+#        DetectorUtilityBonus  60
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3368,7 +3368,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3712,7 +3712,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     // number of armies to try and disband units from per round
     DisbandArmyCount    2
 
-	// minimum distance between settled cities 
+	// minimum distance between settled cities
 	// (eg. new cities must be founded atleast 2 cells from nearest cities collection border)
     MinSettleDistance   4
 
@@ -3723,7 +3723,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
 	// BUILD LISTS
 	//
 
-	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city 
+	// Scaled bonus (#turns) to reduce the estimated time to rush buy in most threatened city
 	// used when deciding what city to rush buy in
 	RushBuyThreatBonus 10
 
@@ -3793,10 +3793,10 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     BuildListSequenceElement {
         Priority 10000
         BuildListSequence BUILD_LIST_SEQUENCE_GROWTH
-        Bottom 0.2 
+        Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3807,7 +3807,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-        ImproveGrowthBonus  50
+#        ImproveGrowthBonus  50
     }
 
     BuildListSequenceElement {
@@ -3815,7 +3815,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_CITIES_AT_MAX_SIZE
         HasBuildingsThenStop BUILDING_BUILD_LIST_MAXIUM_SIZED_CITIES
         Advice BUILD_GROWTH_ADVICE
-        BeforeMaxCitySize 2
+#        BeforeMaxCitySize 2
     }
 
     BuildListSequenceElement {
@@ -3833,8 +3833,8 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-        ImproveProductionBonus  50
-        AirfieldUtilityBonus  40
+#        ImproveProductionBonus  50
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3843,18 +3843,18 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
-        Top 0.2 
+        Top 0.2
         ProductionCities
         Advice BUILD_OFFENSE_ADVICE
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3863,7 +3863,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-        ImproveGoldBonus  50
+#        ImproveGoldBonus  50
     }
 
     BuildListSequenceElement {
@@ -3875,7 +3875,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Top 0.1
         ProductionCities
         Advice BUILD_WONDERS_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -3884,11 +3884,11 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Top 0.2
         ThreatenedCities
         Advice BUILD_DEFENSE_ADVICE
-        FortUtilityBonus  60
-        DetectorUtilityBonus  60
-        RoadUtilityBonus  80
-        ImproveProductionBonus  40
-        AirfieldUtilityBonus  40
+#        FortUtilityBonus  60
+#        DetectorUtilityBonus  60
+#        RoadUtilityBonus  80
+#        ImproveProductionBonus  40
+#        AirfieldUtilityBonus  40
     }
 
     BuildListSequenceElement {
@@ -3912,7 +3912,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-        ImproveProductionBonus  50
+#        ImproveProductionBonus  50
     }
 
     BuildListSequenceElement {
@@ -4051,7 +4051,7 @@ STRATEGY_DEFENSE_NONE {
     // thread level added, of course these units cannot be used for anything else.
     // This is now set to 0 the default, as a higher number interferes with the
     // other goals of the AI.
-    // You can also set this number negative, but then the AI may a have trouble with 
+    // You can also set this number negative, but then the AI may a have trouble with
     // repressing slave uprisings.
     AdditionalGarrisonUnitsIfNeeded 0
 }
@@ -4129,7 +4129,7 @@ STRATEGY_LAUNCH_NUKES {
 	PreemptiveStrikeRiskRatio 0.35
 
 	// when do we have enough nukes to wipe them off the map?
-	// (eg. if having less than 3 nukes to every 4 enemy cities prevents 
+	// (eg. if having less than 3 nukes to every 4 enemy cities prevents
 	//  us from launching, specify 0.75)
 	PreemptiveStrikeSuperiorityRatio 0.65
 
