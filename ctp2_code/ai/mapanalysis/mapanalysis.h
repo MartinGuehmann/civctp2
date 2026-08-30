@@ -37,6 +37,8 @@
 #define __MAP_ANALYSIS_H__
 
 #include <vector>
+#include <map>
+#include <utility>
 
 class MapAnalysis;
 
@@ -268,15 +270,22 @@ private:
 
 	Sint16Vector m_piracyIncomeMatrix;
 
-	sint32 m_minCityProduction;
-	sint32 m_minCityGrowth;
-	sint32 m_minCityGold;
-	sint32 m_minCityHappiness;
+	// Percentile rank (1.0 = highest, 0.0 = lowest, evenly spaced by city
+	// *count*) of the current working player's (see RecalcCityRanks)
+	// cities on each metric, keyed by CityData::GetHomeCity().m_id. Used
+	// by Get*Rank(). Replaced a plain [min, max] *range* normalization
+	// (a value's position between the range's endpoints) - not the same
+	// thing whenever cities cluster (e.g. most cities converging to
+	// similar high production with only a few weak stragglers keeping the
+	// range's min low makes "top 10% of the range" capture far more than
+	// 10% of cities). See ComputeCityPercentileRanks().
+	std::map<uint32, double> m_cityProductionPercentile;
+	std::map<uint32, double> m_cityGrowthPercentile;
+	std::map<uint32, double> m_cityGoldPercentile;
+	std::map<uint32, double> m_cityHappinessPercentile;
 
-	sint32 m_maxCityProduction;
-	sint32 m_maxCityGrowth;
-	sint32 m_maxCityGold;
-	sint32 m_maxCityHappiness;
+	void ComputeCityPercentileRanks(const std::vector<std::pair<uint32, sint32> > & values,
+	                                 std::map<uint32, double> & out) const;
 
 	// Should be replaced by simple integers, too
 	Sint32Vector m_minCityThreat;

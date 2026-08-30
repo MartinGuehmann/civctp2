@@ -39,6 +39,8 @@
 #include "c3.h"
 #include "mapanalysis.h"
 
+#include <algorithm>
+
 #include "Army.h"
 #include "ArmyData.h"
 #include "Unit.h"
@@ -159,15 +161,17 @@ void MapAnalysis::RecalcCityRanks(size_t player)
 	if(player_ptr == NULL)
 		return;
 
-	m_minCityProduction = std::numeric_limits<sint32>::max();
-	m_minCityGrowth     = std::numeric_limits<sint32>::max();
-	m_minCityGold       = std::numeric_limits<sint32>::max();
-
-	m_maxCityProduction = std::numeric_limits<sint32>::min();
-	m_maxCityGrowth     = std::numeric_limits<sint32>::min();
-	m_maxCityGold       = std::numeric_limits<sint32>::min();
-
 	sint32 num_cities = player_ptr->m_all_cities->Num();
+
+	std::vector<std::pair<uint32, sint32> > productionValues;
+	std::vector<std::pair<uint32, sint32> > growthValues;
+	std::vector<std::pair<uint32, sint32> > goldValues;
+	std::vector<std::pair<uint32, sint32> > happinessValues;
+	productionValues.reserve(num_cities);
+	growthValues.reserve(num_cities);
+	goldValues.reserve(num_cities);
+	happinessValues.reserve(num_cities);
+
 	for(sint32 i = 0; i < num_cities; i++)
 	{
 		Unit& city = player_ptr->m_all_cities->Access(i);
@@ -177,15 +181,72 @@ void MapAnalysis::RecalcCityRanks(size_t player)
 		sint32 gold =         city->GetCityData()->GetGrossCityGold();
 		sint32 happ = (sint32)city->GetCityData()->GetHappiness();
 
-		m_minCityProduction = std::min(prod, m_minCityProduction);
-		m_minCityGrowth     = std::min(food, m_minCityGrowth);
-		m_minCityGold       = std::min(gold, m_minCityGold);
-		m_minCityHappiness  = std::min(happ, m_minCityHappiness);
+		productionValues.push_back(std::make_pair(city.m_id, prod));
+		growthValues.push_back(std::make_pair(city.m_id, food));
+		goldValues.push_back(std::make_pair(city.m_id, gold));
+		happinessValues.push_back(std::make_pair(city.m_id, happ));
+	}
 
-		m_maxCityProduction = std::max(prod, m_maxCityProduction);
-		m_maxCityGrowth     = std::max(food, m_maxCityGrowth);
-		m_maxCityGold       = std::max(gold, m_maxCityGold);
-		m_maxCityHappiness  = std::max(happ, m_maxCityHappiness);
+	ComputeCityPercentileRanks(productionValues, m_cityProductionPercentile);
+	ComputeCityPercentileRanks(growthValues,     m_cityGrowthPercentile);
+	ComputeCityPercentileRanks(goldValues,       m_cityGoldPercentile);
+	ComputeCityPercentileRanks(happinessValues,  m_cityHappinessPercentile);
+}
+
+//----------------------------------------------------------------------------
+//
+// Name       : MapAnalysis::ComputeCityPercentileRanks
+//
+// Description: Turns a list of (city id, value) pairs into a genuine
+//              percentile rank per city - 1.0 for the single highest
+//              value, 0.0 for the single lowest, evenly spaced by city
+//              *count* rather than by where a value falls within the
+//              [min, max] *range*. Tied cities share the average of
+//              their positions, so ties don't get an arbitrary sort-
+//              order-dependent edge over each other.
+//
+//----------------------------------------------------------------------------
+void MapAnalysis::ComputeCityPercentileRanks(const std::vector<std::pair<uint32, sint32> > & values,
+                                              std::map<uint32, double> & out) const
+{
+	out.clear();
+
+	size_t const n = values.size();
+	if (n == 0)
+	{
+		return;
+	}
+	if (n == 1)
+	{
+		out[values[0].first] = 1.0;
+		return;
+	}
+
+	std::vector<std::pair<uint32, sint32> > sorted(values);
+	std::sort(sorted.begin(), sorted.end(),
+	          [](const std::pair<uint32, sint32> & a, const std::pair<uint32, sint32> & b)
+	          {
+	              return a.second > b.second;
+	          });
+
+	size_t i = 0;
+	while (i < n)
+	{
+		size_t j = i;
+		while ((j + 1 < n) && (sorted[j + 1].second == sorted[i].second))
+		{
+			++j;
+		}
+
+		double const avgPos = (static_cast<double>(i) + static_cast<double>(j)) / 2.0;
+		double const rank   = 1.0 - avgPos / static_cast<double>(n - 1);
+
+		for (size_t k = i; k <= j; ++k)
+		{
+			out[sorted[k].first] = rank;
+		}
+
+		i = j + 1;
 	}
 }
 
@@ -524,65 +585,33 @@ sint32 MapAnalysis::GetMaxEnemyGrid(const MapGridVector & gridVector, const size
 double MapAnalysis::GetProductionRank(const CityData * city) const
 {
 	Assert(city);
-	sint32 prod = city->GetGrossCityProduction();
-
-	if(m_maxCityProduction - m_minCityProduction <= 0)
-	{
-		// If we only have one city
-		return 0.0;
-	}
-	else
-	{
-		return ((double)(prod - m_minCityProduction) / (double) (m_maxCityProduction - m_minCityProduction));
-	}
+	std::map<uint32, double>::const_iterator it =
+	    m_cityProductionPercentile.find(city->GetHomeCity().m_id);
+	return (it != m_cityProductionPercentile.end()) ? it->second : 0.0;
 }
 
 double MapAnalysis::GetGrowthRank(const CityData * city) const
 {
 	Assert(city);
-	sint32 food = city->GetGrowthRate();
-
-	if(m_maxCityGrowth - m_minCityGrowth <= 0)
-	{
-		// If we have only one city
-		return 0.0;
-	}
-	else
-	{
-		return ((double)(food - m_minCityGrowth) / (double) (m_maxCityGrowth - m_minCityGrowth));
-	}
+	std::map<uint32, double>::const_iterator it =
+	    m_cityGrowthPercentile.find(city->GetHomeCity().m_id);
+	return (it != m_cityGrowthPercentile.end()) ? it->second : 0.0;
 }
 
 double MapAnalysis::GetCommerceRank(const CityData * city) const
 {
 	Assert(city);
-	sint32 commerce = city->GetGrossCityGold();
-
-	if(m_maxCityGold - m_minCityGold <= 0)
-	{
-		// If we only have one city
-		return 0.0;
-	}
-	else
-	{
-		return ((double)(commerce - m_minCityGold) / (double) (m_maxCityGold - m_minCityGold));
-	}
+	std::map<uint32, double>::const_iterator it =
+	    m_cityGoldPercentile.find(city->GetHomeCity().m_id);
+	return (it != m_cityGoldPercentile.end()) ? it->second : 0.0;
 }
 
 double MapAnalysis::GetHappinessRank(const CityData * city) const
 {
 	Assert(city);
-	double happiness = city->GetHappiness();
-
-	if(m_maxCityHappiness - m_minCityHappiness > 0)
-	{
-		return ((double)(happiness - m_minCityHappiness) / (double)(m_maxCityHappiness - m_minCityHappiness));
-	}
-	else
-	{
-		// If we only have one city
-		return 1.0;
-	}
+	std::map<uint32, double>::const_iterator it =
+	    m_cityHappinessPercentile.find(city->GetHomeCity().m_id);
+	return (it != m_cityHappinessPercentile.end()) ? it->second : 1.0;
 }
 
 double MapAnalysis::GetThreatRank(const CityData * city) const
