@@ -112,8 +112,7 @@ void MapAnalysis::Resize
 
 	m_piracyIncomeMatrix     .resize(maxPlayerId * maxPlayerId, 0);
 
-	m_minCityThreat          .resize(maxPlayerId);
-	m_maxCityThreat          .resize(maxPlayerId);
+	m_cityThreatPercentile   .resize(maxPlayerId);
 	m_nuclearWeapons         .resize(maxPlayerId);
 	m_bioWeapons             .resize(maxPlayerId);
 	m_nanoWeapons            .resize(maxPlayerId);
@@ -281,9 +280,6 @@ void MapAnalysis::BeginTurn()
 		m_valueGrid        [player].Clear();
 		m_tradeAtRiskGrid  [player].Clear();
 		m_piracyLossGrid   [player].Clear();
-
-		m_minCityThreat    [player] = std::numeric_limits<sint32>::max();
-		m_maxCityThreat    [player] = std::numeric_limits<sint32>::min();
 
 		m_movementTypeUnion[player] = 0x0;
 
@@ -495,18 +491,17 @@ void MapAnalysis::BeginTurn()
 			continue;
 
 		sint32 num_cities = player_ptr->m_all_cities->Num();
+		std::vector<std::pair<uint32, sint32> > threatValues;
+		threatValues.reserve(num_cities);
 		for (i = 0; i < num_cities; i++)
 		{
 			city = player_ptr->m_all_cities->Access(i);
 			// Threat has to be calculated after relax
 			sint32 threat = GetThreat(player, city.RetPos());
 
-			if (threat < m_minCityThreat[player])
-				m_minCityThreat[player] = threat;
-
-			if (threat > m_maxCityThreat[player])
-				m_maxCityThreat[player] = threat;
+			threatValues.push_back(std::make_pair(city.m_id, threat));
 		}
+		ComputeCityPercentileRanks(threatValues, m_cityThreatPercentile[player]);
 	}
 
 	DPRINTF(k_DBG_MAPANALYSIS, ("RELAXED:\n"));
@@ -618,13 +613,9 @@ double MapAnalysis::GetThreatRank(const CityData * city) const
 {
 	Assert(city);
 	PLAYER_INDEX owner = city->GetOwner();
-	sint32 threat = GetThreat(owner, city->GetHomeCity().RetPos());
-
-	if ((m_maxCityThreat[owner] - m_minCityThreat[owner]) > 0)
-		return ((double)(threat - m_minCityThreat[owner]) /
-		(double)(m_maxCityThreat[owner] - m_minCityThreat[owner]));
-
-	return 0.0;
+	std::map<uint32, double>::const_iterator it =
+	    m_cityThreatPercentile[owner].find(city->GetHomeCity().m_id);
+	return (it != m_cityThreatPercentile[owner].end()) ? it->second : 0.0;
 }
 
 double MapAnalysis::GetPowerRank(const CityData * city) const
@@ -1168,8 +1159,7 @@ void MapAnalysis::Cleanup()
 	MapGridVector().swap(m_piracyLossGrid);
 	MapPointVector().swap(m_empireCenter);
 	Sint16Vector().swap(m_piracyIncomeMatrix);
-	Sint32Vector().swap(m_minCityThreat);
-	Sint32Vector().swap(m_maxCityThreat);
+	std::vector<std::map<uint32, double> >().swap(m_cityThreatPercentile);
 	Sint16Vector().swap(m_nuclearWeapons);
 	Sint16Vector().swap(m_bioWeapons);
 	Sint16Vector().swap(m_nanoWeapons);

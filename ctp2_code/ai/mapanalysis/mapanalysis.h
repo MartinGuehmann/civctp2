@@ -287,9 +287,12 @@ private:
 	void ComputeCityPercentileRanks(const std::vector<std::pair<uint32, sint32> > & values,
 	                                 std::map<uint32, double> & out) const;
 
-	// Should be replaced by simple integers, too
-	Sint32Vector m_minCityThreat;
-	Sint32Vector m_maxCityThreat;
+	// Per-player, same percentile-by-count scheme as m_cityProductionPercentile
+	// et al above (GetThreatRank() used the same min/max-range mismatch
+	// this replaced) - indexed by player id, computed once per turn in
+	// BeginTurn() for every player at once (unlike the others, which are
+	// recomputed per player per governor cycle in RecalcCityRanks()).
+	std::vector<std::map<uint32, double> > m_cityThreatPercentile;
 
 	MapPointVector m_empireCenter;
 
