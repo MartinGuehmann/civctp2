@@ -160,6 +160,7 @@
 #include "mapanalysis.h"
 #include "net_action.h"
 #include "network.h"
+#include "newturncount.h"
 #include "Path.h"
 #include "player.h"
 #include "PopRecord.h"
@@ -4219,8 +4220,20 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 
 		const BuildListSequenceRecord * matched_seq = best_elem->GetBuildListSequence();
 
-		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: city %s -> sequence %s (rank kind %s, rank %f)\n",
+		// turn/player/city-count and this city's own production/food/gold
+		// were added so a playtest log analysis doesn't have to cross-
+		// reference this line against separate "Turn N"/"Player N"
+		// header lines and a per-turn distinct-city count just to answer
+		// "how many cities does this empire have right now, and how does
+		// this one's own output compare" - it's all here already.
+		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: turn %d player %d city %s (production %d, food %f, gold %d) of %d cities -> sequence %s (rank kind %s, rank %f)\n",
+		        NewTurnCount::GetCurrentRound(),
+		        m_playerId,
 		        const_cast<CityData *>(city)->GetName(),
+		        city->GetNetCityProduction(),
+		        city->GetNetCityFood(),
+		        city->GetNetCityGold(),
+		        g_player[m_playerId]->GetNumCities(),
 		        matched_seq ? matched_seq->GetNameText() : "NULL",
 		        rankKind,
 		        matchRank));
