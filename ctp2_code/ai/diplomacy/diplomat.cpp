@@ -4234,6 +4234,16 @@ bool Diplomat::ComputeEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai
 	{
 		if ( regard <= HOTWAR_REGARD )
 		{
+			// A fourth call site hitting the same m_desireWarWith
+			// staleness bc09b6a4d fixed at SetDiplomaticState() - this
+			// gets called for several foreigners in a row while
+			// evaluating diplomatic proposals/responses (see the
+			// "choosing new proposal"/"has initiative" log sequence
+			// this diagnosed from), so an earlier foreigner's own
+			// processing in the same pass can invalidate this one's
+			// cached value before its own turn comes up. Refresh right
+			// before this consequential read, same fix as before.
+			UpdateDesireWarWith(foreignerId);
 			if (!DesireWarWith(foreignerId))
 			{
 				if (AgreementMatrix::s_agreements.HasAgreement(m_playerId,
@@ -4255,6 +4265,7 @@ bool Diplomat::ComputeEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai
 	{
 		if ( regard <= COLDWAR_REGARD )
 		{
+			UpdateDesireWarWith(foreignerId);
 			if (!DesireWarWith(foreignerId))
 			{
 				if (AgreementMatrix::s_agreements.HasAgreement(m_playerId,
@@ -5304,7 +5315,7 @@ bool Diplomat::ComputeDesireWarWith(const PLAYER_INDEX foreignerId) const
 	return (turns_at_war < ideal_war_length);
 }
 
-void Diplomat::ComputeAllDesireWarWith()
+void Diplomat::ComputeAllDesireWarWith() const
 {
 	PLAYER_INDEX const	foreignerCount	= static_cast<PLAYER_INDEX>(m_desireWarWith.size());
 	for (PLAYER_INDEX foreignerId = 0; foreignerId < foreignerCount; ++foreignerId)
@@ -5314,7 +5325,7 @@ void Diplomat::ComputeAllDesireWarWith()
 	}
 }
 
-void Diplomat::UpdateDesireWarWith(const PLAYER_INDEX foreignerId)
+void Diplomat::UpdateDesireWarWith(const PLAYER_INDEX foreignerId) const
 {
 	m_desireWarWith[foreignerId] =
 		(foreignerId != m_playerId) && ComputeDesireWarWith(foreignerId);

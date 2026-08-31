@@ -419,8 +419,8 @@ public:
 	bool ComputeDesireWarWith(const PLAYER_INDEX foreignerId) const;
 
 	void ComputeIncursionPermission();
-	void ComputeAllDesireWarWith();
-	void UpdateDesireWarWith(const PLAYER_INDEX foreignerId);
+	void ComputeAllDesireWarWith() const;
+	void UpdateDesireWarWith(const PLAYER_INDEX foreignerId) const;
 
 	bool IsBestHotwarEnemy(const PLAYER_INDEX foreignerId) const;
 	sint32 GetWeakestEnemy() const;
@@ -526,7 +526,11 @@ private:
 
 	bool m_launchedNukes;
 	bool m_launchedNanoAttack;
-	BoolVector m_desireWarWith;
+	// Cache only - ComputeAllDesireWarWith()/UpdateDesireWarWith() refresh
+	// it and are const so callers like ComputeEffectiveRegard() (itself
+	// const) can force a refresh right before a consequential read,
+	// same as SetDiplomaticState() already does - see bc09b6a4d.
+	mutable BoolVector m_desireWarWith;
 
 	bool ComputeEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai::Regard & test_regard) const;
 
