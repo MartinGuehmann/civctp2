@@ -178,7 +178,12 @@ void MapAnalysis::RecalcCityRanks(size_t player)
 		sint32 prod =         city->GetCityData()->GetGrossCityProduction();
 		sint32 food =         city->GetCityData()->GetGrowthRate();
 		sint32 gold =         city->GetCityData()->GetGrossCityGold();
-		sint32 happ = (sint32)city->GetCityData()->GetHappiness();
+		// Without entertainers' contribution, same as Governor::
+		// GetMatchingSequenceElement's cityRawHappiness - rank cities by
+		// their underlying happiness pressure, not how well entertainers
+		// currently happen to be masking it.
+		sint32 happ = (sint32)city->GetCityData()->GetHappiness()
+		            - city->GetCityData()->GetHappinessFromPops();
 
 		productionValues.push_back(std::make_pair(city.m_id, prod));
 		growthValues.push_back(std::make_pair(city.m_id, food));
