@@ -4910,7 +4910,29 @@ MapPoint Goal::MoveToTarget(Agent_ptr rallyAgent)
 		check_dest = true;
 
 	Path found_path;
-	bool found = Agent::FindPath(rallyAgent->Get_Army(), Get_Target_Pos(rallyAgent->Get_Army()), check_dest, found_path);
+	MapPoint const target_pos = Get_Target_Pos(rallyAgent->Get_Army());
+	bool found = Agent::FindPath(rallyAgent->Get_Army(), target_pos, check_dest, found_path);
+
+	if (!found)
+	{
+		// No rich diagnostic previously existed for this specific call
+		// site (unlike the sibling GotoGoalTaskSolution's cargo-transport
+		// branch) - mirroring that style since this is a real, recurring
+		// failure (17 hits across 8 different turns in one 800-turn
+		// playtest, not a one-off).
+		const Unit & first_unit = rallyAgent->Get_Army()->Get(0);
+		DPRINTF(k_DBG_SCHEDULER,
+		        ("GOAL %x (%s): MoveToTarget: FindPath failed for army 0x%lx, unit type %d (%s), from (x=%d,y=%d) to (x=%d,y=%d), check_dest %d, HasCargo %d\n",
+		         this,
+		         g_theGoalDB->Get(m_goal_type)->GetNameText(),
+		         rallyAgent->Get_Army().m_id,
+		         first_unit.GetType(),
+		         g_theUnitDB->GetNameStr(first_unit.GetType()),
+		         rallyAgent->Get_Pos().x, rallyAgent->Get_Pos().y,
+		         target_pos.x, target_pos.y,
+		         check_dest,
+		         rallyAgent->Get_Army()->HasCargo()));
+	}
 
 	Assert(found);
 
