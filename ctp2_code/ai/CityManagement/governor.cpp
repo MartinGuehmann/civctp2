@@ -4203,59 +4203,79 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 	// only for the real decision call, GetMatchingSequence() below.
 	if (isBuildDecision)
 	{
+		// All six MapAnalysis ranks, not just the one the matched element
+		// actually used - lets a playtest log check how close a city was
+		// to a DIFFERENT category's own threshold without a second pass
+		// (e.g. was this city's production rank already past Offensive's
+		// Top 0.2 while Dirty Cities' MinPollution just hadn't been
+		// crossed yet).
+		double const productionRank = MapAnalysis::GetMapAnalysis().GetProductionRank(city);
+		double const growthRank     = MapAnalysis::GetMapAnalysis().GetGrowthRank(city);
+		double const commerceRank   = MapAnalysis::GetMapAnalysis().GetCommerceRank(city);
+		double const happinessRank  = MapAnalysis::GetMapAnalysis().GetHappinessRank(city);
+		double const threatRank     = MapAnalysis::GetMapAnalysis().GetThreatRank(city);
+		double const powerRank      = MapAnalysis::GetMapAnalysis().GetPowerRank(city);
+
 		const char * rankKind = "none";
 		double       matchRank = 0.0;
 
 		if(best_elem->GetProductionCities())
 		{
 			rankKind  = "Production";
-			matchRank = MapAnalysis::GetMapAnalysis().GetProductionRank(city);
+			matchRank = productionRank;
 		}
 		else if(best_elem->GetGrowthCities())
 		{
 			rankKind  = "Growth";
-			matchRank = MapAnalysis::GetMapAnalysis().GetGrowthRank(city);
+			matchRank = growthRank;
 		}
 		else if(best_elem->GetCommerceCities())
 		{
 			rankKind  = "Commerce";
-			matchRank = MapAnalysis::GetMapAnalysis().GetCommerceRank(city);
+			matchRank = commerceRank;
 		}
 		else if(best_elem->GetHappyCities())
 		{
 			rankKind  = "Happiness";
-			matchRank = MapAnalysis::GetMapAnalysis().GetHappinessRank(city);
+			matchRank = happinessRank;
 		}
 		else if(best_elem->GetThreatenedCities())
 		{
 			rankKind  = "Threat";
-			matchRank = MapAnalysis::GetMapAnalysis().GetThreatRank(city);
+			matchRank = threatRank;
 		}
 		else if(best_elem->GetPowerCities())
 		{
 			rankKind  = "Power";
-			matchRank = MapAnalysis::GetMapAnalysis().GetPowerRank(city);
+			matchRank = powerRank;
 		}
 
 		const BuildListSequenceRecord * matched_seq = best_elem->GetBuildListSequence();
 
-		// turn/player/city-count and this city's own production/food/gold
-		// were added so a playtest log analysis doesn't have to cross-
-		// reference this line against separate "Turn N"/"Player N"
-		// header lines and a per-turn distinct-city count just to answer
-		// "how many cities does this empire have right now, and how does
-		// this one's own output compare" - it's all here already.
-		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: turn %d player %d city %s (production %d, food %f, gold %d) of %d cities -> sequence %s (rank kind %s, rank %f)\n",
+		// turn/player/city-count and this city's own production/food/gold/
+		// pollution/happiness were added so a playtest log analysis
+		// doesn't have to cross-reference this line against separate
+		// "Turn N"/"Player N" header lines and a per-turn distinct-city
+		// count just to answer "how many cities does this empire have
+		// right now, and how does this one's own output compare" - it's
+		// all here already. pollution and cityRawHappiness are the same
+		// local variables HasStopBuildings/the MinPollution/MaxRawHappiness
+		// gates above already computed for this city, not a second read.
+		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: turn %d player %d city %s (production %d, food %f, gold %d, pollution %d, happiness w/o entertainers %d) of %d cities -> sequence %s (priority %d, rank kind %s, rank %f) ranks: production %f growth %f commerce %f happiness %f threat %f power %f\n",
 		        NewTurnCount::GetCurrentRound(),
 		        m_playerId,
 		        const_cast<CityData *>(city)->GetName(),
 		        city->GetNetCityProduction(),
 		        city->GetNetCityFood(),
 		        city->GetNetCityGold(),
+		        pollution,
+		        cityRawHappiness,
 		        g_player[m_playerId]->GetNumCities(),
 		        matched_seq ? matched_seq->GetNameText() : "NULL",
+		        best_elem->GetPriority(),
 		        rankKind,
-		        matchRank));
+		        matchRank,
+		        productionRank, growthRank, commerceRank, happinessRank, threatRank, powerRank));
 	}
 #endif
 
