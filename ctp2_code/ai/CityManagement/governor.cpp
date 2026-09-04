@@ -1337,6 +1337,25 @@ void Governor::PlaceTileImprovements()
 
 		if (needed_pw <= avail_pw)
 		{
+			// Logs every tile-improvement/road/installation goal that
+			// actually wins its slot in the shared, sorted
+			// m_tileImprovementGoals queue - the improvement's own name
+			// already tells category (road, mine, Airfield, Fort, ...)
+			// apart, so a playtest log can be grouped by name to check
+			// whether installations (unscaled utility, see
+			// AddInstallationPriority) are systematically outcompeting
+			// roads/tile improvements (both rank/ratio-scaled) for the
+			// turn's public-works budget.
+			DPRINTF(k_DBG_GOVERNOR, ("PlaceTileImprovements: turn %d player %d builds %s on %s at (%d,%d), utility %f, cost %d\n",
+			        NewTurnCount::GetCurrentRound(),
+			        m_playerId,
+			        g_theTerrainImprovementDB->Get(iter->type)->GetNameText(),
+			        g_theTerrainDB->Get(g_theWorld->GetCell(iter->pos)->GetTerrainType())->GetNameText(),
+			        iter->pos.x,
+			        iter->pos.y,
+			        iter->utility,
+			        needed_pw));
+
 			g_gevManager->AddEvent(GEV_INSERT_Tail,
 			                       GEV_CreateImprovement,
 			                       GEA_Player,      m_playerId,
