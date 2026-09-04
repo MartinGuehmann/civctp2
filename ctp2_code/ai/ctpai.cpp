@@ -2308,6 +2308,14 @@ void CtpAi::ExecuteOpportunityActions(const PLAYER_INDEX player)
 	if (player_ptr == NULL)
 		return;
 
+	// BombardNearbyEnemies (below) checks HasWarOrDesiresPreemptivelyWith
+	// for every foreigner, for every bombard-capable army in this loop -
+	// refreshing the cache once here is far cheaper than per read, and is
+	// enough: bombard orders are only queued (GEV_BombardOrder), executed
+	// later once this whole loop has returned, so nothing in this loop
+	// itself can invalidate the cache again before it finishes.
+	Diplomat::GetDiplomat(player).ComputeAllDesireWarWith();
+
 	sint32 num_armies = player_ptr->m_all_armies->Num();
 	for (sint32 i = 0; i < num_armies; i++)
 	{
