@@ -4051,9 +4051,16 @@ void Player::GiveUnit(const PLAYER_INDEX other_player, const sint32 unit_idx)
 {
 	MapPoint	p ;
 	Unit	u = m_all_units->Get(unit_idx).m_id ;
+	MapPoint	oldPos ;
+	u.GetPos(oldPos) ;
 
 	GetCapitolPos(p) ;
 	u.ResetUnitOwner(other_player, CAUSE_REMOVE_ARMY_DIPLOMACY) ;
+	// Unit::SetPosition() inserts into g_theUnitTree at the new position
+	// without removing the existing entry at oldPos first - same leaked-
+	// QuadTree-entry bug as ArmyData::MoveUnits's rebase branch (fixed
+	// 45c080251, see quadtree_leaked_rebase_entry memory). Remove first.
+	g_theWorld->RemoveUnitReference(oldPos, u) ;
 	u.SetPosition(p) ;
 }
 
@@ -9619,6 +9626,12 @@ void Player::MergeCivs(sint32 Merger, sint32 Mergee)  //Merger is the civ gainin
 		{
 			Unit u = cell->AccessUnit(j);
 			u.ResetUnitOwner(Merger, CAUSE_REMOVE_ARMY_DIPLOMACY) ;
+			// u is already registered in g_theUnitTree at oldPos - without
+			// removing that entry first, SetPosition() (even to the same
+			// position) inserts a second entry rather than replacing the
+			// first, same leaked-QuadTree-entry bug class as GiveUnit
+			// above and ArmyData::MoveUnits's rebase branch (45c080251).
+			g_theWorld->RemoveUnitReference(oldPos, u) ;
 			u.SetPosition(oldPos) ;
 			//cityData->TeleportUnits(newPos);
 		}
