@@ -1722,7 +1722,16 @@ void Diplomat::Execute_Proposal(const PLAYER_INDEX & sender,
 		{
 			AgreementMatrix::s_agreements.
 				CancelAgreement(sender, receiver, PROPOSAL_TREATY_DECLARE_WAR);
-	
+
+			// Diagnostic: pairs with DeclareWar()'s own log line, so a
+			// playtest log can directly bracket war periods (start and
+			// end) instead of only seeing combat-resolution lines, which
+			// say nothing about a declared-but-not-yet-fought war or an
+			// already-ended one with no more fighting.
+			DPRINTF(k_DBG_DIPLOMACY,
+			    ("Diplomat::Execute_Proposal: player %d and player %d end their war, turn %d\n",
+			     sender, receiver, NewTurnCount::GetCurrentRound()));
+
 			// A war ending can change who's the "weakest enemy" among
 			// each side's remaining wars (IsBestHotwarEnemy compares
 			// across all of them), so a single-entry refresh isn't
@@ -1780,6 +1789,17 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 
 	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return;
+
+	// Diagnostic: log every genuine new war declaration (the check just
+	// above already filtered out the "already at war" repeat case) so a
+	// playtest log can directly show when a civ actually went to war,
+	// rather than inferring it indirectly from combat-resolution lines -
+	// those only appear once fighting actually starts, not from the
+	// point of declaration, so a war declared but not yet fought was
+	// previously invisible in the log.
+	DPRINTF(k_DBG_DIPLOMACY,
+	    ("Diplomat::DeclareWar: player %d declares war on player %d, turn %d\n",
+	     m_playerId, foreignerId, NewTurnCount::GetCurrentRound()));
 
 	if (m_playerId != 0 && foreignerId != 0)
 	{
