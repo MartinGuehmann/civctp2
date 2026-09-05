@@ -50,6 +50,7 @@
 #include "UnitRecord.h"
 #include "unitutil.h"
 #include "terrainutil.h"
+#include "CityInfluenceIterator.h"      // GenerateBorders
 
 extern QuadTree<Unit> *g_theUnitTree;
 extern World *g_theWorld;
@@ -350,8 +351,27 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 	bool const isEndgameTower =
 		(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)m_type)) != 0;
 
+	// A Fort grants its own border radius on completion (see
+	// TerrainImprovementData::Complete()'s matching GenerateBorders() call)
+	// - independently of whatever city, if any, happens to be nearby. That
+	// grant was never revisited on an ownership change, so a captured
+	// Fort kept its former owner's border claim in place and never gave
+	// the new owner the border it should now provide. Airfields and
+	// detector-class installations have no border radius of their own
+	// (GetIntBorderRadius/GetSquaredBorderRadius both fail for them), so
+	// this only actually fires for Forts in practice.
+	sint32 intRad, sqRad;
+	bool const hasOwnBorder =
+		g_theTerrainImprovementDB->Get(m_type)->GetIntBorderRadius(intRad) &&
+		g_theTerrainImprovementDB->Get(m_type)->GetSquaredBorderRadius(sqRad);
+
 	if(m_owner >= 0 && g_player[m_owner] != NULL)
 	{
+		if(hasOwnBorder)
+		{
+			terrainutil_RemoveBorders(m_point, m_owner, intRad, sqRad, Unit());
+		}
+
 		g_player[m_owner]->RemoveInstallationReferences(Installation(m_id));
 
 		// Just RemoveUnitVision() below - it already does exactly what this
@@ -385,6 +405,11 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 	if(toOwner >= 0)
 	{
 		g_player[toOwner]->AddInstallation(Installation(m_id));
+
+		if(hasOwnBorder)
+		{
+			GenerateBorders(m_point, toOwner, intRad, sqRad);
+		}
 
 		if(isEndgameTower && g_player[toOwner]->GetGaiaController())
 		{
