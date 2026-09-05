@@ -1091,7 +1091,19 @@ bool UnitData::UnloadCargo(const MapPoint &unload_pos, Army &debark, sint32 &cou
 
 			passenger = (*m_cargo_list)[i];
 			m_cargo_list->DelIndex(i);
-			passenger .SetPosAndNothingElse(m_pos); // unload_pos?
+			// Was m_pos (this transport's own position) - wrong whenever
+			// unload_pos is a different, adjacent tile (the normal case:
+			// ArmyData::ExecuteSpecialOrder's UNIT_ORDER_UNLOAD handling
+			// explicitly allows to_pt to be next to, not just equal to,
+			// the transport's from_pt). A passenger's own m_pos ending up
+			// at the transport's stale position - rather than where it
+			// actually disembarks - means the brand-new debark army's
+			// first MoveUnits() call later removes-by-position from a
+			// tile this unit was never inserted at (cargo isn't tracked
+			// in the QuadTree while riding), which can corrupt the tree
+			// exactly like the already-fixed leaked-rebase-entry bug -
+			// see quadtree_leaked_rebase_entry memory.
+			passenger .SetPosAndNothingElse(unload_pos);
 			passenger .UnsetIsInTransport();
 
 			// Used to call g_theWorld->InsertUnit(m_pos, passenger) here
