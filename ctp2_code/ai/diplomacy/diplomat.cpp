@@ -1790,6 +1790,9 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return;
 
+	// Should not declare war without desiring war
+	Assert(DesireWarWith(foreignerId));
+
 	// Diagnostic: log every genuine new war declaration (the check just
 	// above already filtered out the "already at war" repeat case) so a
 	// playtest log can directly show when a civ actually went to war,
