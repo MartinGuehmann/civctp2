@@ -2539,7 +2539,7 @@ STRATEGY_ECONOMIC_DEFAULT {
     ImproveGrowthBonus  100
 
     // bonus for building gold tile improvements
-    ImproveGoldBonus  180
+    ImproveGoldBonus  150
 
     // bonus to apply to cells with goods
     ImproveGoodBonus  75
