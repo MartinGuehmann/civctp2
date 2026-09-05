@@ -1224,6 +1224,27 @@ void Governor::ComputeInstallationPriorities()
 			detectorUtility += elem->GetDetectorUtilityBonus();
 		}
 
+		// Unlike tile improvements/roads, these bonuses were previously
+		// used as a flat, unscaled utility - which lost every competition
+		// against terrain improvements whose scaled utility regularly runs
+		// well above their own raw bonus (confirmed empirically: an 800-
+		// turn playtest built zero Forts/Detectors/rarely an Airfield for
+		// one player, while roads/farms/etc. routinely built). Scale by
+		// this city's own ThreatRank instead - a factor of [1.0, 2.0], so
+		// a calm city's installation still competes at exactly its old
+		// baseline value (never worse than before), while a genuinely
+		// threatened city's bid can double, giving it a real chance
+		// against terrain improvements when the two compete for the same
+		// turn's budget. Airfields aren't restricted to border tiles (they
+		// support inland power projection too), but a threatened inland
+		// city benefits from one just as much as a threatened border city,
+		// so the same scaling applies to all three.
+		double const threat_rank = MapAnalysis::GetMapAnalysis().GetThreatRank(city.CD());
+		double const threat_scale = 1.0 + threat_rank;
+		airfieldUtility *= threat_scale;
+		fortUtility     *= threat_scale;
+		detectorUtility *= threat_scale;
+
 		AddInstallationPriority(city, terrainutil_GetBestAirfield, terrainutil_IsAirfieldEffect, airfieldUtility);
 		// Forts and detectors only make sense facing outward at the
 		// empire's edge - require a border tile, so purely interior
