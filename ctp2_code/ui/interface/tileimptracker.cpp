@@ -212,7 +212,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 
 	sint32 extraData = 0;
 
-	BOOL alreadyHasIt = g_theTerrainImprovementPool->HasImprovement(p,
+	BOOL alreadyHasIt = g_theUnfinishedImprovementPool->HasImprovement(p,
 																	TERRAIN_IMPROVEMENT(s_tileImprovementNum),
 																	extraData);
 

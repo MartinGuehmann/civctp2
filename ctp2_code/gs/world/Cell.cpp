@@ -385,7 +385,7 @@ sint32 Cell::GetFoodProduced() const
 	size_t const	count	= m_objects ? m_objects->Num() : 0;
 	for (size_t i = 0; i < count; ++i)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB) {
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT) {
 			const TerrainImprovementRecord *impRec =
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 			const TerrainImprovementRecord::Effect *effect;
@@ -483,7 +483,7 @@ sint32 Cell::GetShieldsProduced() const
 	size_t const	count	= m_objects ? m_objects->Num() : 0;
 	for (size_t i = 0; i < count; ++i)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB) {
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT) {
 			const TerrainImprovementRecord *impRec =
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 			const TerrainImprovementRecord::Effect *effect;
@@ -581,7 +581,7 @@ sint32 Cell::GetGoldProduced() const
 	size_t const	count	= m_objects ? m_objects->Num() : 0;
 	for (size_t i = 0; i < count; ++i)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB) {
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT) {
 			const TerrainImprovementRecord *impRec =
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 			const TerrainImprovementRecord::Effect *effect;
@@ -725,7 +725,7 @@ TradeRoute Cell::GetTradeRoute(sint32 index) const // returns trade route not re
 	return TradeRoute();
 }
 
-void Cell::InsertImprovement(const TerrainImprovement &imp)
+void Cell::InsertUnfinishedImprovement(const TerrainImprovement &imp)
 {
 	if(!m_objects) {
 		m_objects = new DynamicArray<ID>;
@@ -735,7 +735,7 @@ void Cell::InsertImprovement(const TerrainImprovement &imp)
 	m_objects->Insert(imp);
 }
 
-void Cell::RemoveImprovement(const TerrainImprovement &imp)
+void Cell::RemoveUnfinishedImprovement(const TerrainImprovement &imp)
 {
 	if (m_objects)
 	{
@@ -749,7 +749,7 @@ void Cell::RemoveImprovement(const TerrainImprovement &imp)
 		for (size_t i = 0; i < count; ++i)
 		{
 			if ((m_objects->Access(i).m_id & k_ID_TYPE_MASK) ==
-					k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT
+					k_BIT_GAME_OBJ_TYPE_UNFINISHED_IMPROVEMENT
 			   )
 			{
 				return;	// Some other improvement still present in this cell.
@@ -911,7 +911,7 @@ void Cell::SetCityOwner(const Unit &c)
 	}
 }
 
-sint32 Cell::GetNumImprovements() const
+sint32 Cell::GetNumUnfinishedImprovements() const
 {
 	if(!(m_env & k_BIT_ENV_HAS_IMPROVEMENT))
 		return 0;
@@ -920,20 +920,20 @@ sint32 Cell::GetNumImprovements() const
 
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT)
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_UNFINISHED_IMPROVEMENT)
 			c++;
 	}
 	return c;
 }
 
-TerrainImprovement Cell::AccessImprovement(sint32 index)
+TerrainImprovement Cell::AccessUnfinishedImprovement(sint32 index)
 {
 	Assert(m_objects);
 	Assert(m_env & k_BIT_ENV_HAS_IMPROVEMENT);
 	if(m_objects && (m_env & k_BIT_ENV_HAS_IMPROVEMENT)) {
 		sint32 i, c = 0;
 		for(i = 0; i < m_objects->Num(); i++) {
-			if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT) {
+			if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_UNFINISHED_IMPROVEMENT) {
 				if(c == index)
 					return TerrainImprovement(m_objects->Access(i).m_id);
 				c++;
@@ -1010,7 +1010,7 @@ void Cell::ClearUnitsNStuff()
 	m_unit_army = NULL;
 
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--) {
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) != k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) != k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT)
 			m_objects->DelIndex(i);
 	}
 
@@ -1064,7 +1064,7 @@ void Cell::CalcTerrainMoveCost()
 
 	for (sint32 i =  GetNumObjects() - 1 ; i >= 0; --i)
 	{
-		if ((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
+		if ((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT)
 		{
 			const TerrainImprovementRecord *impRec =
 			    g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
@@ -1110,7 +1110,7 @@ double Cell::GetFutureTerrainMoveCost() const
 
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT)
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_UNFINISHED_IMPROVEMENT)
 		{
 			sint32 type = TerrainImprovement(m_objects->Access(i).m_id).GetType();
 			const TerrainImprovementRecord *impRec = g_theTerrainImprovementDB->Get(type);
@@ -1154,12 +1154,12 @@ bool Cell::HasTerrainImprovementOfType(sint32 type) const
 {
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT)
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_UNFINISHED_IMPROVEMENT)
 		{
 			if(TerrainImprovement(m_objects->Access(i).m_id).GetType() == type)
 				return true;
 		}
-		else if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
+		else if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT)
 		{
 			if(static_cast<sint32>(m_objects->Access(i).m_id & k_ID_KEY_MASK) == type)
 				return true;
@@ -1232,7 +1232,7 @@ double Cell::CalcTerrainFreightCost()
 	for (sint32 i = GetNumObjects() - 1; i >= 0; --i)
 	{
 		ID const &	object	= m_objects->Access(i);
-		if (k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB == (object.m_id & k_ID_TYPE_MASK))
+		if (k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT == (object.m_id & k_ID_TYPE_MASK))
 		{
 			TerrainImprovementRecord const *			impRec =
 			    g_theTerrainImprovementDB->Get(object.m_id & k_ID_KEY_MASK);
@@ -1268,16 +1268,16 @@ ID Cell::GetObject(sint32 index)
 	return ID();
 }
 
-void Cell::InsertDBImprovement(sint32 type)
+void Cell::InsertBuiltImprovementType(sint32 type)
 {
 	const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(type);
 	if(!m_objects)
 		m_objects = new DynamicArray<ID>;
-	uint32 id = k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB | type;
+	uint32 id = k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT | type;
 
 	for (sint32 i = m_objects->Num() - 1; i >= 0; i--)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT)
 		{
 			const TerrainImprovementRecord *oldRec =
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
@@ -1312,23 +1312,23 @@ void Cell::InsertDBImprovement(sint32 type)
 }
 
 // Seems to remove all tile improvements
-void Cell::RemoveDBImprovement(sint32 type)
+void Cell::RemoveBuiltImprovementType(sint32 type)
 {
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT)
 			m_objects->DelIndex(i);
 	}
 }
 
 // All finished tile improvements?
-sint32 Cell::GetNumDBImprovements() const
+sint32 Cell::GetNumBuiltImprovementTypes() const
 {
 	sint32 c = 0;
 
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT)
 			c++;
 	}
 
@@ -1341,7 +1341,7 @@ sint32 Cell::GetNumPillagableTerrainImprovements() const
 
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--)
 	{
-		if ((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
+		if ((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT)
 		{
 			const TerrainImprovementRecord *terImpRec = g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 			if (terImpRec && !terImpRec->GetCantPillage())
@@ -1352,14 +1352,14 @@ sint32 Cell::GetNumPillagableTerrainImprovements() const
 	return c;
 }
 
-sint32 Cell::GetDBImprovement(sint32 index) const
+sint32 Cell::GetBuiltImprovementType(sint32 index) const
 {
 	if(!m_objects)
 		return -1;
 
 	sint32 c = 0;
 	for (sint32 i = m_objects->Num() -1; i >= 0; i--) {
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB) {
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT) {
 			if(c == index) {
 				return m_objects->Access(i).m_id & k_ID_KEY_MASK;
 			}
@@ -1405,7 +1405,7 @@ bool Cell::IsUnitUpgradePosition(sint32 unitOwner) const
 	size_t const	count	= m_objects ? m_objects->Num() : 0;
 	for(size_t i = 0; i < count; ++i)
 	{
-		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB) {
+		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_BUILT_IMPROVEMENT) {
 			const TerrainImprovementRecord *impRec =
 				g_theTerrainImprovementDB->Get(m_objects->Access(i).m_id & k_ID_KEY_MASK);
 

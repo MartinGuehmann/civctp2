@@ -1052,7 +1052,7 @@ bool Governor::IsBorderTile(const MapPoint & pos) const
 //
 // Returns    : bool: true if something not of the same kind would be lost.
 //
-// Remark(s)  : Mirrors Cell::InsertDBImprovement's own auto-remove-on-
+// Remark(s)  : Mirrors Cell::InsertBuiltImprovementType's own auto-remove-on-
 //              completion logic (existingRec->GetClass() & newRec->
 //              GetExcludes()) - an existing improvement whose class isn't
 //              excluded by newRec would simply coexist untouched (e.g. a
@@ -1061,9 +1061,9 @@ bool Governor::IsBorderTile(const MapPoint & pos) const
 //----------------------------------------------------------------------------
 bool Governor::WouldDestroyUnrelatedImprovement(const Cell * cell, const TerrainImprovementRecord * newRec, const MapPoint & pos, InstallationEffectQualifier isSameKind) const
 {
-	for(sint32 index = 0; index < cell->GetNumDBImprovements(); index++)
+	for(sint32 index = 0; index < cell->GetNumBuiltImprovementTypes(); index++)
 	{
-		sint32 const                      existingType = cell->GetDBImprovement(index);
+		sint32 const                      existingType = cell->GetBuiltImprovementType(index);
 		const TerrainImprovementRecord *  existingRec  = g_theTerrainImprovementDB->Get(existingType);
 
 		if((existingRec->GetClass() & newRec->GetExcludes()) == 0)
@@ -1317,7 +1317,7 @@ void Governor::PlaceTileImprovements()
 			if(cell->GetCityOwner() != unit)
 				continue;
 
-			if(cell->GetNumImprovements() > 0)
+			if(cell->GetNumUnfinishedImprovements() > 0)
 				continue;
 
 			if(g_theInstallationTree->GetCount(it.Pos()) > 0
@@ -1467,11 +1467,11 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		for
 		(
 			sint32 i = 0;
-			i < g_theWorld->GetCell(pos)->GetNumDBImprovements() && shouldTerraform;
+			i < g_theWorld->GetCell(pos)->GetNumBuiltImprovementTypes() && shouldTerraform;
 			++i
 		)
 		{
-			rec = g_theTerrainImprovementDB->Get(g_theWorld->GetCell(pos)->GetDBImprovement(i));
+			rec = g_theTerrainImprovementDB->Get(g_theWorld->GetCell(pos)->GetBuiltImprovementType(i));
 
 			effect = terrainutil_GetTerrainEffect(rec, pos);
 			if (effect)
@@ -1817,9 +1817,9 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 	sint32 max_bonus_prod = 0;
 	sint32 max_bonus_gold = 0;
 	uint32 current_class = 0x0;
-	for (sint32 index = 0; index < cell->GetNumDBImprovements(); index++)
+	for (sint32 index = 0; index < cell->GetNumBuiltImprovementTypes(); index++)
 	{
-		type = cell->GetDBImprovement(index);
+		type = cell->GetBuiltImprovementType(index);
 		rec = g_theTerrainImprovementDB->Get(type);
 		effect = terrainutil_GetTerrainEffect(rec, pos);
 

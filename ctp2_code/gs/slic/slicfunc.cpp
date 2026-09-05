@@ -6251,9 +6251,9 @@ SFN_ERROR Slic_IsFortress::Call(SlicArgList *args)
 
 	Cell *cell = g_theWorld->GetCell(pos);
 
-	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
+	for(sint32 i = 0; i < cell->GetNumBuiltImprovementTypes(); i++) {
 
-		sint32 imp = cell->GetDBImprovement(i);
+		sint32 imp = cell->GetBuiltImprovementType(i);
 		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(imp);
 
 		Assert(rec);
@@ -6570,11 +6570,11 @@ SFN_ERROR Slic_FinishImprovements::Call(SlicArgList *args)
 
 	g_gevManager->Pause();
 
-	for (sint32 i = 0; i < cell->GetNumImprovements(); i++)
+	for (sint32 i = 0; i < cell->GetNumUnfinishedImprovements(); i++)
 	{
 		g_gevManager->AddEvent(GEV_INSERT_Tail,
 							   GEV_ImprovementComplete,
-							   GEA_Improvement, cell->AccessImprovement(i),
+							   GEA_Improvement, cell->AccessUnfinishedImprovement(i),
 							   GEA_End);
 	}
 	g_gevManager->Resume();
@@ -6701,9 +6701,9 @@ SFN_ERROR Slic_TileHasImprovement::Call(SlicArgList *args)
 
 	m_result.m_int = 0;
 	Cell *cell = g_theWorld->GetCell(pos);
-	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
+	for(sint32 i = 0; i < cell->GetNumBuiltImprovementTypes(); i++) {
 
-		if(imp == cell->GetDBImprovement(i)){
+		if(imp == cell->GetBuiltImprovementType(i)){
 			m_result.m_int = 1;
 			return SFN_ERROR_OK;
 		}

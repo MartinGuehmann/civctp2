@@ -66,15 +66,15 @@ sint32 Terrain::GetGold() const
 }
 
 void
-World::InsertImprovement(const TerrainImprovement &imp, MapPoint const & pnt)
+World::InsertUnfinishedImprovement(const TerrainImprovement &imp, MapPoint const & pnt)
 {
-	GetCell(pnt)->InsertImprovement(imp);
+	GetCell(pnt)->InsertUnfinishedImprovement(imp);
 }
 
 void
-World::RemoveImprovement(const TerrainImprovement &imp, const MapPoint &pnt)
+World::RemoveUnfinishedImprovement(const TerrainImprovement &imp, const MapPoint &pnt)
 {
-	GetCell(pnt)->RemoveImprovement(imp);
+	GetCell(pnt)->RemoveUnfinishedImprovement(imp);
 }
 
 void

@@ -541,8 +541,8 @@ public:
     sint32 GetFoodProduced(const MapPoint &pos) const;
     sint32 GetShieldsProduced(const MapPoint &pos) const;
 
-    void InsertImprovement(const TerrainImprovement &imp, MapPoint const & point);
-    void RemoveImprovement(const TerrainImprovement &imp, const MapPoint &point);
+    void InsertUnfinishedImprovement(const TerrainImprovement &imp, MapPoint const & point);
+    void RemoveUnfinishedImprovement(const TerrainImprovement &imp, const MapPoint &point);
 
     void InsertInstallation(Installation &inst, MapPoint const & point);
     void RemoveInstallation(Installation &inst, MapPoint const & point);

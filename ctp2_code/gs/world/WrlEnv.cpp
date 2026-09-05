@@ -787,14 +787,14 @@ void World::CutImprovements(const MapPoint &point)
 
 	// A for-loop looks better, but does not work, because Kill may modify
 	// multiple indices.
-	while (thisCell->GetNumImprovements() > 0)
+	while (thisCell->GetNumUnfinishedImprovements() > 0)
 	{
-		thisCell->AccessImprovement(thisCell->GetNumImprovements()- 1).Kill();
+		thisCell->AccessUnfinishedImprovement(thisCell->GetNumUnfinishedImprovements()- 1).Kill();
 	}
 
-	while(thisCell->GetNumDBImprovements())
+	while(thisCell->GetNumBuiltImprovementTypes())
 	{
-		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(thisCell->GetDBImprovement(0));
+		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(thisCell->GetBuiltImprovementType(0));
 		sint32 intRad = 0;
 		sint32 sqRad = 0;
 		Assert(rec);
@@ -809,7 +809,7 @@ void World::CutImprovements(const MapPoint &point)
 				Assert(false);
 			}
 		}
-		thisCell->RemoveDBImprovement(thisCell->GetDBImprovement(0));
+		thisCell->RemoveBuiltImprovementType(thisCell->GetBuiltImprovementType(0));
 	}
 
 	thisCell->CalcMovementType();

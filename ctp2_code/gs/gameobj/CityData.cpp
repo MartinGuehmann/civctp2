@@ -2585,9 +2585,9 @@ void CityData::CollectResources()
 			}
 		}
 		// Added by E (10-29-2005) - If a tileimp has enablegood then give to city
-		for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++)
+		for(sint32 i = 0; i < cell->GetNumBuiltImprovementTypes(); i++)
 		{
-			sint32 imp = cell->GetDBImprovement(i);
+			sint32 imp = cell->GetBuiltImprovementType(i);
 			const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(imp);
 			if (rec->GetNumEnablesGood() > 0)
 			{
@@ -2598,9 +2598,9 @@ void CityData::CollectResources()
 			}
 		}
 		//EMOD enablesgood applied to terrain::effect
-		for(sint32 t = 0; t < cell->GetNumDBImprovements(); t++)
+		for(sint32 t = 0; t < cell->GetNumBuiltImprovementTypes(); t++)
 		{
-			sint32 timp = cell->GetDBImprovement(t);
+			sint32 timp = cell->GetBuiltImprovementType(t);
 			const TerrainImprovementRecord *trec = g_theTerrainImprovementDB->Get(timp);
 			const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(trec, it.Pos());
 			if (effect)
@@ -3920,9 +3920,9 @@ void CityData::CalculateBonusScie()
 	for(it.Start(); !it.End(); it.Next())
 	{
 		Cell *cell = g_theWorld->GetCell(it.Pos());
-		for(sint32 t = 0; t < cell->GetNumDBImprovements(); t++)
+		for(sint32 t = 0; t < cell->GetNumBuiltImprovementTypes(); t++)
 		{
-			sint32 imp = cell->GetDBImprovement(t);
+			sint32 imp = cell->GetBuiltImprovementType(t);
 			const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(imp);
 			const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, it.Pos());
 			if(effect)
@@ -5207,7 +5207,7 @@ bool CityData::BeginTurn()
 
 		if(!m_terrainImprovementWasBuilt
 		&& it.Pos() != pos
-		&& cell->GetNumDBImprovements() > 0
+		&& cell->GetNumBuiltImprovementTypes() > 0
 		&& cell->GetCityOwner() == GetHomeCity()
 		){
 			m_terrainImprovementWasBuilt = true;
@@ -5534,7 +5534,7 @@ void CityData::AddWonder(sint32 type)
 				Cell *ocell = g_theWorld->GetCell(SpotFound);
 
 				if ((!SpotFound.IsValid())
-				|| ((ncell->GetNumDBImprovements() < ocell->GetNumDBImprovements())
+				|| ((ncell->GetNumBuiltImprovementTypes() < ocell->GetNumBuiltImprovementTypes())
 				|| (ncell->GetGoldFromTerrain() > ocell->GetGoldFromTerrain()))
 				){
 					SpotFound = it.Pos();
@@ -6653,9 +6653,9 @@ bool CityData::HasTileImpInRadius(sint32 tileimp) const
 	{
 		Cell *cell = g_theWorld->GetCell(it.Pos());
 
-		for(sint32 i = 0; i < cell->GetNumDBImprovements(); ++i)
+		for(sint32 i = 0; i < cell->GetNumBuiltImprovementTypes(); ++i)
 		{
-			if(cell->GetDBImprovement(i) == tileimp)
+			if(cell->GetBuiltImprovementType(i) == tileimp)
 			{
 				return true;
 			}
@@ -6675,7 +6675,7 @@ bool CityData::HasAnyTileImpInRadiusAndIsExploredBy(const sint32 player) const
 
 		if
 		  (
-		       cell->GetNumDBImprovements() > 0
+		       cell->GetNumBuiltImprovementTypes() > 0
 		    && g_player[player]->IsExplored(it.Pos())
 		  )
 		{
@@ -7170,7 +7170,7 @@ void CityData::SetRoad() const
 	            rec     = terrainutil_GetBestRoad(m_owner, pos);
 	if (rec)
 	{
-		cell->InsertDBImprovement(rec->GetIndex());
+		cell->InsertBuiltImprovementType(rec->GetIndex());
 
 		if (rec->GetClassOceanRoad())
 		{
@@ -11398,9 +11398,9 @@ sint32 CityData::TileImpHappinessIncr() const
 	for (it.Start(); !it.End(); it.Next())
 	{
 		Cell *cell = g_theWorld->GetCell(it.Pos());
-		for (sint32 t = 0; t < cell->GetNumDBImprovements(); t++)
+		for (sint32 t = 0; t < cell->GetNumBuiltImprovementTypes(); t++)
 		{
-			sint32 timp = cell->GetDBImprovement(t);
+			sint32 timp = cell->GetBuiltImprovementType(t);
 			const TerrainImprovementRecord *trec = g_theTerrainImprovementDB->Get(timp);
 			const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(trec, it.Pos());
 
@@ -11886,7 +11886,7 @@ void CityData::AddCityExpansion()
 
 			if(terrainutil_CanPlayerSpecialBuildAt(UrbanImp, m_owner, it.Pos())
 			){
-				if(ncell->GetNumDBImprovements() < ocell->GetNumDBImprovements()
+				if(ncell->GetNumBuiltImprovementTypes() < ocell->GetNumBuiltImprovementTypes()
 				|| ncell->GetGoldFromTerrain()   > ocell->GetGoldFromTerrain()
 				  )
 				{

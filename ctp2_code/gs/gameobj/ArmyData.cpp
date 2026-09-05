@@ -5259,7 +5259,7 @@ bool ArmyData::CanPillage(uint32 & uindex) const
 	GetPos(pos);
 	Cell *cell = g_theWorld->GetCell(pos);
 
-	sint32 num_improvements = cell->GetNumDBImprovements();
+	sint32 num_improvements = cell->GetNumBuiltImprovementTypes();
 	if (num_improvements <= 0) {
 		return false;
 	}
@@ -5290,7 +5290,7 @@ bool ArmyData::CanPillage() const
 	GetPos(pos);
 	Cell *cell = g_theWorld->GetCell(pos);
 
-	sint32 num_improvements = cell->GetNumImprovements();
+	sint32 num_improvements = cell->GetNumUnfinishedImprovements();
 	if (num_improvements <= 0) {
 		uint32 env = cell->GetEnv();
 		if(!(env & (k_MASK_ENV_IRRIGATION |
@@ -5362,9 +5362,9 @@ ORDER_RESULT ArmyData::Pillage(bool test_ownership)
 
 //	bool CanPillageTileImp = true;
 
-	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++)
+	for(sint32 i = 0; i < cell->GetNumBuiltImprovementTypes(); i++)
 	{
-		sint32 imp = cell->GetDBImprovement(i);
+		sint32 imp = cell->GetBuiltImprovementType(i);
 		const TerrainImprovementRecord *trec = g_theTerrainImprovementDB->Get(imp);
 		if(trec->GetCantPillage())
 		{
@@ -5378,11 +5378,11 @@ ORDER_RESULT ArmyData::Pillage(bool test_ownership)
 	// sometimes it good to take a fortress use will probably go to lawyers
 	// or diplomats this us temporary until i can make it an order that costs gold
 	//			sint32 rushmod = g_theGovernmentDB->Get(g_player[m_owner]->m_government_type)->GetUnitRushModifier();
-	//			sint32 impgold = cell->AccessImprovement(i).GetMaterialCost();
+	//			sint32 impgold = cell->AccessUnfinishedImprovement(i).GetMaterialCost();
 	for(sint32 j = 0; j < m_nElements; j++)
 	{
 		sint32 rushmod = static_cast<sint32>(g_theGovernmentDB->Get(g_player[m_owner]->m_government_type)->GetWonderRushModifier());
-		sint32 goldcost = (cell->GetGoldProduced() * cell->GetNumDBImprovements()) * rushmod;
+		sint32 goldcost = (cell->GetGoldProduced() * cell->GetNumBuiltImprovementTypes()) * rushmod;
 		if((m_array[j].GetDBRec()->GetCanCaptureTile())
 		&& (g_player[m_owner]->m_gold->GetLevel() > goldcost))
 		{ // && (terrainutil_CanBeCaptured(m_pos))) {
@@ -5704,10 +5704,10 @@ bool ArmyData::CanBombard(const MapPoint &point) const
 
 	if(m_owner != cell->GetOwner()) // Don't bombard your own terrain improvements
 	{
-		for(sint32 ti = 0; ti < cell->GetNumDBImprovements(); ++ti)
+		for(sint32 ti = 0; ti < cell->GetNumBuiltImprovementTypes(); ++ti)
 		{
 			TerrainImprovementRecord const * trec =
-			    g_theTerrainImprovementDB->Get(cell->GetDBImprovement(ti));
+			    g_theTerrainImprovementDB->Get(cell->GetBuiltImprovementType(ti));
 
 			if(!trec->GetCantPillage())
 			{
@@ -5993,9 +5993,9 @@ ORDER_RESULT ArmyData::Bombard(const MapPoint &orderPoint)
 				{
 					Cell *cell = g_theWorld->GetCell(point);
 					sint32 cellOwner = cell->GetOwner();
-					for(sint32 ti = 0; ti < cell->GetNumDBImprovements(); ti++)
+					for(sint32 ti = 0; ti < cell->GetNumBuiltImprovementTypes(); ti++)
 					{
-						sint32 imp = cell->GetDBImprovement(ti);
+						sint32 imp = cell->GetBuiltImprovementType(ti);
 						const TerrainImprovementRecord *trec = g_theTerrainImprovementDB->Get(imp);
 						if(trec->GetCantPillage() == 0)
 						{
@@ -6210,9 +6210,9 @@ ORDER_RESULT ArmyData::Bombard(const MapPoint &orderPoint)
 		{
 			Cell *cell = g_theWorld->GetCell(point);
 //			sint32 cellOwner = cell->GetOwner();
-			for(sint32 ti = 0; ti < cell->GetNumDBImprovements(); ti++)
+			for(sint32 ti = 0; ti < cell->GetNumBuiltImprovementTypes(); ti++)
 			{
-				sint32 imp = cell->GetDBImprovement(ti);
+				sint32 imp = cell->GetBuiltImprovementType(ti);
 				const TerrainImprovementRecord *trec = g_theTerrainImprovementDB->Get(imp);
 				if(!trec->GetCantPillage())
 				{
@@ -8915,7 +8915,7 @@ void ArmyData::DeductMoveCost(const MapPoint &pos)
 	Cell *cell = g_theWorld->GetCell(pos);
 	sint32 CellOwner = cell->GetOwner();
 	sint32 j = 0;
-	sint32 imp = cell->GetDBImprovement(j);
+	sint32 imp = cell->GetBuiltImprovementType(j);
 
 	// End EMOD
 	for(i = m_nElements - 1; i >= 0; i--)
@@ -8958,7 +8958,7 @@ void ArmyData::DeductMoveCost(const MapPoint &pos)
 		// movement like railroads 4-12-2006
 		else if(m_array[i].GetOwner() != CellOwner
 		     && CellOwner > 0
-		     && cell->GetDBImprovement(j) > 0
+		     && cell->GetBuiltImprovementType(j) > 0
 		){  //this denies all?
 			const TerrainImprovementRecord *trec = g_theTerrainImprovementDB->Get(imp);
 			if(g_player[m_owner]->HasWarWith(CellOwner)
@@ -11112,7 +11112,7 @@ bool ArmyData::TargetValidForOrder(const OrderRecord * order_rec, const MapPoint
 			target_valid |= ( g_theWorld->GetCell(pos)->GetNumTradeRoutes() > 0);
 			break;
 		case k_Order_TargetPretest_TerrainImprovement_Bit:
-			target_valid |= ( g_theWorld->GetCell(pos)->GetNumDBImprovements() > 0);
+			target_valid |= ( g_theWorld->GetCell(pos)->GetNumBuiltImprovementTypes() > 0);
 			break;
 		case k_Order_TargetPretest_AdjacentPosition_Bit:
 		case k_Order_TargetPretest_MovePosition_Bit:
@@ -11868,12 +11868,12 @@ void ArmyData::CheckMineField()
 	//EMOD If tile has tileimp that is a minefield then deduct HP
 	if(terrainutil_HasMinefield(m_pos)
 	){
-		//TerrainRecord const * tirec = g_theTerrainImprovementDB->Get(g_theWorld->GetCell(m_pos)->GetDBImprovement());
+		//TerrainRecord const * tirec = g_theTerrainImprovementDB->Get(g_theWorld->GetCell(m_pos)->GetBuiltImprovementType());
 		double hpcost2;
 		/// @todo use standard identifiers for index variables like i and j
-		for(sint32 ti = 0; ti < g_theWorld->GetCell(m_pos)->GetNumDBImprovements(); ++ti)
+		for(sint32 ti = 0; ti < g_theWorld->GetCell(m_pos)->GetNumBuiltImprovementTypes(); ++ti)
 		{ /// @todo use i instead of ti
-			const TerrainImprovementRecord * tirec = g_theTerrainImprovementDB->Get(g_theWorld->GetCell(m_pos)->GetDBImprovement(ti));
+			const TerrainImprovementRecord * tirec = g_theTerrainImprovementDB->Get(g_theWorld->GetCell(m_pos)->GetBuiltImprovementType(ti));
 			const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(tirec, m_pos);
 			for(sint32 u = 0; u < m_nElements; u++)
 			{ /// @todo use j instead of u

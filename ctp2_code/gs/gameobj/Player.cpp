@@ -5412,17 +5412,17 @@ bool Player::CanCreateImprovement(sint32 type,
 		return false;
 
 	sint32 i;
-	for(i = 0; i < cell->GetNumDBImprovements(); i++)
+	for(i = 0; i < cell->GetNumBuiltImprovementTypes(); i++)
 	{
-		if(cell->GetDBImprovement(i) == type)
+		if(cell->GetBuiltImprovementType(i) == type)
 		{
 			return false;
 		}
 	}
 
-	for(i = 0; i < cell->GetNumImprovements(); i++)
+	for(i = 0; i < cell->GetNumUnfinishedImprovements(); i++)
 	{
-		if(cell->AccessImprovement(i).GetType() == type)
+		if(cell->AccessUnfinishedImprovement(i).GetType() == type)
 		{
 			return false;
 		}
@@ -5459,12 +5459,12 @@ TerrainImprovement Player::CreateImprovement(sint32 dbIndex,
 	if(!CanCreateImprovement(dbIndex, point, true))
 		return theImprovement;
 
-	theImprovement = g_theTerrainImprovementPool->Create(m_owner,
+	theImprovement = g_theUnfinishedImprovementPool->Create(m_owner,
 														 point,
 														 dbIndex,
 														 extraData);
 
-	if(g_theTerrainImprovementPool->IsValid(theImprovement.m_id)) {
+	if(g_theUnfinishedImprovementPool->IsValid(theImprovement.m_id)) {
 		if(g_network.IsClient()) {
 			g_network.AddCreatedObject(theImprovement.AccessData());
 			g_network.SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
@@ -5494,12 +5494,12 @@ TerrainImprovement Player::CreateSpecialImprovement(sint32 dbIndex,
 //	if(!CanCreateImprovement(dbIndex, point, extraData, true, err))
 //		return theImprovement;
 
-	theImprovement = g_theTerrainImprovementPool->Create(m_owner,
+	theImprovement = g_theUnfinishedImprovementPool->Create(m_owner,
 														 point,
 														 dbIndex,
 														 extraData);
 
-	if(g_theTerrainImprovementPool->IsValid(theImprovement.m_id)) {
+	if(g_theUnfinishedImprovementPool->IsValid(theImprovement.m_id)) {
 		if(g_network.IsClient()) {
 			g_network.AddCreatedObject(theImprovement.AccessData());
 			g_network.SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
@@ -7800,10 +7800,10 @@ void Player::TradeImprovementsForPoints(const MapPoint &pnt)
 		return;
 
 	Cell *cell = g_theWorld->GetCell(pnt);
-	if(!cell->GetNumImprovements())
+	if(!cell->GetNumUnfinishedImprovements())
 		return;
 
-	if(cell->AccessImprovement(0).GetOwner() != m_owner)
+	if(cell->AccessUnfinishedImprovement(0).GetOwner() != m_owner)
 		return;
 
 	if(g_network.IsClient()) {
@@ -7812,11 +7812,11 @@ void Player::TradeImprovementsForPoints(const MapPoint &pnt)
 		return;
 	}
 
-	for(sint32 i = cell->GetNumImprovements() - 1; i >= 0; i--) {
-		sint32 materialCost = cell->AccessImprovement(i).GetMaterialCost();
+	for(sint32 i = cell->GetNumUnfinishedImprovements() - 1; i >= 0; i--) {
+		sint32 materialCost = cell->AccessUnfinishedImprovement(i).GetMaterialCost();
 		sint32 pointsBack = sint32(double(materialCost) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
 		AddPoints(pointsBack);
-		cell->AccessImprovement(i).Kill();
+		cell->AccessUnfinishedImprovement(i).Kill();
 	}
 }
 

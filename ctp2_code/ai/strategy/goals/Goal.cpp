@@ -1506,7 +1506,7 @@ const MapPoint Goal::Get_Target_Pos(const Army & army) const
 				if (!(cell->GetCityOwner() == m_target_city))
 					continue;
 
-				if (cell->GetNumDBImprovements() <= 0)
+				if (cell->GetNumBuiltImprovementTypes() <= 0)
 					continue;
 
 				if (cell->GetNumPillagableTerrainImprovements() <= 0)
@@ -3304,7 +3304,7 @@ bool Goal::IsTargetImmune() const
 			}
 			else
 			{
-				if(g_theWorld->GetCell(target_pos)->GetNumDBImprovements() <= 0)
+				if(g_theWorld->GetCell(target_pos)->GetNumBuiltImprovementTypes() <= 0)
 					return true;
 			}
 			break;
