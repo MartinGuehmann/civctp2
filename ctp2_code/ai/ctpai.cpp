@@ -2131,7 +2131,11 @@ bool CtpAi::GetNearestAircraftCarrier(const Army & army, MapPoint & carrier_pos,
 		if( !tmp_army.IsValid() )
 			continue;
 
-		if(!tmp_army->CanMoveIntoThisTransport(*tmp_army.GetData()))
+		// Was tmp_army->CanMoveIntoThisTransport(*tmp_army.GetData()) - a
+		// candidate asking itself "can I move into a transport matching my
+		// own composition", unrelated to whether the searching plane
+		// (army, this function's own parameter) could actually board it.
+		if(!army->CanMoveIntoThisTransport(*tmp_army.GetData()))
 			continue;
 
 		sint32 tmp_squared_distance = MapPoint::GetSquaredDistance(tmp_army->RetPos(), army->RetPos());
@@ -2141,6 +2145,15 @@ bool CtpAi::GetNearestAircraftCarrier(const Army & army, MapPoint & carrier_pos,
 			carrier_pos      = tmp_army->RetPos();
 		}
 	}
+
+	// Was never written at all - the caller (GetNearestRefuel) read
+	// whatever its own 'distance' local happened to still hold from the
+	// immediately preceding GetNearestCity() call, then reported that
+	// stale value alongside this function's own (separately correct)
+	// carrier_pos as if they were one coherent result. The caller does
+	// its own sqrt() on this, matching GetNearestAirfield's squared-
+	// distance convention.
+	distance = squared_distance;
 
 	return (squared_distance < max_squared_dist);
 }
