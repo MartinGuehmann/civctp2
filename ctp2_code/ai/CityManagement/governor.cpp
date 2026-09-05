@@ -1116,8 +1116,9 @@ bool Governor::WouldDestroyUnrelatedImprovement(const Cell * cell, const Terrain
 //----------------------------------------------------------------------------
 bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder finder, InstallationEffectQualifier isSameKind, const double & utility, bool requireBorderTile)
 {
-	MapPoint const cityPos = city.RetPos();
-	sint32 const   borderRadius = g_theConstDB->Get(0)->GetBorderIntRadius();
+	MapPoint const cityPos      = city.RetPos();
+	sint32   const owner        = city.GetOwner();
+	sint32   const borderRadius = g_theConstDB->Get(0)->GetBorderIntRadius();
 
 	bool    alreadyHasOne  = false;
 	bool    foundCandidate = false;
@@ -1132,7 +1133,7 @@ bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder
 			MapPoint const pos  = it.Pos();
 			Cell *         cell = g_theWorld->GetCell(pos);
 
-			if(cell->GetCityOwner() != city)
+			if(cell->GetOwner() != owner)
 				continue;
 
 			const TerrainImprovementRecord * rec = finder(m_playerId, pos);
