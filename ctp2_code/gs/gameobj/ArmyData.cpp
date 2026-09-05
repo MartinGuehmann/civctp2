@@ -8873,6 +8873,29 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 
 			if(m_pos != to_pt)
 			{
+				// These units are landing on a genuinely separate,
+				// independently-occupiable tile (unlike the m_pos==to_pt
+				// beach-assault branch below, where a passenger can't
+				// occupy the transport's own tile - see UnloadCargo's own
+				// "Used to call InsertUnit here" comment) - register them
+				// in the world right away instead of relying solely on
+				// their own queued UNIT_ORDER_MOVE_TO below to do it via
+				// ArmyData::MoveUnits(). That order is only queued, not
+				// executed synchronously - a unit landing next to a
+				// TargetOwner:HotEnemy goal (e.g. GOAL_PARADROP) can be
+				// attacked and killed before its own move ever runs,
+				// leaving RemoveAllReferences() to remove-by-position a
+				// unit that was never actually inserted anywhere,
+				// corrupting the QuadTree exactly like the already-fixed
+				// leaked-rebase-entry bug (see quadtree_leaked_rebase_entry
+				// memory). The subsequent MoveUnits() call, when it does
+				// run, still works correctly on an already-inserted unit -
+				// it just removes and re-inserts at the same position.
+				for(sint32 i = 0; i < debark.Num(); i++)
+				{
+					g_theWorld->InsertUnit(to_pt, debark[i]);
+				}
+
 				for(sint32 i = 0; i < debark.Num(); i++)
 				{
 					if (debark[i].GetActor())
