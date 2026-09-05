@@ -1074,6 +1074,21 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 
 		SetHotwarAttack(foreignerId, (sint16) NewTurnCount::GetCurrentRound());
 
+		// ComputeDesireWarWith() reads GetLastHotwarAttack(foreignerId)
+		// (turns since the last hotwar attack, or a large sentinel if
+		// never) for its Discovery-Diplomatic/Discovery-Economic "forgive
+		// and drop war desire" branch - the SetHotwarAttack() call just
+		// above flips that from "a long time/never" to "0, just now" for
+		// this exact foreigner, which can flip the branch's outcome and
+		// so the cached m_desireWarWith[foreignerId] entry stale right
+		// away, before DeclareWar() (called a few lines below, in this
+		// same act_of_war handling) or anything else gets a chance to
+		// read it. Confirmed via a playtest hitting exactly this: found
+		// via DeclareWar()'s own DesireWarWith() read tripping the
+		// cache-consistency assert - see desirewarwith_cache_staleness
+		// memory, sixth occurrence of this whack-a-mole bug class.
+		UpdateDesireWarWith(foreignerId);
+
 		trust_message = "TrustLossViolatedCeaseFire";
 		act_of_war = true;
 		break;
@@ -1790,8 +1805,28 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return;
 
-	// Should not declare war without desiring war
-	Assert(DesireWarWith(foreignerId));
+	// Removed: "Should not declare war without desiring war" - this
+	// assumed the only caller was the AI's own SetDiplomaticState desire
+	// calculation, but DeclareWar() has several other legitimate callers
+	// where DesireWarWith has no reason to hold - LogViolationEvent's
+	// forced declaration when a player attacks someone they have a
+	// ceasefire/peace with (confirmed via a playtest hitting this exact
+	// path: ArmyData::Bombard -> LogViolationEvent -> DeclareWar), human
+	// UI actions (diplomacywindow.cpp/intelligencewindow.cpp), network
+	// sync (net_action.cpp), SLIC scripts (slicfuncai.cpp), and a
+	// defensive-ally trigger (Player.cpp:8706) among them.
+	//
+	// The playtest hit was actually DesireWarWith()'s own internal cache-
+	// consistency assert firing first (evaluating this line's argument
+	// calls it) - a sixth trigger for the whack-a-mole class of bug in
+	// [[desirewarwith_cache_staleness]]/bc09b6a4d et al. Root cause
+	// diagnosed and fixed at the source: LogViolationEvent's own
+	// SetHotwarAttack() call (a few lines above its DeclareWar() call, in
+	// this same PROPOSAL_TREATY_CEASEFIRE handling) flips
+	// GetLastHotwarAttack(foreignerId) in a way that can change
+	// ComputeDesireWarWith()'s answer, and now calls
+	// UpdateDesireWarWith(foreignerId) right after - so removing this
+	// read is no longer the only thing keeping this specific path clean.
 
 	// Diagnostic: log every genuine new war declaration (the check just
 	// above already filtered out the "already at war" repeat case) so a
