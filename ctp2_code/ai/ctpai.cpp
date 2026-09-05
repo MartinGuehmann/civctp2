@@ -2249,6 +2249,16 @@ void CtpAi::RefuelAirplane(const Army & army)
 	if (!CtpAi::GetNearestRefuel(army, start_pos, refueling_pos, refueling_distance))
 		return;
 
+	// GetNearestRefuel also considers aircraft carriers, not just cities
+	// (already excluded above) - a plane already parked on a carrier gets
+	// refueling_pos == start_pos, at distance 0. Unlike Agent::FindPath's
+	// wrapper (used elsewhere), RobotAstar2::s_aiPathing.FindPath below has
+	// no "already there" shortcut and fails outright on a zero-distance
+	// request (NO_REFUEL_PATH, confirmed via this exact case in a
+	// playtest log). Nothing to path to when already at the destination.
+	if (refueling_pos == start_pos)
+		return;
+
 	float const trans_max_r = 0.8f;
 	Path new_path;
 	float total_cost;
