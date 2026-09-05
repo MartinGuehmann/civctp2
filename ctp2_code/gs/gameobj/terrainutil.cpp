@@ -359,9 +359,8 @@ const TerrainImprovementRecord *terrainutil_GetBestFort(sint32 player, const Map
 
 		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
 
-		double bonus;
-		effect->GetDefenseBonus(bonus);
-		if(bonus <= bestBonus)
+		double bonus = 0.0;
+		if(effect->GetDefenseBonus(bonus) && bonus <= bestBonus)
 			continue;
 
 		bestBonus = bonus;
