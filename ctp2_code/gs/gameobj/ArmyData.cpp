@@ -3505,9 +3505,17 @@ ORDER_RESULT ArmyData::EnslaveSettler(const MapPoint &point, const sint32 uindex
 	Cell *cell = g_theWorld->GetCell(point);
 
 	sint32 n = cell->GetNumUnits();
-	Assert(n > 0);
 	if(n != 1)
 	{
+		// This is a queued order (UNIT_ORDER_ENSLAVE_SETTLER) - the
+		// settler seen here when the order was issued can have moved,
+		// died, or been captured by execution time, leaving the tile
+		// empty. Same "target vanished" outcome SlaveRaid (this
+		// function's own caller/sibling) already treats as legitimate,
+		// not a bug - see its own IsSlaveRaidPossible()/IsNextTo() early
+		// returns just above in this file.
+		DPRINTF(k_DBG_GAMESTATE, ("EnslaveSettler: target tile (%d,%d) has %d units, not 1 - order no longer valid\n",
+		        point.x, point.y, n));
 		return ORDER_RESULT_ILLEGAL;
 	}
 
