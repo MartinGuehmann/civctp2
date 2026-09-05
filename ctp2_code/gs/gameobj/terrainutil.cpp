@@ -1485,6 +1485,16 @@ void terrainutil_RemoveBorders(const MapPoint &center, sint32 owner, sint32 intR
 		if(!stillOwned) // Has to check influence from other cities
 		{
 			cell->SetOwner(PLAYER_UNASSIGNED);
+
+			// Unlike every other tile-ownership change (e.g.
+			// CityData::ResetCityOwner just above in the caller chain),
+			// this one never told any installation sitting on the tile -
+			// a Fort/Airfield/detector here kept reporting its vision to
+			// the former owner indefinitely once its covering territory
+			// receded to unassigned (city capture's wider border-radius
+			// release, or CutImprovements destroying a border-radius-
+			// granting improvement).
+			g_theWorld->SyncInstallationOwners(it.Pos(), PLAYER_UNASSIGNED);
 		}
 
 		g_network.Block(owner);
