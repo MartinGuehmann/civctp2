@@ -1136,6 +1136,9 @@ bool Governor::AddInstallationPriority(const Unit & city, BestInstallationFinder
 			if(cell->GetOwner() != owner)
 				continue;
 
+			if(cell->HasCity() && cell->GetCityOwner() != city)
+				continue;
+
 			const TerrainImprovementRecord * rec = finder(m_playerId, pos);
 			if(!rec)
 				continue;
