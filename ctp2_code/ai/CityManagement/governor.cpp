@@ -4299,7 +4299,18 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 		// all here already. pollution and cityRawHappiness are the same
 		// local variables HasStopBuildings/the MinPollution/MaxRawHappiness
 		// gates above already computed for this city, not a second read.
-		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: turn %d player %d city %s (production %d, food %f, gold %d, pollution %d, happiness w/o entertainers %d, cached pollution happiness %f) of %d cities -> sequence %s (priority %d, rank kind %s, rank %f) ranks: production %f growth %f commerce %f happiness %f threat %f power %f\n",
+		//
+		// buildings is city->GetImprovements() (m_built_improvements), the
+		// city's own bitmask of every building it has ever built - one bit
+		// per BuildingRecord index, decodable offline against BuildingDB's
+		// own record order without needing a name printed per bit here.
+		// Printed as two hex halves (high 32 bits, then low 32 bits) since
+		// no DPRINTF in this codebase prints a raw uint64 directly and a
+		// %llx/%I64x format specifier isn't portable across this project's
+		// MSVC/GCC builds - concatenate the two halves to get the full value
+		// back, same convention as AchievementTracker::AddAchievement.
+		uint64 const buildings = city->GetImprovements();
+		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: turn %d player %d city %s (production %d, food %f, gold %d, pollution %d, happiness w/o entertainers %d, cached pollution happiness %f, buildings 0x%08x%08x) of %d cities -> sequence %s (priority %d, rank kind %s, rank %f) ranks: production %f growth %f commerce %f happiness %f threat %f power %f\n",
 		        NewTurnCount::GetCurrentRound(),
 		        m_playerId,
 		        const_cast<CityData *>(city)->GetName(),
@@ -4309,6 +4320,8 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 		        pollution,
 		        cityRawHappiness,
 		        cachedPollutionHappiness,
+		        static_cast<uint32>(buildings >> 32),
+		        static_cast<uint32>(buildings & 0xffffffffu),
 		        g_player[m_playerId]->GetNumCities(),
 		        matched_seq ? matched_seq->GetNameText() : "NULL",
 		        best_elem->GetPriority(),
