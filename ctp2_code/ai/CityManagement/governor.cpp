@@ -4034,6 +4034,22 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 
 	sint32 cityRawHappiness = static_cast<sint32>(city->GetHappiness()) - city->GetHappinessFromPops();
 
+	// Diagnostic: city->GetHappiness() is a cache, last written by whichever of
+	// CityTurnPreProductionEvent's CalcHappiness(true) or AssignPopulation's
+	// CalcHappiness(false) ran most recently for this city - NOT necessarily this
+	// turn's own CalcPollution() result, since CtpAi::BeginTurn runs
+	// FillEmptyBuildQueues() (this function's caller, for a build decision) BEFORE
+	// AssignPopulations() (ctpai.cpp ~1718 vs ~1732) refreshes happiness for the
+	// turn. Reading the tracker's own recorded HAPPY_REASON_POLLUTION component
+	// alongside the live `pollution` value lets a playtest log show directly
+	// whether the cached happiness used above already reflects this turn's
+	// pollution, or is one step stale - suspected after seeing "happiness w/o
+	// entertainers 99" logged next to "pollution 769" for the same city/turn.
+	double cachedPollutionHappiness = 0.0;
+	StringId happyReasonName;
+	const_cast<CityData *>(city)->GetHappy()->GetHappyTracker()->
+		GetHappiness(HAPPY_REASON_POLLUTION, cachedPollutionHappiness, happyReasonName);
+
 	bool canBuildWonders = false;
 	sint32 i;
 	for(i = 0; i < g_theWonderDB->NumRecords(); ++i)
@@ -4283,7 +4299,7 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 		// all here already. pollution and cityRawHappiness are the same
 		// local variables HasStopBuildings/the MinPollution/MaxRawHappiness
 		// gates above already computed for this city, not a second read.
-		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: turn %d player %d city %s (production %d, food %f, gold %d, pollution %d, happiness w/o entertainers %d) of %d cities -> sequence %s (priority %d, rank kind %s, rank %f) ranks: production %f growth %f commerce %f happiness %f threat %f power %f\n",
+		DPRINTF(k_DBG_GOVERNOR, ("GetMatchingSequenceElement: turn %d player %d city %s (production %d, food %f, gold %d, pollution %d, happiness w/o entertainers %d, cached pollution happiness %f) of %d cities -> sequence %s (priority %d, rank kind %s, rank %f) ranks: production %f growth %f commerce %f happiness %f threat %f power %f\n",
 		        NewTurnCount::GetCurrentRound(),
 		        m_playerId,
 		        const_cast<CityData *>(city)->GetName(),
@@ -4292,6 +4308,7 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 		        city->GetNetCityGold(),
 		        pollution,
 		        cityRawHappiness,
+		        cachedPollutionHappiness,
 		        g_player[m_playerId]->GetNumCities(),
 		        matched_seq ? matched_seq->GetNameText() : "NULL",
 		        best_elem->GetPriority(),
