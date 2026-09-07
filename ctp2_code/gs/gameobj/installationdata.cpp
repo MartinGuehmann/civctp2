@@ -334,9 +334,25 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 		return;
 	}
 
+	sint32 const oldOwner = m_owner;
+
+	// Set m_owner before doing any of the border/vision work below, not
+	// after: GenerateBorders/terrainutil_RemoveBorders can themselves walk
+	// back through World::SyncInstallationOwners for this same installation's
+	// own tile (border/territory recalculation reaches back to where it
+	// started), and that reentrant call needs the toOwner == m_owner guard
+	// above to actually catch it. With m_owner only updated at the end (as
+	// this used to do), every such reentrant call still saw the pre-change
+	// owner, missed the guard, and re-ran this entire function - an
+	// unbounded GenerateBorders <-> ChangeOwner <-> SyncInstallationOwners
+	// recursion that hung a live playtest, flooding the log with the same
+	// Vision::DoFillCircleOp underflow assert. oldOwner captures what this
+	// function's own old-owner cleanup below still needs.
+	m_owner = toOwner;
+
 	if(g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_INSTALLATION_OWNER,
-									  m_id, m_owner, toOwner));
+									  m_id, oldOwner, toOwner));
 	}
 
 	// Endgame-flagged installations (Processing Towers) are counted per
@@ -365,14 +381,14 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 		g_theTerrainImprovementDB->Get(m_type)->GetIntBorderRadius(intRad) &&
 		g_theTerrainImprovementDB->Get(m_type)->GetSquaredBorderRadius(sqRad);
 
-	if(m_owner >= 0 && g_player[m_owner] != NULL)
+	if(oldOwner >= 0 && g_player[oldOwner] != NULL)
 	{
 		if(hasOwnBorder)
 		{
-			terrainutil_RemoveBorders(m_point, m_owner, intRad, sqRad, Unit());
+			terrainutil_RemoveBorders(m_point, oldOwner, intRad, sqRad, Unit());
 		}
 
-		g_player[m_owner]->RemoveInstallationReferences(Installation(m_id));
+		g_player[oldOwner]->RemoveInstallationReferences(Installation(m_id));
 
 		// Just RemoveUnitVision() below - it already does exactly what this
 		// used to duplicate. Before the vision objects were unified (see
@@ -380,7 +396,7 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 		// of a copy"), this called g_tiledMap->GetLocalVision()->RemoveVisible()
 		// directly, a *separate* screen-only copy, so it was harmless. Now
 		// g_tiledMap->GetLocalVision() (via RemoveUnitVision()'s director
-		// path) and g_player[m_owner]->m_vision are the same reference-
+		// path) and g_player[oldOwner]->m_vision are the same reference-
 		// counted object, so calling both here double-decremented every
 		// tile in the installation's vision circle on every ownership
 		// change - and even single-decremented tiles for installations
@@ -392,12 +408,12 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 		double visionRange = terrainutil_GetVisionRange(m_type, m_point);
 		if(visionRange > 0)
 		{
-			g_player[m_owner]->RemoveUnitVision(m_point, visionRange);
+			g_player[oldOwner]->RemoveUnitVision(m_point, visionRange);
 		}
 
-		if(isEndgameTower && g_player[m_owner]->GetGaiaController())
+		if(isEndgameTower && g_player[oldOwner]->GetGaiaController())
 		{
-			g_player[m_owner]->GetGaiaController()->
+			g_player[oldOwner]->GetGaiaController()->
 				HandleTerrImprovementChange(m_type, m_point, -1);
 		}
 	}
@@ -417,8 +433,6 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 				HandleTerrImprovementChange(m_type, m_point, 1);
 		}
 	}
-
-	m_owner = toOwner;
 
 	if(toOwner >= 0)
 	{
