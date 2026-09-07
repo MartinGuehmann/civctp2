@@ -100,6 +100,18 @@ Agent::Agent(const Army & army)
     m_detached          (false),
     m_neededForGarrison (false)
 {
+	// Diagnostic: lifecycle trace for Agent<->Army registration, mirroring
+	// WrlUnit.cpp's InsertUnit/RemoveUnitReference audit trail - added to
+	// help pin down a SIGSEGV where a Plan/Agent for a dead army (0xd0000673,
+	// killed as a combat defender) survived in the Scheduler's match list
+	// for two turns past its ArmyPool deletion (see
+	// Goal::Recompute_Matching_Value's own null-check/Assert). If that
+	// recurs, grep this agent/army id here and at ~Agent() below to see
+	// whether a duplicate Agent got created for the same army, or whether
+	// this one was simply never destroyed.
+	DPRINTF(k_DBG_SCHEDULER, ("Agent::Agent: created %x for army %x, player %d\n",
+	        this, m_army.m_id, m_playerId));
+
 	Compute_Squad_Strength();
 
 	if (m_army.IsValid())
@@ -144,6 +156,12 @@ Agent::Agent(const Agent & an_Original)
 Agent::~Agent()
 {
 // Nothing to delete, references only
+
+	// Diagnostic: pairs with Agent::Agent(const Army&)'s own creation trace
+	// above - m_army.m_id is a plain stored id, safe to read even if the
+	// underlying ArmyData is already gone.
+	DPRINTF(k_DBG_SCHEDULER, ("Agent::~Agent: destroying %x for army %x, player %d\n",
+	        this, m_army.m_id, m_playerId));
 
 	// Only clear it if it's still pointing to this agent - a copy made for
 	// scheduler planning/snapshotting never claims the pointer in the first
