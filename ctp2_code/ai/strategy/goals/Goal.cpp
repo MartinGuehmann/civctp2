@@ -857,25 +857,52 @@ Utility Goal::Recompute_Matching_Value(Plan_List & matches, const bool update)
 				projected_strength += match_iter->Get_Agent()->Get_Squad_Strength();
 
 				combinedUtility += matchUtility;
-				AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
-				            ("\t\t[%3d] match = %d combined = %d %s Army: %9x Agent: %9x (%3d, %3d)\t%20s\t Name: \t%16s (units %2d, cargo %2d) \t (is_used=%d) \t (by_this=%d) \t (by_sub=%d) \t (garrison=%d)\n",
-				             count,
-				             matchUtility,
-				             combinedUtility / (count + 1),
-				             g_theGoalDB->Get(m_goal_type)->GetNameText(),
-				             match_iter->Get_Agent()->Get_Army(),
-				             match_iter->Get_Agent(),
-				             match_iter->Get_Agent()->Get_Pos().x,
-				             match_iter->Get_Agent()->Get_Pos().y,
-				             g_theUnitDB->GetNameStr(match_iter->Get_Agent()->Get_Army()->Get(0).GetType()),
-				             match_iter->Get_Agent()->Get_Army()->GetName(),
-				             match_iter->Get_Agent()->Get_Army()->Num(),
-				             match_iter->Get_Agent()->Get_Army()->GetCargoNum(),
-				             (match_iter->Get_Agent()->Get_Goal() ? 1 : 0),
-				             ((match_iter->Get_Agent()->Get_Goal() == this) ? 1 : 0),
-				             ((match_iter->Get_Agent()->Get_Goal() == m_sub_goal && m_sub_goal != nullptr) ? 1 : 0),
-				             (match_iter->Get_Agent()->IsNeededForGarrison() ? 1 : 0)
-				            ));
+
+				// Diagnostic: Get_Army() can be a dead army - GameObj_Access
+				// (via Army::AccessData/ArmyPool/ObjPool) silently returns
+				// NULL for an id no longer in the pool instead of asserting,
+				// e.g. an army wiped out in combat whose Agent/Plan wasn't
+				// cleaned up here in the Scheduler. This block used to
+				// dereference it unconditionally (->Get(0)/->GetName()/
+				// ->Num()/->GetCargoNum()), which segfaulted mid-playtest
+				// (turn 204, player 4, army 0xd0000673 - killed as a
+				// defender in combat, deleted from the ArmyPool, then still
+				// matched here two turns later). Assert to catch the actual
+				// stale-Agent root cause instead of crashing on it.
+				ArmyData * const agentArmyData =
+				        match_iter->Get_Agent()->Get_Army().AccessData();
+				if(!agentArmyData)
+				{
+					DPRINTF(k_DBG_GAMESTATE, ("Goal::Recompute_Matching_Value: stale Agent %x matched for player %d goal %s (%s) - its Army %x no longer exists in the ArmyPool\n",
+					        match_iter->Get_Agent(),
+					        m_playerId,
+					        g_theGoalDB->Get(m_goal_type)->GetNameText(),
+					        (m_sub_goal != nullptr) ? "has sub_goal" : "no sub_goal",
+					        match_iter->Get_Agent()->Get_Army().m_id));
+				}
+				Assert(agentArmyData);
+				if(agentArmyData)
+				{
+					AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
+					            ("\t\t[%3d] match = %d combined = %d %s Army: %9x Agent: %9x (%3d, %3d)\t%20s\t Name: \t%16s (units %2d, cargo %2d) \t (is_used=%d) \t (by_this=%d) \t (by_sub=%d) \t (garrison=%d)\n",
+					             count,
+					             matchUtility,
+					             combinedUtility / (count + 1),
+					             g_theGoalDB->Get(m_goal_type)->GetNameText(),
+					             match_iter->Get_Agent()->Get_Army(),
+					             match_iter->Get_Agent(),
+					             match_iter->Get_Agent()->Get_Pos().x,
+					             match_iter->Get_Agent()->Get_Pos().y,
+					             g_theUnitDB->GetNameStr(agentArmyData->Get(0).GetType()),
+					             agentArmyData->GetName(),
+					             agentArmyData->Num(),
+					             agentArmyData->GetCargoNum(),
+					             (match_iter->Get_Agent()->Get_Goal() ? 1 : 0),
+					             ((match_iter->Get_Agent()->Get_Goal() == this) ? 1 : 0),
+					             ((match_iter->Get_Agent()->Get_Goal() == m_sub_goal && m_sub_goal != nullptr) ? 1 : 0),
+					             (match_iter->Get_Agent()->IsNeededForGarrison() ? 1 : 0)
+					            ));
+				}
 				++count;
 			}
 			else
