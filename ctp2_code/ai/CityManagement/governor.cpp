@@ -184,6 +184,7 @@
 #include "WonderBuildListRecord.h"
 #include "WonderRecord.h"
 #include "WonderTracker.h"
+#include "wonderutil.h"
 #include "World.h"
 
 #if defined(_DEBUG) || defined(USE_LOGGING)
@@ -1254,7 +1255,10 @@ void Governor::ComputeInstallationPriorities()
 		// empire's edge - require a border tile, so purely interior
 		// cities never get one.
 		AddInstallationPriority(city, terrainutil_GetBestFort,     terrainutil_IsFortEffect,     fortUtility,     true);
-		AddInstallationPriority(city, terrainutil_GetBestDetector, terrainutil_IsDetectorEffect, detectorUtility, true);
+
+		// No need to build installations to increase the vision range if we already see everything
+		if(!wonderutil_GetGlobalRadar(player_ptr->m_builtWonders))
+			AddInstallationPriority(city, terrainutil_GetBestDetector, terrainutil_IsDetectorEffect, detectorUtility, true);
 	}
 }
 
