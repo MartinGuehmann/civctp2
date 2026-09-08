@@ -6412,9 +6412,6 @@ void CityData::CleanupUprising(Army &sa)
 			g_player[si]->ContactMade(m_owner); // create diplomatic contact, needed for fighting back with adjacent units to city if uprise succeeds
 			g_player[m_owner]->ContactMade(si); // in both directions
 
-			Diplomat::GetDiplomat(si).ComputeAllDesireWarWith(); // avoid assertion with Diplomat::SetDiplomaticState with new civ
-			Diplomat::GetDiplomat(m_owner).ComputeAllDesireWarWith(); // avoid assertion with Diplomat::SetDiplomaticState with new civ
-			Diplomat::GetDiplomat(PLAYER_INDEX_VANDALS).ComputeAllDesireWarWith(); // avoid assertion with Diplomat::SetDiplomaticState with new civ
 		}
 
 		for(sint32 i = nsa - 1; i >= 0; i--) // build (new) army with normal units

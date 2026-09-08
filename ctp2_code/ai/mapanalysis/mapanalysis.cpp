@@ -484,7 +484,6 @@ void MapAnalysis::BeginTurn()
 	{
 		if(Diplomat::HasDiplomat(player))
 		{
-			Diplomat::GetDiplomat(player).ComputeAllDesireWarWith();
 			Diplomat::GetDiplomat(player).ComputeIncursionPermission();
 		}
 	}

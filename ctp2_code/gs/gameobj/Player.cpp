@@ -7874,8 +7874,6 @@ void Player::ContactMade(PLAYER_INDEX with)
 					Diplomat::GetDiplomat(m_owner).SendGreeting(with);
 					Diplomat::GetDiplomat(with).RecomputeRegard();
 					Diplomat::GetDiplomat(m_owner).RecomputeRegard();
-					Diplomat::GetDiplomat(with).UpdateDesireWarWith(m_owner);
-					Diplomat::GetDiplomat(m_owner).UpdateDesireWarWith(with);
 				}
 			}
 		}

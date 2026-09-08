@@ -1107,17 +1107,6 @@ void CtpAi::RemovePlayer(const PLAYER_INDEX deadPlayerId)
 
 	AgreementMatrix::s_agreements.ClearAgreementsInvolving(deadPlayerId);
 
-	// The agreement-matrix clear above can change what ComputeDesireWarWith
-	// returns for deadPlayerId; refresh every survivor's cached entry so it
-	// isn't left stale for whoever reuses this player slot next.
-	for (PLAYER_INDEX player = 0; player < s_maxPlayers; ++player)
-	{
-		if (g_player[player] && (player != deadPlayerId))
-		{
-			Diplomat::GetDiplomat(player).UpdateDesireWarWith(deadPlayerId);
-		}
-	}
-
 	Diplomat::GetDiplomat(deadPlayerId).Cleanup();
 
 	if (deadPlayerId + 1 >= s_maxPlayers)
@@ -1157,21 +1146,8 @@ void CtpAi::AddPlayer(const PLAYER_INDEX newPlayerId)
 			// Also true for embassies
 			g_player[player]->ContactKilled(newPlayerId);
 			g_player[player]->CloseEmbassy(newPlayerId);
-
-			// A reused player slot can leave a stale desire-war-with cache
-			// entry behind (from whoever previously occupied it, or the
-			// default from Resize()); refresh it now that newPlayerId is
-			// a real, initialized player.
-			if (player != newPlayerId)
-			{
-				Diplomat::GetDiplomat(player).UpdateDesireWarWith(newPlayerId);
-			}
 		}
 	}
-
-	// newPlayerId's own cache, for every foreigner, is equally stale after
-	// Initialize()/Resize() above - refresh it the same way BeginTurn() does.
-	Diplomat::GetDiplomat(newPlayerId).ComputeAllDesireWarWith();
 }
 
 void CtpAi::BeginMapAnalysis(const PLAYER_INDEX player)
@@ -2330,14 +2306,6 @@ void CtpAi::ExecuteOpportunityActions(const PLAYER_INDEX player)
 	Assert(player_ptr);
 	if (player_ptr == NULL)
 		return;
-
-	// BombardNearbyEnemies (below) checks HasWarOrDesiresPreemptivelyWith
-	// for every foreigner, for every bombard-capable army in this loop -
-	// refreshing the cache once here is far cheaper than per read, and is
-	// enough: bombard orders are only queued (GEV_BombardOrder), executed
-	// later once this whole loop has returned, so nothing in this loop
-	// itself can invalidate the cache again before it finishes.
-	Diplomat::GetDiplomat(player).ComputeAllDesireWarWith();
 
 	sint32 num_armies = player_ptr->m_all_armies->Num();
 	for (sint32 i = 0; i < num_armies; i++)
