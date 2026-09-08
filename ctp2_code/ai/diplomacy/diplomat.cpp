@@ -4596,7 +4596,19 @@ bool Diplomat::GetTradeRoutePiracyRisk(const Unit & source_city, const Unit & de
 		{
 			TradeRoute route = city.CD()->GetTradeSourceList()->Access(r);
 
+			// route->GetPirate() is a "recently pirated by" memory, not a
+			// live-piracy check - unlike GetTradeRoutePiracyRisk(PLAYER_INDEX)
+			// below, this overload intentionally still counts a route that
+			// was pirated within the last GetPiracyMemoryTurns() turns, even
+			// after the pirating army (and thus IsBeingPirated()) is gone.
+			// ComputeTradeRoutePiracyRisk() only clears it back to
+			// PLAYER_UNASSIGNED once that memory window itself expires, so a
+			// pirating player eliminated mid-window leaves a genuinely dead
+			// player index here for the rest of it - check liveness before
+			// trusting it, same as any other player index read back from
+			// stored state. A dead player can't pose an ongoing piracy risk.
 			if (route->GetPirate() >= 0 &&
+			    g_player[route->GetPirate()] != NULL &&
 			    route->GetSource() == source_city &&
 			    route->GetDestination() == dest_city &&
 			    !AgreementMatrix::s_agreements.HasAgreement(route->GetPirate(),
