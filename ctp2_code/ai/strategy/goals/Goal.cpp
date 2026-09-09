@@ -3696,7 +3696,12 @@ bool Goal::Pretest_Bid(const Agent_ptr agent_ptr, const MapPoint & target_pos) c
 		sint32 distance_to_refuel;
 		sint32 distance_to_target;
 		MapPoint refuel_pos(-1, -1);
-		CtpAi::GetNearestRefuel(army, target_pos, refuel_pos, distance_to_refuel);
+		// target_pos is a candidate bid target being fuel-feasibility
+		// tested here, not the army's real position - an "unreachable"
+		// result below is the routine, expected way this loop rejects an
+		// infeasible candidate, not a bug, so don't let GetNearestRefuel
+		// log/assert on it.
+		CtpAi::GetNearestRefuel(army, target_pos, refuel_pos, distance_to_refuel, false);
 
 		distance_to_target =
 		    static_cast<sint32>(sqrt(static_cast<double>

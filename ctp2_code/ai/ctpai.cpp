@@ -2134,7 +2134,7 @@ bool CtpAi::GetNearestAircraftCarrier(const Army & army, MapPoint & carrier_pos,
 	return (squared_distance < max_squared_dist);
 }
 
-bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapPoint & refueling_pos, sint32 & refueling_distance)
+bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapPoint & refueling_pos, sint32 & refueling_distance, bool report_if_unreachable)
 {
 	Player *player = g_player[army->GetOwner()];
 	Assert(player);
@@ -2187,14 +2187,23 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 		// all - can be a legitimate dead end (e.g. a near-eliminated
 		// player with no cities/carriers/airfields left), not necessarily
 		// a bug. Log the player's actual counts to tell the two apart.
-		DPRINTF(k_DBG_AI,
-			("\tGetNearestRefuel: no refuel destination at all - player %d, army 0x%lx, start (%d,%d), num_tiles_to_half=%d, num_tiles_to_empty=%d, city count=%d\n",
-			 army->GetOwner(), army.m_id, start_pos.x, start_pos.y,
-			 num_tiles_to_half, num_tiles_to_empty,
-			 player->m_all_cities ? player->m_all_cities->Num() : -1));
+		//
+		// Skipped for Pretest_Bid's feasibility-check call (start_pos a
+		// hypothetical candidate target, not the army's real position):
+		// there, "unreachable" is the routine, expected way of rejecting
+		// an infeasible candidate, not a bug - logging/asserting on it
+		// just spams every rejected candidate the AI ever considers.
+		if (report_if_unreachable)
+		{
+			DPRINTF(k_DBG_AI,
+				("\tGetNearestRefuel: no refuel destination at all - player %d, army 0x%lx, start (%d,%d), num_tiles_to_half=%d, num_tiles_to_empty=%d, city count=%d\n",
+				 army->GetOwner(), army.m_id, start_pos.x, start_pos.y,
+				 num_tiles_to_half, num_tiles_to_empty,
+				 player->m_all_cities ? player->m_all_cities->Num() : -1));
 
-		bool NO_REFUEL_DESTINATION = false;
-		Assert(NO_REFUEL_DESTINATION);
+			bool NO_REFUEL_DESTINATION = false;
+			Assert(NO_REFUEL_DESTINATION);
+		}
 		return false;
 	}
 
@@ -2204,15 +2213,18 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 		// than num_tiles_to_empty - the plane would run dry before
 		// reaching it. Report this as unreachable too, rather than
 		// letting the caller path toward a destination it can never
-		// actually get to.
-		DPRINTF(k_DBG_AI,
-			("\tGetNearestRefuel: nearest destination is out of fuel range - player %d, army 0x%lx, start (%d,%d), refueling_pos (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d\n",
-			 army->GetOwner(), army.m_id, start_pos.x, start_pos.y,
-			 refueling_pos.x, refueling_pos.y, refueling_distance,
-			 num_tiles_to_half, num_tiles_to_empty));
+		// actually get to. See report_if_unreachable comment above.
+		if (report_if_unreachable)
+		{
+			DPRINTF(k_DBG_AI,
+				("\tGetNearestRefuel: nearest destination is out of fuel range - player %d, army 0x%lx, start (%d,%d), refueling_pos (%d,%d), refueling_distance=%d, num_tiles_to_half=%d, num_tiles_to_empty=%d\n",
+				 army->GetOwner(), army.m_id, start_pos.x, start_pos.y,
+				 refueling_pos.x, refueling_pos.y, refueling_distance,
+				 num_tiles_to_half, num_tiles_to_empty));
 
-		bool NO_REFUEL_IN_RANGE = false;
-		Assert(NO_REFUEL_IN_RANGE);
+			bool NO_REFUEL_IN_RANGE = false;
+			Assert(NO_REFUEL_IN_RANGE);
+		}
 		return false;
 	}
 	return true;
