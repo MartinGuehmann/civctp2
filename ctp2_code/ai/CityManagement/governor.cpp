@@ -1371,10 +1371,12 @@ void Governor::PlaceTileImprovements()
 			// m_tileImprovementGoals queue - the improvement's own name
 			// already tells category (road, mine, Airfield, Fort, ...)
 			// apart, so a playtest log can be grouped by name to check
-			// whether installations (unscaled utility, see
-			// AddInstallationPriority) are systematically outcompeting
-			// roads/tile improvements (both rank/ratio-scaled) for the
-			// turn's public-works budget.
+			// whether one category is systematically outcompeting the
+			// others for the turn's public-works budget. Installation
+			// utility is ThreatRank-scaled now (AddInstallationPriority,
+			// 13a760c93), not flat, but still on its own formula from
+			// roads/tile improvements' rank/ratio scaling - worth
+			// rechecking here if a category-dominance pattern recurs.
 			DPRINTF(k_DBG_GOVERNOR, ("PlaceTileImprovements: turn %d player %d builds %s on %s at (%d,%d), utility %f, cost %d\n",
 			        NewTurnCount::GetCurrentRound(),
 			        m_playerId,
