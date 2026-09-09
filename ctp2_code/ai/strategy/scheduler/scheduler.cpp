@@ -1379,6 +1379,26 @@ void Scheduler::Raw_Prioritize_Goals()
 					else
 					{
 						AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, goal_ptr->Get_Goal_Type(), -1, ("%x\t,%s,\tGoal::BAD_UTILITY,\tNo matches to remove\n", goal_ptr, g_theGoalDB->Get(goal_ptr->Get_Goal_Type())->GetNameText()));
+
+						// m_matches (candidate plans) and m_agents (already
+						// committed agents) are independent lists - a goal
+						// with nothing new to match this turn can still be
+						// holding agents committed from an earlier, better-
+						// priority turn. The Get_Matches_Num() > 0 branch
+						// above rolls those back as a side effect of
+						// Remove_Matches_For_Goal() clearing m_matches, but
+						// this branch previously left them (and whatever
+						// Add_Agent_Strength/Remove_Agent_Strength drift is
+						// sitting on the strength tracker) untouched -
+						// letting drift accumulate unboundedly on any goal
+						// that spends time at BAD_UTILITY with no pending
+						// matches. Confirmed: one persistent GOAL_DEFEND
+						// instance reached 125 committed agents and
+						// m_current_attacking_strength.m_unit_count of -125,
+						// a sint8 field near its -128 wraparound floor.
+						// Rollback_All_Agents() is safe to call even with an
+						// empty m_agents - it early-returns.
+						goal_ptr->Rollback_All_Agents();
 					}
 				}
 
