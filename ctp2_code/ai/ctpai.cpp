@@ -2153,7 +2153,11 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 	{
 		refueling_distance = static_cast<sint32>(distance);
 		refueling_pos = city.RetPos();
-		found = (refueling_distance < num_tiles_to_empty);
+		// <= not <: a plane that reaches the refuel point on its very last
+		// tile of fuel still makes it - landing on a city/carrier/airfield
+		// refuels it. Strict < stranded planes sitting exactly one tile
+		// from a refuel point with exactly one tile of fuel left.
+		found = (refueling_distance <= num_tiles_to_empty);
 	}
 
 	MapPoint tmp_pos;
@@ -2165,7 +2169,7 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 		{
 			refueling_distance = static_cast<sint32>(distance);
 			refueling_pos = tmp_pos;
-			found = (refueling_distance < num_tiles_to_empty);
+			found = (refueling_distance <= num_tiles_to_empty);  // <= : see GetNearestCity branch above
 		}
 	}
 
@@ -2177,7 +2181,7 @@ bool CtpAi::GetNearestRefuel(const Army & army, const MapPoint & start_pos, MapP
 		{
 			refueling_distance = static_cast<sint32>(distance);
 			refueling_pos = tmp_pos;
-			found = (refueling_distance < num_tiles_to_empty);
+			found = (refueling_distance <= num_tiles_to_empty);  // <= : see GetNearestCity branch above
 		}
 	}
 
