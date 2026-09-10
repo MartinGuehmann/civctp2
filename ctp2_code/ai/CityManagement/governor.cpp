@@ -4156,12 +4156,7 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 			// Do nothing
 		}
 
-		else if(elem->HasMinPollution())
-		{
-			// Do nothing
-		}
-
-		else if(elem->GetAllCities())
+		else if(elem->HasMinPollution() || elem->GetAllCities())
 		{
 			best_priority = elem->GetPriority();
 			best_elem     = elem;
