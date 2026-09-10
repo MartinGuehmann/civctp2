@@ -3815,7 +3815,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_CITIES_AT_MAX_SIZE
         HasBuildingsThenStop BUILDING_BUILD_LIST_MAXIUM_SIZED_CITIES
         Advice BUILD_GROWTH_ADVICE
-#        BeforeMaxCitySize 2
+        BeforeMaxCitySize 2
     }
 
     BuildListSequenceElement {
