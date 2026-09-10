@@ -2495,15 +2495,20 @@ double CityData::GetUtilisationRatio(uint32 const squaredDistance) const
 //
 // Globals    : g_theCitySizeDB: The city size database
 //
-// Returns    : double: 0.0 outside the city's current reach, otherwise a
-//              value in [0.0, 1.0] - highest for the innermost ring,
-//              stepping down one ring at a time. Normalised against the
+// Returns    : double: 0.0 outside the city's current reach, otherwise
+//              1.0 for the innermost real ring (ring 1 - ring 0 is the
+//              city tile itself, never a candidate), dropping by
+//              1/maxPossibleRing per ring out. Normalised against the
 //              largest ring any city could ever reach (g_theCitySizeDB's
 //              last record), not the city's own current edge, so a given
 //              ring is always worth the same regardless of city size, and
-//              the scale doesn't drift as a city grows. A small city's
-//              only-reachable tiles are inherently low-numbered rings on
-//              that global scale, so they still score well without any
+//              the scale doesn't drift as a city grows. The +1 keeps the
+//              spread deliberately shallow (outermost reachable ring still
+//              ~0.33, not near zero) so ring distance only nudges the
+//              choice rather than dominating it, and a good-terrain outer
+//              tile can still occasionally out-bid a road or fort. A small
+//              city's only-reachable tiles are inherently low-numbered
+//              rings on the global scale, so they score well without any
 //              special-case floor.
 //
 //----------------------------------------------------------------------------
@@ -2515,7 +2520,7 @@ double CityData::GetRingImprovementPriority(MapPoint pos) const
 		return 0.0;    // no ring found, or outside the city's current reach
 
 	sint32 const maxPossibleRing = g_theCitySizeDB->NumRecords() - 1;
-	sint32 const stepsIn         = maxPossibleRing - ring;
+	sint32 const stepsIn         = maxPossibleRing - ring + 1;
 
 	return static_cast<double>(stepsIn) / static_cast<double>(maxPossibleRing);
 }
