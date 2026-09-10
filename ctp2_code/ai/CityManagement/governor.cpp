@@ -2103,9 +2103,16 @@ const StrategyRecord::PopAssignmentElement *Governor::GetMatchingPopAssignment(c
 			continue;
 		}
 
-		// Test whether the element is applicable for the current rank
-		double bottom_value;
-		double top_value;
+		// Test whether the element is applicable for the current rank.
+		// The 1.0 / 0.0 seeds only silence -Wmaybe-uninitialized (GetBottom
+		// / GetTop write the out-param whenever they return true, so the
+		// seed is never read); they're picked so the guarded comparison
+		// comes out false, not true, if that ever stopped holding: rank is
+		// in [0.0, 1.0], so bottom_value < rank and rank < 1.0 - top_value
+		// are both unreachable. (GetMatchingSequenceElement uses -1.0 for
+		// both, because its comparisons run the other way round.)
+		double bottom_value = 1.0;
+		double top_value    = 0.0;
 		if (    elem->GetBottom(bottom_value) && (bottom_value < rank)
 			 && elem->GetTop(top_value)       && (rank < (1.0 - top_value))
 		   )
@@ -4177,7 +4184,16 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 			continue;
 		}
 
-		double top_value;
+		// The -1.0 seeds only silence -Wmaybe-uninitialized; the Get*()
+		// bit-accessors write the out-param whenever they return true, so
+		// the seed is never actually read. It's picked to make the guarded
+		// comparison false rather than true if that ever stopped holding:
+		// rank is in [0.0, 1.0], so rank >= 1.0 - (-1.0) and rank <= -1.0
+		// are both unreachable. (Note the opposite convention in
+		// GetMatchingPopAssignment, where the test is bottom_value < rank
+		// / rank < 1.0 - top_value, so 1.0 / 0.0 are the false-forcing
+		// seeds there.)
+		double top_value = -1.0;
 		if (elem->GetTop(top_value) &&
 		    (rank >= 1.0 - top_value)
 		   )
@@ -4187,7 +4203,7 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 			continue;
 		}
 
-		double bottom_value;
+		double bottom_value = -1.0;
 		if (elem->GetBottom(bottom_value) &&
 		    (rank <= bottom_value)
 		   )
