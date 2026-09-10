@@ -780,6 +780,7 @@ public:
 #if !defined(NEW_RESOURCE_PROCESS)
 	void	GetFullAndPartialRadii(sint32 &fullRadius, sint32 &partRadius) const;
 	double	GetUtilisationRatio(uint32 const squaredDistance) const;
+	double	GetRingImprovementPriority(MapPoint pos) const;
 #endif
 
 	sint32 PopCount() const;

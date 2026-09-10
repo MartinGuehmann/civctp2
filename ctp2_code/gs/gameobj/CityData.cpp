@@ -2477,6 +2477,48 @@ double CityData::GetUtilisationRatio(uint32 const squaredDistance) const
 	       : static_cast<double>(partialRingWorkers) /
 	         static_cast<double>(maxRingWorkers - fullRingWorkers);
 }
+
+//----------------------------------------------------------------------------
+//
+// Name       : CityData::GetRingImprovementPriority
+//
+// Description: Ring-based priority for tile-improvement targeting: inner
+//              rings are preferred over outer ones. Deliberately separate
+//              from GetUtilisationRatio (current worker headcount - correct
+//              for CollectResources' real income accounting, but wrong
+//              here: an outer ring has no workers precisely because nothing
+//              is built there yet, so scoring candidates by it punishes
+//              exactly the tiles a growing city needs built to ever grow
+//              into that ring).
+//
+// Parameters : pos: Position of the candidate tile
+//
+// Globals    : g_theCitySizeDB: The city size database
+//
+// Returns    : double: 0.0 outside the city's current reach, otherwise a
+//              value in [0.0, 1.0] - highest for the innermost ring,
+//              stepping down one ring at a time. Normalised against the
+//              largest ring any city could ever reach (g_theCitySizeDB's
+//              last record), not the city's own current edge, so a given
+//              ring is always worth the same regardless of city size, and
+//              the scale doesn't drift as a city grows. A small city's
+//              only-reachable tiles are inherently low-numbered rings on
+//              that global scale, so they still score well without any
+//              special-case floor.
+//
+//----------------------------------------------------------------------------
+double CityData::GetRingImprovementPriority(MapPoint pos) const
+{
+	sint32 const ring = GetRing(pos);
+
+	if (ring < 0 || ring > m_workerPartialUtilizationIndex)
+		return 0.0;    // no ring found, or outside the city's current reach
+
+	sint32 const maxPossibleRing = g_theCitySizeDB->NumRecords() - 1;
+	sint32 const stepsIn         = maxPossibleRing - ring;
+
+	return static_cast<double>(stepsIn) / static_cast<double>(maxPossibleRing);
+}
 #endif
 
 //----------------------------------------------------------------------------

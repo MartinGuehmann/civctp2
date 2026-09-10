@@ -1707,8 +1707,11 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
 	// CTP1: utilisation depends on worker placement, and is either 0 or 1.
 #else
-	// CTP2: utilisation depends on the number of available workers and the
-	// (ring) distance from the city, and may be any fraction from 0.0 to 1.0.
+	// CTP2: scale by ring distance from the city - inner rings preferred
+	// over outer ones - as a fraction from 0.0 to 1.0. (Was the current
+	// worker headcount via GetUtilisationRatio, which is circular here:
+	// an outer ring has no workers precisely because nothing's built
+	// there yet.)
 	if ((goal.type >= 0) && city)
 	{
 		city->GetPop(citySize);
@@ -1723,8 +1726,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 				sint32 ring = city->GetRing(pos);
 				goal.utility *= static_cast<double>(city->GetWorkingPeopleInRing(ring)) / static_cast<double>(city->GetRingSize(ring));
 #else
-				sint32 const sqDist = MapPoint::GetSquaredDistance(city_owner.RetPos(), pos);
-				goal.utility *= city->GetUtilisationRatio(sqDist);
+				goal.utility *= city->GetRingImprovementPriority(pos);
 #endif
 			}
 		}
