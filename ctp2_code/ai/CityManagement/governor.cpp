@@ -1424,6 +1424,59 @@ void Governor::PlaceTileImprovements()
 
 //----------------------------------------------------------------------------
 //
+// Name       : Governor::ScoreGrowthImprovement
+//
+// Description: Scores a growth-category tile-improvement candidate - the
+//              growth-branch body of FindBestTileImprovement, extracted
+//              verbatim. Picked purely by terrain capability (the caller's
+//              own condition), not by how much the city actually needs
+//              growth (see the session's tileimp_need_vs_terrain notes).
+//
+// Parameters : goal:                    The candidate goal, type/utility set in place
+//              pos:                     Position of the candidate tile
+//              best_growth_improvement: The chosen growth improvement type
+//              terr_food_rank:          Tile's food yield relative to the map average
+//              growth_rank:             The city's growth percentile
+//              strategy:                The city owner's current strategy
+//              elem:                    The city's matching build-list-sequence element (may be NULL)
+//              bonusFood/Production/Commerce: Accumulated tile bonuses, added to in place
+//
+// Globals    : g_theTerrainImprovementDB, g_theWorld
+//
+// Returns    : -
+//
+//----------------------------------------------------------------------------
+void Governor::ScoreGrowthImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_growth_improvement, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
+{
+	const TerrainImprovementRecord * rec = g_theTerrainImprovementDB->Get(best_growth_improvement);
+	const TerrainImprovementRecord::Effect * effect = terrainutil_GetTerrainEffect(rec, pos);
+
+	bonusFood += effect->GetBonusFood();
+	bonusProduction += effect->GetBonusProduction();
+	bonusCommerce += effect->GetBonusGold();
+
+	goal.type = best_growth_improvement;
+
+	// 0.0 only silences -Wmaybe-uninitialized, see ScaleUtilityForCitySize.
+	double bonus = 0.0;
+	strategy.GetImproveGrowthBonus(bonus);
+	if(elem)
+		bonus += elem->GetImproveGrowthBonus();
+	goal.utility = bonus * terr_food_rank;
+
+	if(growth_rank < 0.2){
+		strategy.GetImproveSmallCityGrowthBonus(bonus);
+		goal.utility +=  bonus * (1.0 - growth_rank);
+	}
+
+	if(g_theWorld->IsGood(pos)){
+		strategy.GetImproveGoodBonus(bonus);
+		goal.utility += bonus;
+	}
+}
+
+//----------------------------------------------------------------------------
+//
 // Name       : Governor::FindBestTileImprovement
 //
 // Description: Determines the best tile improvement for a tile.
@@ -1525,29 +1578,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	&&  best_gold_improvement < 0))
 	&& (best_growth_improvement >= 0)
 	){
-		rec = g_theTerrainImprovementDB->Get(best_growth_improvement);
-		effect = terrainutil_GetTerrainEffect(rec, pos);
-
-		bonusFood += effect->GetBonusFood();
-		bonusProduction += effect->GetBonusProduction();
-		bonusCommerce += effect->GetBonusGold();
-
-		goal.type = best_growth_improvement;
-
-		strategy.GetImproveGrowthBonus(bonus);
-		if(elem)
-			bonus += elem->GetImproveGrowthBonus();
-		goal.utility = bonus * terr_food_rank;
-
-		if(growth_rank < 0.2){
-		    strategy.GetImproveSmallCityGrowthBonus(bonus);
-			goal.utility +=  bonus * (1.0 - growth_rank);
-		}
-
-		if(g_theWorld->IsGood(pos)){
-		    strategy.GetImproveGoodBonus(bonus);
-			goal.utility += bonus;
-		}
+		ScoreGrowthImprovement(goal, pos, best_growth_improvement, terr_food_rank, growth_rank, strategy, elem, bonusFood, bonusProduction, bonusCommerce);
 	}
 	else if(moreFoodNeeded
 	&&     !g_theWorld->IsGood(pos)
