@@ -203,6 +203,13 @@ STRATEGY_DEFAULT {
     // bonus for building production tile improvements
     ImproveProductionBonus  150
 
+    // TurnsAcceptedForOnePop feeds CityData::HowMuchMoreFoodNeeded's growth-
+    // pace target (desired turns per +1 population) - was left at Const.cdb's
+    // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
+    // to see the effect of a faster desired growth pace on food-improvement
+    // targeting.
+    TurnsAcceptedForOnePop  15
+
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
 
@@ -1444,6 +1451,13 @@ STRATEGY_SCIENTIST_DEFAULT {
     // bonus for building production tile improvements
     ImproveProductionBonus  120
 
+    // TurnsAcceptedForOnePop feeds CityData::HowMuchMoreFoodNeeded's growth-
+    // pace target (desired turns per +1 population) - was left at Const.cdb's
+    // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
+    // to see the effect of a faster desired growth pace on food-improvement
+    // targeting.
+    TurnsAcceptedForOnePop  15
+
     // bonus for building growth tile improvements
     ImproveGrowthBonus  130
 
@@ -1995,6 +2009,13 @@ STRATEGY_MILITARIST_DEFAULT {
 
     // bonus for building production tile improvements
     ImproveProductionBonus  160
+
+    // TurnsAcceptedForOnePop feeds CityData::HowMuchMoreFoodNeeded's growth-
+    // pace target (desired turns per +1 population) - was left at Const.cdb's
+    // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
+    // to see the effect of a faster desired growth pace on food-improvement
+    // targeting.
+    TurnsAcceptedForOnePop  15
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
@@ -2556,6 +2577,13 @@ STRATEGY_ECONOMIC_DEFAULT {
     // bonus for building production tile improvements
     ImproveProductionBonus  110
 
+    // TurnsAcceptedForOnePop feeds CityData::HowMuchMoreFoodNeeded's growth-
+    // pace target (desired turns per +1 population) - was left at Const.cdb's
+    // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
+    // to see the effect of a faster desired growth pace on food-improvement
+    // targeting.
+    TurnsAcceptedForOnePop  15
+
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
 
@@ -3107,6 +3135,13 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     // bonus for building production tile improvements
     ImproveProductionBonus  100
 
+    // TurnsAcceptedForOnePop feeds CityData::HowMuchMoreFoodNeeded's growth-
+    // pace target (desired turns per +1 population) - was left at Const.cdb's
+    // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
+    // to see the effect of a faster desired growth pace on food-improvement
+    // targeting.
+    TurnsAcceptedForOnePop  15
+
     // bonus for building growth tile improvements
     ImproveGrowthBonus  150
 
@@ -3657,6 +3692,13 @@ STRATEGY_DIPLOMATIC_DEFAULT {
 
     // bonus for building production tile improvements
     ImproveProductionBonus  120
+
+    // TurnsAcceptedForOnePop feeds CityData::HowMuchMoreFoodNeeded's growth-
+    // pace target (desired turns per +1 population) - was left at Const.cdb's
+    // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
+    // to see the effect of a faster desired growth pace on food-improvement
+    // targeting.
+    TurnsAcceptedForOnePop  15
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  130
