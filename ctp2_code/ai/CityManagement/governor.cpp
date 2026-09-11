@@ -1591,6 +1591,125 @@ void Governor::ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 
 
 //----------------------------------------------------------------------------
 //
+// Name       : Governor::ScoreFoodTerraform
+//
+// Description: Scores a food-terraform tile-improvement candidate (the
+//              tile's terrain itself changes, e.g. Desert -> Grassland) -
+//              the food-terraform-branch body of FindBestTileImprovement,
+//              extracted verbatim. Picked purely by whether the tile is
+//              already "Good" terrain and a food terraform exists
+//              (the caller's own condition, moreFoodNeeded + !IsGood +
+//              food_ter >= 0) - same terrain-capability-over-need pattern
+//              as the other branches (see tileimp_need_vs_terrain), though
+//              this one at least reuses NeedMoreFood's real need-check.
+//
+// Parameters : goal:           The candidate goal, type/utility set in place
+//              pos:            Position of the candidate tile
+//              food_ter:       The chosen food-terraform improvement type
+//              terrain_type:   The tile's current terrain type
+//              terr_food_rank: Tile's food yield relative to the map average
+//              growth_rank:    The city's growth percentile
+//              strategy:       The city owner's current strategy
+//              elem:           The city's matching build-list-sequence element (may be NULL)
+//              bonusFood/Production/Commerce: Accumulated tile bonuses, added to in place
+//
+// Globals    : g_theTerrainImprovementDB, g_theWorld
+//
+// Returns    : -
+//
+//----------------------------------------------------------------------------
+void Governor::ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 food_ter, sint32 terrain_type, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
+{
+	sint32 terrain;
+	if(g_theTerrainImprovementDB->Get(food_ter)->GetTerraformTerrainIndex(terrain))
+	{
+		bonusFood += g_theWorld->GetCell(pos)->GetFoodFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetFoodFromTerrain();
+		bonusProduction += g_theWorld->GetCell(pos)->GetShieldsFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetShieldsFromTerrain();
+		bonusCommerce += g_theWorld->GetCell(pos)->GetGoldFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetGoldFromTerrain();
+
+		goal.type = food_ter;
+
+		if(terrain_type != terrainutil_GetDead())
+		{
+			// 0.0 only silences -Wmaybe-uninitialized, see ScaleUtilityForCitySize.
+			double bonus = 0.0;
+			strategy.GetImproveGrowthBonus(bonus);
+			if(elem)
+				bonus += elem->GetImproveGrowthBonus();
+			goal.utility = bonus * terr_food_rank;
+
+			if(growth_rank < 0.2)
+			{
+				strategy.GetImproveSmallCityGrowthBonus(bonus);
+				goal.utility +=  bonus * (1.0 - growth_rank);
+			}
+		}
+		else
+		{
+			goal.utility = 9999.0;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+//
+// Name       : Governor::ScoreGoldTerraform
+//
+// Description: Scores a gold-terraform tile-improvement candidate - the
+//              gold-terraform-branch body of FindBestTileImprovement,
+//              extracted verbatim. Picked by GetNetCityGold() <= 0 (the
+//              caller's own condition) - a real need-check, unlike the
+//              plain gold branch, though a coarse one (any gold deficit
+//              at all, not scaled by how much).
+//
+// Parameters : goal:            The candidate goal, type/utility set in place
+//              pos:             Position of the candidate tile
+//              gold_ter:        The chosen gold-terraform improvement type
+//              terrain_type:    The tile's current terrain type
+//              terr_gold_rank:  Tile's gold yield relative to the map average
+//              production_rank: The city's production percentile
+//              strategy:        The city owner's current strategy
+//              elem:            The city's matching build-list-sequence element (may be NULL)
+//              bonusFood/Production/Commerce: Accumulated tile bonuses, added to in place
+//
+// Globals    : g_theTerrainImprovementDB, g_theWorld
+//
+// Returns    : -
+//
+//----------------------------------------------------------------------------
+void Governor::ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 gold_ter, sint32 terrain_type, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
+{
+	sint32 terrain;
+	if(g_theTerrainImprovementDB->Get(gold_ter)->GetTerraformTerrainIndex(terrain))
+	{
+		bonusFood += g_theWorld->GetCell(pos)->GetFoodFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetFoodFromTerrain();
+		bonusProduction += g_theWorld->GetCell(pos)->GetShieldsFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetShieldsFromTerrain();
+		bonusCommerce += g_theWorld->GetCell(pos)->GetGoldFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetGoldFromTerrain();
+
+		goal.type = gold_ter;
+
+		if(terrain_type != terrainutil_GetDead())
+		{
+			double bonus = strategy.GetImproveGoldBonus();
+			if(elem)
+				bonus += elem->GetImproveGoldBonus();
+			goal.utility = bonus * terr_gold_rank;
+
+			if(production_rank > 0.8)
+			{
+				strategy.GetImproveLargeCityProductionBonus(bonus);
+				goal.utility += bonus * production_rank;
+			}
+		}
+		else
+		{
+			goal.utility = 9999.0;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+//
 // Name       : Governor::FindBestTileImprovement
 //
 // Description: Determines the best tile improvement for a tile.
@@ -1611,7 +1730,6 @@ void Governor::ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 
 //----------------------------------------------------------------------------
 bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32 &bonusFood, sint32 &bonusProduction, sint32 &bonusCommerce) const
 {
-	sint32 terrain;
 	const TerrainImprovementRecord *rec;
 	const TerrainImprovementRecord::Effect *effect;
 
@@ -1698,32 +1816,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	&&     !g_theWorld->IsGood(pos)
 	&&      food_ter >= 0
 	){
-		if(g_theTerrainImprovementDB->Get(food_ter)->GetTerraformTerrainIndex(terrain))
-		{
-			bonusFood += g_theWorld->GetCell(pos)->GetFoodFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetFoodFromTerrain();
-			bonusProduction += g_theWorld->GetCell(pos)->GetShieldsFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetShieldsFromTerrain();
-			bonusCommerce += g_theWorld->GetCell(pos)->GetGoldFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetGoldFromTerrain();
-
-			goal.type = food_ter;
-
-			if(terrain_type != terrainutil_GetDead())
-			{
-				strategy.GetImproveGrowthBonus(bonus);
-				if(elem)
-					bonus += elem->GetImproveGrowthBonus();
-				goal.utility = bonus * terr_food_rank;
-
-				if(growth_rank < 0.2)
-				{
-					strategy.GetImproveSmallCityGrowthBonus(bonus);
-					goal.utility +=  bonus * (1.0 - growth_rank);
-				}
-			}
-			else
-			{
-				goal.utility = 9999.0;
-			}
-		}
+		ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terr_food_rank, growth_rank, strategy, elem, bonusFood, bonusProduction, bonusCommerce);
 	}
 //	else if(moreProdNeeded
 //	|| best_gold_improvement < 0
@@ -1744,32 +1837,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	&&     !g_theWorld->IsGood(pos)
 	&&      gold_ter >= 0)
 	{
-		if(g_theTerrainImprovementDB->Get(gold_ter)->GetTerraformTerrainIndex(terrain))
-		{
-			bonusFood += g_theWorld->GetCell(pos)->GetFoodFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetFoodFromTerrain();
-			bonusProduction += g_theWorld->GetCell(pos)->GetShieldsFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetShieldsFromTerrain();
-			bonusCommerce += g_theWorld->GetCell(pos)->GetGoldFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetGoldFromTerrain();
-
-			goal.type = gold_ter;
-
-			if(terrain_type != terrainutil_GetDead())
-			{
-				bonus = strategy.GetImproveGoldBonus();
-				if(elem)
-					bonus += elem->GetImproveGoldBonus();
-				goal.utility = bonus * terr_gold_rank;
-
-				if(production_rank > 0.8)
-				{
-					strategy.GetImproveLargeCityProductionBonus(bonus);
-					goal.utility += bonus * production_rank;
-				}
-			}
-			else
-			{
-				goal.utility = 9999.0;
-			}
-		}
+		ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terr_gold_rank, production_rank, strategy, elem, bonusFood, bonusProduction, bonusCommerce);
 	}
 	// Moved almost to the end, so that if no terraform improvement is selected
 	// the dead tiles are removed.
