@@ -216,7 +216,14 @@ STRATEGY_DEFAULT {
     ImproveSmallCityGrowthBonus  100
 
     // bonus for production improvements in most productive 20% of our cities
-    ImproveLargeCityProductionBonus  150
+    // Reduced from 150 to 10 (2026-09-11): production_rank is a percentile
+    // that's inflated by a city's own prior improvements, so at 150 (same
+    // order as ImproveProductionBonus itself) this term self-reinforced
+    // and let one city's production candidates permanently outbid every
+    // other city's in the empire-wide utility sort - one player's capital
+    // won ~99% of the whole game's tile-improvement budget in a playtest.
+    // A small residual nudge stays; it no longer dominates the ranking.
+    ImproveLargeCityProductionBonus  10
 
     // ordered list of terrain improvements that increase growth
     ImproveGrowthList  IMPROVEMENT_LIST_GROWTH
@@ -1450,7 +1457,14 @@ STRATEGY_SCIENTIST_DEFAULT {
     ImproveSmallCityGrowthBonus  100
 
     // bonus for production improvements in most productive 20% of our cities
-    ImproveLargeCityProductionBonus  150
+    // Reduced from 150 to 10 (2026-09-11): production_rank is a percentile
+    // that's inflated by a city's own prior improvements, so at 150 (same
+    // order as ImproveProductionBonus itself) this term self-reinforced
+    // and let one city's production candidates permanently outbid every
+    // other city's in the empire-wide utility sort - one player's capital
+    // won ~99% of the whole game's tile-improvement budget in a playtest.
+    // A small residual nudge stays; it no longer dominates the ranking.
+    ImproveLargeCityProductionBonus  10
 
     // ordered list of terrain improvements that increase growth
     ImproveGrowthList  IMPROVEMENT_LIST_GROWTH
@@ -1995,7 +2009,14 @@ STRATEGY_MILITARIST_DEFAULT {
     ImproveSmallCityGrowthBonus  100
 
     // bonus for production improvements in most productive 20% of our cities
-    ImproveLargeCityProductionBonus  150
+    // Reduced from 150 to 10 (2026-09-11): production_rank is a percentile
+    // that's inflated by a city's own prior improvements, so at 150 (same
+    // order as ImproveProductionBonus itself) this term self-reinforced
+    // and let one city's production candidates permanently outbid every
+    // other city's in the empire-wide utility sort - one player's capital
+    // won ~99% of the whole game's tile-improvement budget in a playtest.
+    // A small residual nudge stays; it no longer dominates the ranking.
+    ImproveLargeCityProductionBonus  10
 
     // ordered list of terrain improvements that increase growth
     ImproveGrowthList  IMPROVEMENT_LIST_GROWTH
@@ -2548,7 +2569,14 @@ STRATEGY_ECONOMIC_DEFAULT {
     ImproveSmallCityGrowthBonus  100
 
     // bonus for production improvements in most productive 20% of our cities
-    ImproveLargeCityProductionBonus  150
+    // Reduced from 150 to 10 (2026-09-11): production_rank is a percentile
+    // that's inflated by a city's own prior improvements, so at 150 (same
+    // order as ImproveProductionBonus itself) this term self-reinforced
+    // and let one city's production candidates permanently outbid every
+    // other city's in the empire-wide utility sort - one player's capital
+    // won ~99% of the whole game's tile-improvement budget in a playtest.
+    // A small residual nudge stays; it no longer dominates the ranking.
+    ImproveLargeCityProductionBonus  10
 
     // ordered list of terrain improvements that increase growth
     ImproveGrowthList  IMPROVEMENT_LIST_GROWTH
@@ -3092,7 +3120,14 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     ImproveSmallCityGrowthBonus  100
 
     // bonus for production improvements in most productive 20% of our cities
-    ImproveLargeCityProductionBonus  150
+    // Reduced from 150 to 10 (2026-09-11): production_rank is a percentile
+    // that's inflated by a city's own prior improvements, so at 150 (same
+    // order as ImproveProductionBonus itself) this term self-reinforced
+    // and let one city's production candidates permanently outbid every
+    // other city's in the empire-wide utility sort - one player's capital
+    // won ~99% of the whole game's tile-improvement budget in a playtest.
+    // A small residual nudge stays; it no longer dominates the ranking.
+    ImproveLargeCityProductionBonus  10
 
     // ordered list of terrain improvements that increase growth
     ImproveGrowthList  IMPROVEMENT_LIST_GROWTH
@@ -3636,7 +3671,14 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     ImproveSmallCityGrowthBonus  100
 
     // bonus for production improvements in most productive 20% of our cities
-    ImproveLargeCityProductionBonus  150
+    // Reduced from 150 to 10 (2026-09-11): production_rank is a percentile
+    // that's inflated by a city's own prior improvements, so at 150 (same
+    // order as ImproveProductionBonus itself) this term self-reinforced
+    // and let one city's production candidates permanently outbid every
+    // other city's in the empire-wide utility sort - one player's capital
+    // won ~99% of the whole game's tile-improvement budget in a playtest.
+    // A small residual nudge stays; it no longer dominates the ranking.
+    ImproveLargeCityProductionBonus  10
 
     // ordered list of terrain improvements that increase growth
     ImproveGrowthList  IMPROVEMENT_LIST_GROWTH
