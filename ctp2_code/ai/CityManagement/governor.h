@@ -410,6 +410,10 @@ private:
 
 	void ScoreGrowthImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_growth_improvement, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
 
+	void ScoreProductionImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_production_improvement, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+
+	void ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_gold_improvement, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+
 	void ScaleUtilityForCitySize(TiGoal & goal, CityData * city, const MapPoint & pos, sint32 terrain_type, const StrategyRecord & strategy) const;
 
 	sint32 GetBestRoadImprovement(const MapPoint & pos) const;

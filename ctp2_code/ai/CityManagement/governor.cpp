@@ -1477,6 +1477,120 @@ void Governor::ScoreGrowthImprovement(TiGoal & goal, const MapPoint & pos, sint3
 
 //----------------------------------------------------------------------------
 //
+// Name       : Governor::ScoreProductionImprovement
+//
+// Description: Scores a production-category tile-improvement candidate -
+//              the production-branch body of FindBestTileImprovement,
+//              extracted verbatim. Picked purely by terrain capability
+//              (the caller's own condition, terr_prod_rank > 0.2 or no
+//              gold alternative), not by how much the city actually needs
+//              production (see the session's tileimp_need_vs_terrain notes;
+//              this branch used to be gated on a now-dead moreProdNeeded
+//              stub instead).
+//
+// Parameters : goal:                        The candidate goal, type/utility set in place
+//              pos:                         Position of the candidate tile
+//              best_production_improvement: The chosen production improvement type
+//              terr_prod_rank:              Tile's production yield relative to the map average
+//              production_rank:             The city's production percentile
+//              strategy:                    The city owner's current strategy
+//              elem:                        The city's matching build-list-sequence element (may be NULL)
+//              bonusFood/Production/Commerce: Accumulated tile bonuses, added to in place
+//
+// Globals    : g_theTerrainImprovementDB, g_theWorld
+//
+// Returns    : -
+//
+//----------------------------------------------------------------------------
+void Governor::ScoreProductionImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_production_improvement, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
+{
+	const TerrainImprovementRecord * rec = g_theTerrainImprovementDB->Get(best_production_improvement);
+	const TerrainImprovementRecord::Effect * effect = terrainutil_GetTerrainEffect(rec, pos);
+
+	bonusFood += effect->GetBonusFood();
+	bonusProduction += effect->GetBonusProduction();
+	bonusCommerce += effect->GetBonusGold();
+
+	goal.type = best_production_improvement;
+
+	// 0.0 only silences -Wmaybe-uninitialized, see ScaleUtilityForCitySize.
+	double bonus = 0.0;
+	strategy.GetImproveProductionBonus(bonus);
+	if(elem)
+		bonus += elem->GetImproveProductionBonus();
+	goal.utility =  bonus * terr_prod_rank;
+
+	if(production_rank > 0.8)
+	{
+		strategy.GetImproveLargeCityProductionBonus(bonus);
+		goal.utility += bonus *	production_rank;
+	}
+
+	if(g_theWorld->IsGood(pos))
+	{
+		strategy.GetImproveGoodBonus(bonus);
+		goal.utility += bonus;
+	}
+}
+
+//----------------------------------------------------------------------------
+//
+// Name       : Governor::ScoreGoldImprovement
+//
+// Description: Scores a gold-category tile-improvement candidate - the
+//              gold-branch body of FindBestTileImprovement, extracted
+//              verbatim. Picked purely by availability (best_gold_improvement
+//              >= 0, the caller's own condition) - unlike growth/production,
+//              this branch has never had a need-check at all (the
+//              commented-out gold_rank/GetCommerceRank in the caller was
+//              never wired up either, see tileimp_need_vs_terrain). Also
+//              note production_rank, not a gold/commerce rank, drives its
+//              large-city bonus - the same field the production branch uses.
+//
+// Parameters : goal:                  The candidate goal, type/utility set in place
+//              pos:                   Position of the candidate tile
+//              best_gold_improvement: The chosen gold improvement type
+//              terr_gold_rank:        Tile's gold yield relative to the map average
+//              production_rank:       The city's production percentile
+//              strategy:              The city owner's current strategy
+//              elem:                  The city's matching build-list-sequence element (may be NULL)
+//              bonusFood/Production/Commerce: Accumulated tile bonuses, added to in place
+//
+// Globals    : g_theTerrainImprovementDB, g_theWorld
+//
+// Returns    : -
+//
+//----------------------------------------------------------------------------
+void Governor::ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_gold_improvement, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
+{
+	const TerrainImprovementRecord * rec = g_theTerrainImprovementDB->Get(best_gold_improvement);
+	const TerrainImprovementRecord::Effect * effect = terrainutil_GetTerrainEffect(rec, pos);
+
+	bonusFood += effect->GetBonusFood();
+	bonusProduction += effect->GetBonusProduction();
+	bonusCommerce += effect->GetBonusGold();
+
+	goal.type = best_gold_improvement;
+
+	double bonus = strategy.GetImproveGoldBonus();
+	if(elem)
+		bonus += elem->GetImproveGoldBonus();
+	goal.utility = bonus * terr_gold_rank;
+
+	if(production_rank > 0.8)
+	{
+		strategy.GetImproveLargeCityProductionBonus(bonus);
+		goal.utility += bonus * production_rank;
+	}
+	if(g_theWorld->IsGood(pos))
+	{
+		strategy.GetImproveGoodBonus(bonus);
+		goal.utility += bonus;
+	}
+}
+
+//----------------------------------------------------------------------------
+//
 // Name       : Governor::FindBestTileImprovement
 //
 // Description: Determines the best tile improvement for a tile.
@@ -1618,60 +1732,13 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	||      (best_production_improvement >= 0
 	&&       best_gold_improvement       <  0)
 	){
-		rec = g_theTerrainImprovementDB->Get(best_production_improvement);
-		effect = terrainutil_GetTerrainEffect(rec, pos);
-
-		bonusFood += effect->GetBonusFood();
-		bonusProduction += effect->GetBonusProduction();
-		bonusCommerce += effect->GetBonusGold();
-
-		goal.type = best_production_improvement;
-
-		strategy.GetImproveProductionBonus(bonus);
-		if(elem)
-			bonus += elem->GetImproveProductionBonus();
-		goal.utility =  bonus * terr_prod_rank;
-
-		if(production_rank > 0.8)
-		{
-			strategy.GetImproveLargeCityProductionBonus(bonus);
-			goal.utility += bonus *	production_rank;
-		}
-
-		if(g_theWorld->IsGood(pos))
-		{
-			strategy.GetImproveGoodBonus(bonus);
-			goal.utility += bonus;
-		}
+		ScoreProductionImprovement(goal, pos, best_production_improvement, terr_prod_rank, production_rank, strategy, elem, bonusFood, bonusProduction, bonusCommerce);
 	}
 	else if(//(gold_rank > 0.4)
 //	&&      (best_gold_improvement >= 0)
 	         best_gold_improvement >= 0
 	){
-		rec = g_theTerrainImprovementDB->Get(best_gold_improvement);
-		effect = terrainutil_GetTerrainEffect(rec, pos);
-
-		bonusFood += effect->GetBonusFood();
-		bonusProduction += effect->GetBonusProduction();
-		bonusCommerce += effect->GetBonusGold();
-
-		goal.type = best_gold_improvement;
-
-		bonus = strategy.GetImproveGoldBonus();
-		if(elem)
-			bonus += elem->GetImproveGoldBonus();
-		goal.utility = bonus * terr_gold_rank;
-
-		if(production_rank > 0.8)
-		{
-			strategy.GetImproveLargeCityProductionBonus(bonus);
-			goal.utility += bonus * production_rank;
-		}
-		if(g_theWorld->IsGood(pos))
-		{
-			strategy.GetImproveGoodBonus(bonus);
-			goal.utility += bonus;
-		}
+		ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, production_rank, strategy, elem, bonusFood, bonusProduction, bonusCommerce);
 	}
 	else if(city->GetNetCityGold() <= 0 // Improve even at zero
 	&&     !g_theWorld->IsGood(pos)
