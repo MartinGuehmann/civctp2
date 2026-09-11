@@ -1488,8 +1488,6 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	sint32 prod_ter = -1;
 	sint32 gold_ter = -1;
 
-	sint32 citySize;
-
 	if (!g_theWorld->IsGood(pos))
 	{
 		bool shouldTerraform = true;
@@ -1723,6 +1721,36 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		}
 	}
 
+	ScaleUtilityForCitySize(goal, city, pos, terrain_type, strategy);
+
+	return (goal.type >= 0);
+}
+
+//----------------------------------------------------------------------------
+//
+// Name       : Governor::ScaleUtilityForCitySize
+//
+// Description: Final adjustment step for FindBestTileImprovement's
+//              candidate utility, based on the owning city's size - not
+//              its actual resource needs (see [[tileimp_need_vs_terrain]]
+//              in the session's own notes; the category itself, above
+//              this call, is already picked by terrain capability, not
+//              need). Split out of FindBestTileImprovement as a first
+//              refactoring step toward making this need-aware.
+//
+// Parameters : goal:         The candidate goal, utility adjusted in place
+//              city:         The tile's owning city (NULL clears utility)
+//              pos:          Position of the candidate tile
+//              terrain_type: The tile's current terrain type
+//              strategy:     The city owner's current strategy
+//
+// Globals    : -
+//
+// Returns    : -
+//
+//----------------------------------------------------------------------------
+void Governor::ScaleUtilityForCitySize(TiGoal & goal, CityData * city, const MapPoint & pos, sint32 terrain_type, const StrategyRecord & strategy) const
+{
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
 	// CTP1: utilisation depends on worker placement, and is either 0 or 1.
 #else
@@ -1733,6 +1761,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	// there yet.)
 	if ((goal.type >= 0) && city)
 	{
+		sint32 citySize;
 		city->GetPop(citySize);
 
 		// Only decrease utility if the city has grown beyond the first ring.
@@ -1751,6 +1780,10 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		}
 		else
 		{
+			// 0.0 only silences -Wmaybe-uninitialized: GetImproveSmallCityGrowthBonus
+			// writes bonus whenever it returns true, and every strategy in
+			// strategies.txt sets this field.
+			double bonus = 0.0;
 			strategy.GetImproveSmallCityGrowthBonus(bonus);
 			bonus        *= strategy.GetSmallCityImproveCoeff();
 			goal.utility += bonus;
@@ -1761,8 +1794,6 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		goal.utility = 0.0;
 	}
 #endif
-
-	return (goal.type >= 0);
 }
 
 //----------------------------------------------------------------------------
