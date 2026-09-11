@@ -1366,6 +1366,23 @@ void Governor::PlaceTileImprovements()
 
 		if (needed_pw <= avail_pw)
 		{
+			// city/ring: which city this winner belongs to, and how far
+			// out - lets a playtest log be grouped by city (is the budget
+			// actually spreading across an empire's cities, or is one
+			// still winning almost everything - see
+			// [[tileimp_placement_priority]]) and by ring (is the
+			// ring-priority curve in GetRingImprovementPriority actually
+			// biting). Roads can span tiles between cities that no single
+			// city owns, so city/ring are only meaningful when the tile
+			// does belong to one - "-"/-1 marks a road tile that doesn't.
+			Unit const tile_owner = g_theWorld->GetCell(iter->pos)->GetCityOwner();
+			CityData * const tile_city =
+			    tile_owner.IsValid() ? tile_owner.GetCityData() : NULL;
+			MBCHAR const * const tile_city_name =
+			    tile_city ? tile_city->GetName() : "-";
+			sint32 const tile_ring =
+			    tile_city ? tile_city->GetRing(iter->pos) : -1;
+
 			// Logs every tile-improvement/road/installation goal that
 			// actually wins its slot in the shared, sorted
 			// m_tileImprovementGoals queue - the improvement's own name
@@ -1377,9 +1394,11 @@ void Governor::PlaceTileImprovements()
 			// 13a760c93), not flat, but still on its own formula from
 			// roads/tile improvements' rank/ratio scaling - worth
 			// rechecking here if a category-dominance pattern recurs.
-			DPRINTF(k_DBG_GOVERNOR, ("PlaceTileImprovements: turn %d player %d builds %s on %s at (%d,%d), utility %f, cost %d\n",
+			DPRINTF(k_DBG_GOVERNOR, ("PlaceTileImprovements: turn %d player %d city %s ring %d builds %s on %s at (%d,%d), utility %f, cost %d\n",
 			        NewTurnCount::GetCurrentRound(),
 			        m_playerId,
+			        tile_city_name,
+			        tile_ring,
 			        g_theTerrainImprovementDB->Get(iter->type)->GetNameText(),
 			        g_theTerrainDB->Get(g_theWorld->GetCell(iter->pos)->GetTerrainType())->GetNameText(),
 			        iter->pos.x,
