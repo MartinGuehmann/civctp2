@@ -1311,10 +1311,6 @@ void Governor::PlaceTileImprovements()
 
 		CityInfluenceIterator it(unit.RetPos(), city->GetSizeIndex());
 
-		sint32  bonusFood = 0;
-		sint32  bonusProduction = 0;
-		sint32  bonusCommerce = 0;
-
 		for (it.Start(); !it.End(); it.Next())
 		{
 			if(unit.RetPos() == it.Pos())
@@ -1332,7 +1328,7 @@ void Governor::PlaceTileImprovements()
 			&& g_theWorld->GetCell(it.Pos())->GetTerrainType() != terrainutil_GetDead())
 				continue;
 
-			if(FindBestTileImprovement(it.Pos(), ti_goal, bonusFood, bonusProduction, bonusCommerce))
+			if(FindBestTileImprovement(it.Pos(), ti_goal))
 			{
 				m_tileImprovementGoals.push_back(ti_goal);
 			}
@@ -1867,18 +1863,15 @@ void Governor::ScoreFallbackTerraform(TiGoal & goal, const MapPoint & pos, sint3
 // Parameters : pos:             Position of the tile on the map
 //
 // Globals    : g_player:        List of players in the game
-//				g_theWorld:      Map information
+//              g_theWorld:      Map information
 //
 // Returns    : bool:            The tile can be improved
 //              goal:            Type and priority value of the tile improvement
-//              bonusFood:       Added food by the selected tile improvement
-//              bonusProduction: Added production(shields) by the selected tile improvement
-//              bonusCommerce:   Added commerce(gold) by the selected tile improvement
 //
 // Remark(s)  : The information in goal is only valid when true is returned.
 //
 //----------------------------------------------------------------------------
-bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32 &bonusFood, sint32 &bonusProduction, sint32 &bonusCommerce) const
+bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 {
 	const TerrainImprovementRecord *rec;
 	const TerrainImprovementRecord::Effect *effect;
@@ -1954,7 +1947,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	}
 
 	sint32 foodMissing = 0;
-	bool moreFoodNeeded = city->NeedMoreFood(bonusFood, foodMissing, true);
+	bool moreFoodNeeded = city->NeedMoreFood(0, foodMissing, true);
 //	bool moreProdNeeded = city->NeedMoreProdOr(bonusCommerce, goldMissing, true);
 
 	if(hasElemPriority)
@@ -2018,13 +2011,13 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		|| (best_production_improvement < 0
 		&&  best_gold_improvement < 0)
 		){
-			bonusFood += ScoreGrowthImprovement(goal, pos, best_growth_improvement, terr_food_rank, growth_rank, strategy, elem);
+			ScoreGrowthImprovement(goal, pos, best_growth_improvement, terr_food_rank, growth_rank, strategy, elem);
 		}
 
 		if(goal.type < 0
 		&& moreFoodNeeded
 		){
-			bonusFood += ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terr_food_rank, growth_rank, strategy, elem);
+			ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terr_food_rank, growth_rank, strategy, elem);
 		}
 
 	//	if(goal.type < 0 && (moreProdNeeded
@@ -2033,18 +2026,18 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 		&& (terr_prod_rank > 0.2
 		||  best_gold_improvement < 0)
 		){
-			bonusProduction += ScoreProductionImprovement(goal, pos, best_production_improvement, terr_prod_rank, production_rank, strategy, elem);
+			ScoreProductionImprovement(goal, pos, best_production_improvement, terr_prod_rank, production_rank, strategy, elem);
 		}
 
 		if(goal.type < 0 //(gold_rank > 0.4)
 		){
-			bonusCommerce += ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, production_rank, strategy, elem);
+			ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, production_rank, strategy, elem);
 		}
 
 		if(goal.type < 0
 		&& city->GetNetCityGold() <= 0 // Improve even at zero
 		){
-			bonusCommerce += ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terr_gold_rank, production_rank, strategy, elem);
+			ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terr_gold_rank, production_rank, strategy, elem);
 		}
 
 		if(goal.type < 0)

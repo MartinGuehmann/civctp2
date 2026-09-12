@@ -406,7 +406,7 @@ private:
 	static CityPairList s_CityPairList;
 	bool IsInCityPairList(sint32 city, sint32 neighborCity) const;
 
-	bool FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32 &bonusFood, sint32 &bonusProduction, sint32 &bonusCommerce) const;
+	bool FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const;
 
 	// Each returns the tile's added food/production/gold from that
 	// candidate (0 if unavailable/inapplicable) - the goal itself is set
