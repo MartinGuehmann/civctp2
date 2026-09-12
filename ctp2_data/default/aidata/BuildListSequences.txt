@@ -21,14 +21,14 @@
 # - Minor build order modifications.
 # - Moved BUILDING_BUILD_LIST_OFFENSE to the top of the BUILD_LIST_SEQUENCE_OFFENSE
 #   so that the AI builds city walls first, that will also help the AI to
-#   protect itself from slave raids. (06-Sep-2008 Martin Gühmann)
+#   protect itself from slave raids. (06-Sep-2008 Martin Gï¿½hmann)
 # - Added build list sequences for small cities and for cities at their
-#   maximum size. (20-Aug-2009 Martin Gühmann)
-# - Added to the wonder sequences a build list for the end game. (16-Feb-2019 Martin Gühmann)
+#   maximum size. (20-Aug-2009 Martin Gï¿½hmann)
+# - Added to the wonder sequences a build list for the end game. (16-Feb-2019 Martin Gï¿½hmann)
 #
 #----------------------------------------------------------------------------
 
-# 18
+# 19
 
 ### 0 ###
 BUILD_LIST_SEQUENCE_PRODUCTION {
@@ -651,6 +651,40 @@ BUILD_LIST_SEQUENCE_DIRTY_CITIES {
   BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_GOLD }
   BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_HAPPINESS }
   BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_DEFENSE }
+
+  // otherwise, just build anything
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_HAPPINESS }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_GROWTH }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_PRODUCTION }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_GOLD }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_OFFENSE }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_DEFENSE }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_SCIENCE }
+
+  BuildListElement { WonderBuildList WONDER_BUILD_LIST_HAPPINESS }
+  BuildListElement { WonderBuildList WONDER_BUILD_LIST_GROWTH}
+  BuildListElement { WonderBuildList WONDER_BUILD_LIST_PRODUCTION}
+  BuildListElement { WonderBuildList WONDER_BUILD_LIST_GOLD}
+  BuildListElement { WonderBuildList WONDER_BUILD_LIST_OFFENSE}
+  BuildListElement { WonderBuildList WONDER_BUILD_LIST_DEFENSE}
+  BuildListElement { WonderBuildList WONDER_BUILD_LIST_SCIENCE}
+
+  BuildListElement { Infrastructure }
+  BuildListElement { Capitalization }
+}
+
+### 18 ###
+BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS {
+  BuildListElement { GarrisonUnitBuildList }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_SMALL_CITIES }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_GROWTH }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_PRODUCTION }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_SCIENCE }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_GOLD }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_HAPPINESS }
+  BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_DEFENSE }
+  BuildListElement { Freight }
+  BuildListElement { AllUnitBuildList }
 
   // otherwise, just build anything
   BuildListElement { BuildingBuildList BUILDING_BUILD_LIST_HAPPINESS }
