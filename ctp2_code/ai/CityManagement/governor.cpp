@@ -1778,6 +1778,88 @@ sint32 Governor::ScoreProductionTerraform(TiGoal & goal, const MapPoint & pos, s
 
 //----------------------------------------------------------------------------
 //
+// Name       : Governor::ScoreFallbackTerraform
+//
+// Description: Last-resort tail of FindBestTileImprovement's terrain-driven
+//              chain, extracted verbatim - only reached (goal.type < 0 at
+//              the call site) when nothing else claimed the tile. Two
+//              unrelated sub-cases: reclaiming a Dead tile (always wins,
+//              flat 9999.0, cascading food/production/gold preference) and
+//              cleaning up otherwise-unimprovable bad terrain (Glacier/
+//              Swamp/Tundra -> Hills, Desert -> Grassland) that fell
+//              through every other branch.
+//
+// Parameters : goal:            The candidate goal, type/utility set in place
+//              pos:             Position of the candidate tile
+//              terrain_type:    The tile's current terrain type
+//              food_ter:        The chosen food-terraform improvement type (Dead-tile case)
+//              prod_ter:        The chosen production-terraform improvement type (Dead-tile case)
+//              gold_ter:        The chosen gold-terraform improvement type (Dead-tile case)
+//              growth_rank:     The city's growth percentile
+//              production_rank: The city's production percentile
+//              strategy:        The city owner's current strategy
+//              elem:            The city's matching build-list-sequence element (may be NULL)
+//              player_ptr:      The city's owning player
+//
+// Globals    : g_theWorld
+//
+// Returns    : -
+//
+//----------------------------------------------------------------------------
+void Governor::ScoreFallbackTerraform(TiGoal & goal, const MapPoint & pos, sint32 terrain_type, sint32 food_ter, sint32 prod_ter, sint32 gold_ter, double growth_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, Player * player_ptr) const
+{
+	// Moved almost to the end, so that if no terraform improvement is
+	// selected the dead tiles are removed.
+	if(terrain_type == terrainutil_GetDead())
+	{
+		if(food_ter >= 0)
+		{
+			goal.type = food_ter;
+			goal.utility = 9999.0;
+		}
+		else if(prod_ter >= 0)
+		{
+			goal.type = prod_ter;
+			goal.utility = 9999.0;
+		}
+		else if(gold_ter >= 0)
+		{
+			goal.type = gold_ter;
+			goal.utility = 9999.0;
+		}
+	}
+	// Now at the end because otherwise it catches before the dead tiles
+	else if(!g_theWorld->IsGood(pos))
+	{ // Should be removed
+		double bonus = 0.0;
+		if(terrain_type == terrainutil_GetGlacier()
+		|| terrain_type == terrainutil_GetSwamp()
+		|| terrain_type == terrainutil_GetTundra()
+		){
+			if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformHillsImprovement(), pos, false))
+			{
+				strategy.GetImproveProductionBonus(bonus);
+				if(elem)
+					bonus += elem->GetImproveProductionBonus();
+				goal.utility =  bonus * (1.0-production_rank);
+				goal.type = terrainutil_GetTerraformHillsImprovement();
+			}
+		}
+		else if(terrain_type == terrainutil_GetDesert())
+		{
+			if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformGrasslandImprovement(), pos, false)){
+				strategy.GetImproveGrowthBonus(bonus);
+				if(elem)
+					bonus += elem->GetImproveGrowthBonus();
+				goal.utility =  bonus * (1.0-growth_rank);
+				goal.type = terrainutil_GetTerraformGrasslandImprovement();
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+//
 // Name       : Governor::FindBestTileImprovement
 //
 // Description: Determines the best tile improvement for a tile.
@@ -1967,54 +2049,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 
 		if(goal.type < 0)
 		{
-			// Moved almost to the end, so that if no terraform improvement is
-			// selected the dead tiles are removed.
-			if(terrain_type == terrainutil_GetDead())
-			{
-				if(food_ter >= 0)
-				{
-					goal.type = food_ter;
-					goal.utility = 9999.0;
-				}
-				else if(prod_ter >= 0)
-				{
-					goal.type = prod_ter;
-					goal.utility = 9999.0;
-				}
-				else if(gold_ter >= 0)
-				{
-					goal.type = gold_ter;
-					goal.utility = 9999.0;
-				}
-			}
-			// Now at the end because otherwise it catches before the dead tiles
-			else if(!g_theWorld->IsGood(pos))
-			{ // Should be removed
-				double bonus = 0.0;
-				if(terrain_type == terrainutil_GetGlacier()
-				|| terrain_type == terrainutil_GetSwamp()
-				|| terrain_type == terrainutil_GetTundra()
-				){
-					if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformHillsImprovement(), pos, false))
-					{
-						strategy.GetImproveProductionBonus(bonus);
-						if(elem)
-							bonus += elem->GetImproveProductionBonus();
-						goal.utility =  bonus * (1.0-production_rank);
-						goal.type = terrainutil_GetTerraformHillsImprovement();
-					}
-				}
-				else if(terrain_type == terrainutil_GetDesert())
-				{
-					if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformGrasslandImprovement(), pos, false)){
-						strategy.GetImproveGrowthBonus(bonus);
-						if(elem)
-							bonus += elem->GetImproveGrowthBonus();
-						goal.utility =  bonus * (1.0-growth_rank);
-						goal.type = terrainutil_GetTerraformGrasslandImprovement();
-					}
-				}
-			}
+			ScoreFallbackTerraform(goal, pos, terrain_type, food_ter, prod_ter, gold_ter, growth_rank, production_rank, strategy, elem, player_ptr);
 		}
 	}
 

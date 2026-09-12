@@ -425,6 +425,11 @@ private:
 	// no dedicated branch there. See the definition's comment.
 	sint32 ScoreProductionTerraform(TiGoal & goal, const MapPoint & pos, sint32 prod_ter, sint32 terrain_type, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const;
 
+	// Last resort, only reached when nothing else claimed the tile: Dead-
+	// tile reclamation, then bad-terrain (Glacier/Swamp/Tundra/Desert)
+	// cleanup terraform.
+	void ScoreFallbackTerraform(TiGoal & goal, const MapPoint & pos, sint32 terrain_type, sint32 food_ter, sint32 prod_ter, sint32 gold_ter, double growth_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, Player * player_ptr) const;
+
 	void ScaleUtilityForCitySize(TiGoal & goal, CityData * city, const MapPoint & pos, sint32 terrain_type, const StrategyRecord & strategy) const;
 
 	sint32 GetBestRoadImprovement(const MapPoint & pos) const;
