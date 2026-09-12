@@ -1629,7 +1629,7 @@ void Governor::ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 
 //----------------------------------------------------------------------------
 void Governor::ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 food_ter, sint32 terrain_type, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
 {
-	if (food_ter < 0)
+	if (food_ter < 0 || g_theWorld->IsGood(pos))
 		return;
 
 	sint32 terrain;
@@ -1691,7 +1691,7 @@ void Governor::ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 fo
 //----------------------------------------------------------------------------
 void Governor::ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 gold_ter, sint32 terrain_type, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
 {
-	if (gold_ter < 0)
+	if (gold_ter < 0 || g_theWorld->IsGood(pos))
 		return;
 
 	sint32 terrain;
@@ -1754,7 +1754,7 @@ void Governor::ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 go
 //----------------------------------------------------------------------------
 void Governor::ScoreProductionTerraform(TiGoal & goal, const MapPoint & pos, sint32 prod_ter, sint32 terrain_type, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const
 {
-	if (prod_ter < 0)
+	if (prod_ter < 0 || g_theWorld->IsGood(pos))
 		return;
 
 	sint32 terrain;
@@ -1903,7 +1903,6 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 
 	if(goal.type < 0
 	&& moreFoodNeeded
-	&& !g_theWorld->IsGood(pos)
 	){
 		ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terr_food_rank, growth_rank, strategy, elem, bonusFood, bonusProduction, bonusCommerce);
 	}
@@ -1924,7 +1923,6 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 
 	if(goal.type < 0
 	&& city->GetNetCityGold() <= 0 // Improve even at zero
-	&& !g_theWorld->IsGood(pos)
 	){
 		ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terr_gold_rank, production_rank, strategy, elem, bonusFood, bonusProduction, bonusCommerce);
 	}
