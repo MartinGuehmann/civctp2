@@ -442,7 +442,7 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
 #        AirfieldUtilityBonus  40
     }
 
@@ -521,7 +521,7 @@ STRATEGY_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
     }
 
     BuildListSequenceElement {
@@ -1699,7 +1699,8 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
+        ImproveGrowthBonus  -10
 #        AirfieldUtilityBonus  40
     }
 
@@ -1778,7 +1779,8 @@ STRATEGY_SCIENTIST_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
+        ImproveGrowthBonus  -10
     }
 
     BuildListSequenceElement {
@@ -2270,7 +2272,7 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
 #        AirfieldUtilityBonus  40
     }
 
@@ -2349,7 +2351,7 @@ STRATEGY_MILITARIST_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
     }
 
     BuildListSequenceElement {
@@ -2852,7 +2854,8 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  40
+        ImproveGoldBonus  -40
 #        AirfieldUtilityBonus  40
     }
 
@@ -2931,7 +2934,8 @@ STRATEGY_ECONOMIC_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  40
+        ImproveGoldBonus  -40
     }
 
     BuildListSequenceElement {
@@ -3420,7 +3424,8 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  50
+        ImproveGrowthBonus  -50
 #        AirfieldUtilityBonus  40
     }
 
@@ -3499,7 +3504,8 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  50
+        ImproveGrowthBonus  -50
     }
 
     BuildListSequenceElement {
@@ -3987,7 +3993,8 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         ProductionCities
         Advice BUILD_PRODUCTION_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
+        ImproveGrowthBonus  -10
 #        AirfieldUtilityBonus  40
     }
 
@@ -4066,7 +4073,8 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         AllCities
         NoUnits
         Advice BUILD_DEFAULT_ADVICE
-#        ImproveProductionBonus  50
+        ImproveProductionBonus  10
+        ImproveGrowthBonus  -10
     }
 
     BuildListSequenceElement {
