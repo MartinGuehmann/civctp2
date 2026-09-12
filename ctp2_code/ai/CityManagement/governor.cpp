@@ -1815,17 +1815,19 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	// on top of the strategy-wide ones below - lets a single strategy
 	// fine-tune improvement choice per situation, not just per personality.
 	const StrategyRecord::BuildListSequenceElement *elem = GetMatchingSequenceElement(city);
+	bool hasElemPriority  = elem->GetImproveGrowthBonus()     != 0
+	                     || elem->GetImproveProductionBonus() != 0
+	                     || elem->GetImproveGoldBonus()       != 0;
 
 	double growth_rank     = the_map.GetGrowthRank    (city);
 	double production_rank = the_map.GetProductionRank(city);
-//	double gold_rank       = the_map.GetCommerceRank  (city);
+	double gold_rank       = the_map.GetCommerceRank  (city);
 	double terr_food_rank = (g_theWorld->GetCell(pos)->GetFoodFromTerrain()) /
 		(double) World::GetAvgFoodFromTerrain();
 	double terr_prod_rank = (g_theWorld->GetCell(pos)->GetShieldsFromTerrain()) /
 		(double) World::GetAvgShieldsFromTerrain();
 	double terr_gold_rank = (g_theWorld->GetCell(pos)->GetGoldFromTerrain()) /
 		(double) World::GetAvgGoldFromTerrain();
-	double bonus;
 	sint32 terrain_type = g_theWorld->GetCell(pos)->GetTerrainType();
 
 	sint32 best_growth_improvement;
@@ -1833,9 +1835,9 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	sint32 best_gold_improvement;
 	GetBestFoodProdGoldImprovement(pos, best_growth_improvement, best_production_improvement, best_gold_improvement);
 
-	goal.pos = pos;
-
-	goal.type = -1;
+	goal.pos     = pos;
+	goal.type    = -1;
+	goal.utility = -1.0;
 
 	sint32 food_ter = -1;
 	sint32 prod_ter = -1;
@@ -1873,94 +1875,144 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	bool moreFoodNeeded = city->NeedMoreFood(bonusFood, foodMissing, true);
 //	bool moreProdNeeded = city->NeedMoreProdOr(bonusCommerce, goldMissing, true);
 
-	// Each Score*() below now checks its own type's availability (e.g.
-	// best_growth_improvement >= 0) internally, and is a no-op - goal.type
-	// left at -1 - when unavailable. So these conditions are the need/
-	// priority side only, deciding which category to *try* rather than
-	// whether it's *possible*; the goal.type < 0 guards give the next
-	// category a turn if the previous one turned out to have nothing
-	// available, the same fallthrough the original if/else-if chain gave
-	// implicitly by including the availability check in each condition
-	// (see the session's tileimp_need_vs_terrain notes).
-	if(moreFoodNeeded
-	|| (best_production_improvement < 0
-	&&  best_gold_improvement < 0)
-	){
-		bonusFood += ScoreGrowthImprovement(goal, pos, best_growth_improvement, terr_food_rank, growth_rank, strategy, elem);
-	}
-
-	if(goal.type < 0
-	&& moreFoodNeeded
-	){
-		bonusFood += ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terr_food_rank, growth_rank, strategy, elem);
-	}
-
-//	if(goal.type < 0 && (moreProdNeeded
-//	|| best_gold_improvement < 0))
-	if(goal.type < 0
-	&& (terr_prod_rank > 0.2
-	||  best_gold_improvement < 0)
-	){
-		bonusProduction += ScoreProductionImprovement(goal, pos, best_production_improvement, terr_prod_rank, production_rank, strategy, elem);
-	}
-
-	if(goal.type < 0 //(gold_rank > 0.4)
-	){
-		bonusCommerce += ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, production_rank, strategy, elem);
-	}
-
-	if(goal.type < 0
-	&& city->GetNetCityGold() <= 0 // Improve even at zero
-	){
-		bonusCommerce += ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terr_gold_rank, production_rank, strategy, elem);
-	}
-
-	if(goal.type < 0)
+	if(hasElemPriority)
 	{
-		// Moved almost to the end, so that if no terraform improvement is
-		// selected the dead tiles are removed.
-		if(terrain_type == terrainutil_GetDead())
+		// goal.utility was reset to -1.0 above alongside goal.type, so
+		// every copy below starts as a clean "no candidate" TiGoal - a
+		// category that turns out fully unavailable (both Score* calls
+		// early-return without touching type/utility) can't outscore a
+		// real one below with a stale value left over from a previous
+		// tile (PlaceTileImprovements reuses one TiGoal across every
+		// candidate tile in a city).
+		TiGoal goalFood = goal;
+		TiGoal goalProd = goal;
+		TiGoal goalGold = goal;
+
+		TiGoal goalFoodTerr = goal;
+		sint32 bonusFoodImp = ScoreGrowthImprovement(goalFood,     pos, best_growth_improvement, terr_food_rank, growth_rank, strategy, elem);
+		sint32 bonusFoodTer = ScoreFoodTerraform    (goalFoodTerr, pos, food_ter,  terrain_type, terr_food_rank, growth_rank, strategy, elem);
+		if(bonusFoodImp < bonusFoodTer)
+			goalFood = goalFoodTerr;
+
+		// NeedMoreFood is a real need-check (unlike production/gold's dead
+		// stubs, see tileimp_need_vs_terrain) - honour it as a hard
+		// priority here too, same as the terrain-driven chain below: a
+		// genuinely food-starved city takes the food candidate outright
+		// rather than letting it get outbid by production/gold utility.
+		if(moreFoodNeeded && goalFood.type >= 0)
 		{
-			if(food_ter >= 0)
-			{
-				goal.type = food_ter;
-				goal.utility = 9999.0;
-			}
-			else if(prod_ter >= 0)
-			{
-				goal.type = prod_ter;
-				goal.utility = 9999.0;
-			}
-			else if(gold_ter >= 0)
-			{
-				goal.type = gold_ter;
-				goal.utility = 9999.0;
-			}
+			goal = goalFood;
 		}
-		// Now at the end because otherwise it catches before the dead tiles
-		else if(!g_theWorld->IsGood(pos))
-		{ // Should be removed
-			if(terrain_type == terrainutil_GetGlacier()
-			|| terrain_type == terrainutil_GetSwamp()
-			|| terrain_type == terrainutil_GetTundra()
-			){
-				if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformHillsImprovement(), pos, false))
+		else
+		{
+			TiGoal goalProdTerr = goal;
+			sint32 bonusProdImp = ScoreProductionImprovement(goalProd,     pos, best_production_improvement, terr_prod_rank, production_rank, strategy, elem);
+			sint32 bonusProdTer = ScoreProductionTerraform  (goalProdTerr, pos, prod_ter,      terrain_type, terr_prod_rank, production_rank, strategy, elem);
+			if(bonusProdImp < bonusProdTer)
+				goalProd = goalProdTerr;
+
+			TiGoal goalGoldTerr = goal;
+			sint32 bonusGoldImp = ScoreGoldImprovement(goalGold,     pos, best_gold_improvement,               terr_gold_rank, gold_rank, strategy, elem);
+			sint32 bonusGoldTer = ScoreGoldTerraform  (goalGoldTerr, pos,              gold_ter, terrain_type, terr_gold_rank, gold_rank, strategy, elem);
+			if(bonusGoldImp < bonusGoldTer)
+				goalGold = goalGoldTerr;
+
+			goal = (goalFood.utility >= goalProd.utility) ? goalFood : goalProd;
+			goal = (    goal.utility >= goalGold.utility) ? goal     : goalGold;
+		}
+	}
+	else
+	{
+		// Each Score*() below now checks its own type's availability (e.g.
+		// best_growth_improvement >= 0) internally, and is a no-op - goal.type
+		// left at -1 - when unavailable. So these conditions are the need/
+		// priority side only, deciding which category to *try* rather than
+		// whether it's *possible*; the goal.type < 0 guards give the next
+		// category a turn if the previous one turned out to have nothing
+		// available, the same fallthrough the original if/else-if chain gave
+		// implicitly by including the availability check in each condition
+		// (see the session's tileimp_need_vs_terrain notes).
+		if(moreFoodNeeded
+		|| (best_production_improvement < 0
+		&&  best_gold_improvement < 0)
+		){
+			bonusFood += ScoreGrowthImprovement(goal, pos, best_growth_improvement, terr_food_rank, growth_rank, strategy, elem);
+		}
+
+		if(goal.type < 0
+		&& moreFoodNeeded
+		){
+			bonusFood += ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terr_food_rank, growth_rank, strategy, elem);
+		}
+
+	//	if(goal.type < 0 && (moreProdNeeded
+	//	|| best_gold_improvement < 0))
+		if(goal.type < 0
+		&& (terr_prod_rank > 0.2
+		||  best_gold_improvement < 0)
+		){
+			bonusProduction += ScoreProductionImprovement(goal, pos, best_production_improvement, terr_prod_rank, production_rank, strategy, elem);
+		}
+
+		if(goal.type < 0 //(gold_rank > 0.4)
+		){
+			bonusCommerce += ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, production_rank, strategy, elem);
+		}
+
+		if(goal.type < 0
+		&& city->GetNetCityGold() <= 0 // Improve even at zero
+		){
+			bonusCommerce += ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terr_gold_rank, production_rank, strategy, elem);
+		}
+
+		if(goal.type < 0)
+		{
+			// Moved almost to the end, so that if no terraform improvement is
+			// selected the dead tiles are removed.
+			if(terrain_type == terrainutil_GetDead())
+			{
+				if(food_ter >= 0)
 				{
-					strategy.GetImproveProductionBonus(bonus);
-					if(elem)
-						bonus += elem->GetImproveProductionBonus();
-					goal.utility =  bonus * (1.0-production_rank);
-					goal.type = terrainutil_GetTerraformHillsImprovement();
+					goal.type = food_ter;
+					goal.utility = 9999.0;
+				}
+				else if(prod_ter >= 0)
+				{
+					goal.type = prod_ter;
+					goal.utility = 9999.0;
+				}
+				else if(gold_ter >= 0)
+				{
+					goal.type = gold_ter;
+					goal.utility = 9999.0;
 				}
 			}
-			else if(terrain_type == terrainutil_GetDesert())
-			{
-				if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformGrasslandImprovement(), pos, false)){
-					strategy.GetImproveGrowthBonus(bonus);
-					if(elem)
-						bonus += elem->GetImproveGrowthBonus();
-					goal.utility =  bonus * (1.0-growth_rank);
-					goal.type = terrainutil_GetTerraformGrasslandImprovement();
+			// Now at the end because otherwise it catches before the dead tiles
+			else if(!g_theWorld->IsGood(pos))
+			{ // Should be removed
+				double bonus = 0.0;
+				if(terrain_type == terrainutil_GetGlacier()
+				|| terrain_type == terrainutil_GetSwamp()
+				|| terrain_type == terrainutil_GetTundra()
+				){
+					if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformHillsImprovement(), pos, false))
+					{
+						strategy.GetImproveProductionBonus(bonus);
+						if(elem)
+							bonus += elem->GetImproveProductionBonus();
+						goal.utility =  bonus * (1.0-production_rank);
+						goal.type = terrainutil_GetTerraformHillsImprovement();
+					}
+				}
+				else if(terrain_type == terrainutil_GetDesert())
+				{
+					if(player_ptr->CanCreateImprovement(terrainutil_GetTerraformGrasslandImprovement(), pos, false)){
+						strategy.GetImproveGrowthBonus(bonus);
+						if(elem)
+							bonus += elem->GetImproveGrowthBonus();
+						goal.utility =  bonus * (1.0-growth_rank);
+						goal.type = terrainutil_GetTerraformGrasslandImprovement();
+					}
 				}
 			}
 		}
