@@ -408,19 +408,22 @@ private:
 
 	bool FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32 &bonusFood, sint32 &bonusProduction, sint32 &bonusCommerce) const;
 
-	void ScoreGrowthImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_growth_improvement, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+	// Each returns the tile's added food/production/gold from that
+	// candidate (0 if unavailable/inapplicable) - the goal itself is set
+	// in place via goal.type/goal.utility.
+	sint32 ScoreGrowthImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_growth_improvement, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const;
 
-	void ScoreProductionImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_production_improvement, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+	sint32 ScoreProductionImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_production_improvement, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const;
 
-	void ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_gold_improvement, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+	sint32 ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_gold_improvement, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const;
 
-	void ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 food_ter, sint32 terrain_type, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+	sint32 ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 food_ter, sint32 terrain_type, double terr_food_rank, double growth_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const;
 
-	void ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 gold_ter, sint32 terrain_type, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+	sint32 ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 gold_ter, sint32 terrain_type, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const;
 
 	// Not wired into FindBestTileImprovement yet - prod_ter currently has
 	// no dedicated branch there. See the definition's comment.
-	void ScoreProductionTerraform(TiGoal & goal, const MapPoint & pos, sint32 prod_ter, sint32 terrain_type, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem, sint32 & bonusFood, sint32 & bonusProduction, sint32 & bonusCommerce) const;
+	sint32 ScoreProductionTerraform(TiGoal & goal, const MapPoint & pos, sint32 prod_ter, sint32 terrain_type, double terr_prod_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const;
 
 	void ScaleUtilityForCitySize(TiGoal & goal, CityData * city, const MapPoint & pos, sint32 terrain_type, const StrategyRecord & strategy) const;
 
