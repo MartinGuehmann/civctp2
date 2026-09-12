@@ -390,7 +390,9 @@ STRATEGY_DEFAULT {
         Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  50
+        ImproveProductionBonus  -30
+        ImproveGoldBonus  -20
     }
 
     BuildListSequenceElement {
@@ -401,7 +403,9 @@ STRATEGY_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  50
+        ImproveProductionBonus  -30
+        ImproveGoldBonus  -20
     }
 
     BuildListSequenceElement {
@@ -410,7 +414,9 @@ STRATEGY_DEFAULT {
         HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  50
+        ImproveProductionBonus  -30
+        ImproveGoldBonus  -20
     }
 
     BuildListSequenceElement {
@@ -1647,7 +1653,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
@@ -1658,7 +1664,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
@@ -1667,7 +1673,7 @@ STRATEGY_SCIENTIST_DEFAULT {
         HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
@@ -2215,7 +2221,8 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  60
+        ImproveProductionBonus  -60
     }
 
     BuildListSequenceElement {
@@ -2226,7 +2233,8 @@ STRATEGY_MILITARIST_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  60
+        ImproveProductionBonus  -60
     }
 
     BuildListSequenceElement {
@@ -2235,7 +2243,8 @@ STRATEGY_MILITARIST_DEFAULT {
         HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  60
+        ImproveProductionBonus  -60
     }
 
     BuildListSequenceElement {
@@ -2791,7 +2800,9 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  50
+        ImproveProductionBonus  -10
+        ImproveGoldBonus  -40
     }
 
     BuildListSequenceElement {
@@ -2802,7 +2813,9 @@ STRATEGY_ECONOMIC_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  50
+        ImproveProductionBonus  -10
+        ImproveGoldBonus  -40
     }
 
     BuildListSequenceElement {
@@ -2811,7 +2824,9 @@ STRATEGY_ECONOMIC_DEFAULT {
         HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  50
+        ImproveProductionBonus  -10
+        ImproveGoldBonus  -40
     }
 
     BuildListSequenceElement {
@@ -3358,7 +3373,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
@@ -3369,7 +3384,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
@@ -3378,7 +3393,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
 
@@ -3926,7 +3941,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.2
         GrowthCities
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
@@ -3937,7 +3952,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         MinNumUnits 2
         MinTransporters 2
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
@@ -3946,7 +3961,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
-#        ImproveGrowthBonus  50
+        ImproveGrowthBonus  10
     }
 
     BuildListSequenceElement {
