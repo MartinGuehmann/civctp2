@@ -473,7 +473,8 @@ STRATEGY_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-#        ImproveGoldBonus  50
+        ImproveGoldBonus  30
+        ImproveProductionBonus  -30
     }
 
     BuildListSequenceElement {
@@ -1733,7 +1734,9 @@ STRATEGY_SCIENTIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-#        ImproveGoldBonus  50
+        ImproveGoldBonus  40
+        ImproveProductionBonus  -30
+        ImproveGrowthBonus  -10
     }
 
     BuildListSequenceElement {
@@ -2307,7 +2310,9 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-#        ImproveGoldBonus  50
+        ImproveGoldBonus  70
+        ImproveProductionBonus  -60
+        ImproveGrowthBonus  -10
     }
 
     BuildListSequenceElement {
@@ -2890,7 +2895,7 @@ STRATEGY_ECONOMIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-#        ImproveGoldBonus  50
+        ImproveGoldBonus  10
     }
 
     BuildListSequenceElement {
@@ -3462,7 +3467,9 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-#        ImproveGoldBonus  50
+        ImproveGoldBonus  60
+        ImproveProductionBonus  -10
+        ImproveGrowthBonus  -50
     }
 
     BuildListSequenceElement {
@@ -4032,7 +4039,8 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_SCIENCE_ADVICE
-#        ImproveGoldBonus  50
+        ImproveGoldBonus  10
+        ImproveGrowthBonus  -10
     }
 
     BuildListSequenceElement {
