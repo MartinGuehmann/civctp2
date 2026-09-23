@@ -4152,6 +4152,16 @@ void Governor::FillEmptyBuildQueues(bool noWarChange)
 			else if(city->GetBuildQueue()->GetHead()->m_category != k_GAME_OBJ_TYPE_CAPITALIZATION
 			     && city->GetBuildQueue()->GetHead()->m_category != k_GAME_OBJ_TYPE_INFRASTRUCTURE)
 			{
+				if(g_player[m_playerId]->IsRobot())
+				{
+					StringId advice;
+					bool noUnits;
+					const BuildListSequenceRecord* sequence = GetMatchingSequence(city, !g_player[m_playerId]->IsRobot(), advice, noUnits);
+					sint32 suggested_sequence = sequence->GetIndex();
+					if (suggested_sequence >= 0)
+						city->SetBuildListSequenceIndex(suggested_sequence);
+				}
+
 				// Keep using the current build queue
 				continue;
 			}
