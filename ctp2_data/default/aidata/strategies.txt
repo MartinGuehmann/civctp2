@@ -411,7 +411,7 @@ STRATEGY_DEFAULT {
     BuildListSequenceElement {
         Priority -11500
         BuildListSequence BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS
-        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
+        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
         ImproveGrowthBonus  50
@@ -1672,7 +1672,7 @@ STRATEGY_SCIENTIST_DEFAULT {
     BuildListSequenceElement {
         Priority -11500
         BuildListSequence BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS
-        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
+        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
         ImproveGrowthBonus  10
@@ -2251,7 +2251,7 @@ STRATEGY_MILITARIST_DEFAULT {
     BuildListSequenceElement {
         Priority -11500
         BuildListSequence BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS
-        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
+        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
         ImproveGrowthBonus  60
@@ -2836,7 +2836,7 @@ STRATEGY_ECONOMIC_DEFAULT {
     BuildListSequenceElement {
         Priority -11500
         BuildListSequence BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS
-        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
+        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
         ImproveGrowthBonus  50
@@ -3410,7 +3410,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     BuildListSequenceElement {
         Priority -11500
         BuildListSequence BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS
-        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
+        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
         ImproveGrowthBonus  10
@@ -3987,7 +3987,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     BuildListSequenceElement {
         Priority -11500
         BuildListSequence BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS
-        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES_UNITS
+        HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES
         SmallCitiesMaxSize 6
         Advice BUILD_GROWTH_ADVICE
         ImproveGrowthBonus  10
