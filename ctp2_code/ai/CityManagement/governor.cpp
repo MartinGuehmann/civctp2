@@ -1378,6 +1378,7 @@ void Governor::PlaceTileImprovements()
 			    tile_city ? tile_city->GetName() : "-";
 			sint32 const tile_ring =
 			    tile_city ? tile_city->GetRing(iter->pos) : -1;
+			MBCHAR const * cityList = (tile_city != NULL) ? g_theBuildListSequenceDB->Get(tile_city->GetBuildListSequenceIndex())->GetNameText() : "No City";
 
 			// Logs every tile-improvement/road/installation goal that
 			// actually wins its slot in the shared, sorted
@@ -1390,7 +1391,7 @@ void Governor::PlaceTileImprovements()
 			// 13a760c93), not flat, but still on its own formula from
 			// roads/tile improvements' rank/ratio scaling - worth
 			// rechecking here if a category-dominance pattern recurs.
-			DPRINTF(k_DBG_GOVERNOR, ("PlaceTileImprovements: turn %d player %d city %s ring %d builds %s on %s at (%d,%d), utility %f, cost %d\n",
+			DPRINTF(k_DBG_GOVERNOR, ("PlaceTileImprovements: turn %d player %d city %s ring %d builds %s on %s at (%d,%d), utility %f, cost %d, BuildList: %s\n",
 			        NewTurnCount::GetCurrentRound(),
 			        m_playerId,
 			        tile_city_name,
@@ -1400,7 +1401,9 @@ void Governor::PlaceTileImprovements()
 			        iter->pos.x,
 			        iter->pos.y,
 			        iter->utility,
-			        needed_pw));
+			        needed_pw,
+			        cityList
+			        ));
 
 			g_gevManager->AddEvent(GEV_INSERT_Tail,
 			                       GEV_CreateImprovement,
