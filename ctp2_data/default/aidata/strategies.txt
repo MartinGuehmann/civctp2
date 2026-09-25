@@ -208,7 +208,7 @@ STRATEGY_DEFAULT {
     // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
     // to see the effect of a faster desired growth pace on food-improvement
     // targeting.
-    TurnsAcceptedForOnePop  15
+    TurnsAcceptedForOnePop  30
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
@@ -1473,7 +1473,7 @@ STRATEGY_SCIENTIST_DEFAULT {
     // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
     // to see the effect of a faster desired growth pace on food-improvement
     // targeting.
-    TurnsAcceptedForOnePop  15
+    TurnsAcceptedForOnePop  30
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  130
@@ -2050,7 +2050,7 @@ STRATEGY_MILITARIST_DEFAULT {
     // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
     // to see the effect of a faster desired growth pace on food-improvement
     // targeting.
-    TurnsAcceptedForOnePop  15
+    TurnsAcceptedForOnePop  30
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
@@ -2633,7 +2633,7 @@ STRATEGY_ECONOMIC_DEFAULT {
     // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
     // to see the effect of a faster desired growth pace on food-improvement
     // targeting.
-    TurnsAcceptedForOnePop  15
+    TurnsAcceptedForOnePop  30
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  100
@@ -3211,7 +3211,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
     // to see the effect of a faster desired growth pace on food-improvement
     // targeting.
-    TurnsAcceptedForOnePop  15
+    TurnsAcceptedForOnePop  30
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  150
@@ -3788,7 +3788,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     // default (30) everywhere; trying 15 explicitly per strategy (2026-09-12)
     // to see the effect of a faster desired growth pace on food-improvement
     // targeting.
-    TurnsAcceptedForOnePop  15
+    TurnsAcceptedForOnePop  30
 
     // bonus for building growth tile improvements
     ImproveGrowthBonus  130
