@@ -1979,21 +1979,6 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 
 	if(hasElemPriority)
 	{
-/*		double terr_food_rank = (double) World::GetMaxFoodFromTerrain() /
-			(double) World::GetAvgFoodFromTerrain();
-		double terr_prod_rank = (double) World::GetMaxShieldsFromTerrain() /
-			(double) World::GetMaxShieldsFromTerrain();
-		double terr_gold_rank = (double) World::GetMaxGoldFromTerrain() /
-			(double) World::GetAvgGoldFromTerrain();*/
-
-		double terr_food_rank  = 1.0;
-		double terr_prod_rank  = 1.0;
-		double terr_gold_rank  = 1.0;
-		double growth_rank     = 1.0;
-		double production_rank = 1.0;
-		double gold_rank       = 1.0;
-
-
 		// goal.utility was reset to -1.0 above alongside goal.type, so
 		// every copy below starts as a clean "no candidate" TiGoal - a
 		// category that turns out fully unavailable (both Score* calls
