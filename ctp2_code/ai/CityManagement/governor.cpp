@@ -1908,6 +1908,10 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 		(double) World::GetAvgGoldFromTerrain();
 	sint32 terrain_type = g_theWorld->GetCell(pos)->GetTerrainType();
 
+	double terraform_food_rank = 0.0;
+	double terraform_prod_rank = 0.0;
+	double terraform_gold_rank = 0.0;
+
 	sint32 best_growth_improvement;
 	sint32 best_production_improvement;
 	sint32 best_gold_improvement;
@@ -1946,6 +1950,26 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 		if (shouldTerraform)
 		{
 			GetBestTerraformImprovement(pos, food_ter, prod_ter, gold_ter, true);
+
+			sint32 terrFood = -1;
+			sint32 terrProd = -1;
+			sint32 terrGold = -1;
+
+			if(food_ter >= 0 && g_theTerrainImprovementDB->Get(food_ter)->GetTerraformTerrainIndex(terrFood))
+			{
+				terraform_food_rank = (g_theWorld->GetCell(pos)->GetFoodFromTerrain(terrFood)) /
+					(double) World::GetAvgFoodFromTerrain();
+			}
+			if(prod_ter >= 0 && g_theTerrainImprovementDB->Get(prod_ter)->GetTerraformTerrainIndex(terrProd))
+			{
+				terraform_prod_rank = (g_theWorld->GetCell(pos)->GetShieldsFromTerrain(terrProd)) /
+					(double) World::GetAvgShieldsFromTerrain();
+			}
+			if(gold_ter >= 0 && g_theTerrainImprovementDB->Get(gold_ter)->GetTerraformTerrainIndex(terrGold))
+			{
+				terraform_gold_rank = (g_theWorld->GetCell(pos)->GetGoldFromTerrain(terrGold)) /
+					(double) World::GetAvgGoldFromTerrain();
+			}
 		}
 	}
 
@@ -1967,8 +1991,8 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 		TiGoal goalGold = goal;
 
 		TiGoal goalFoodTerr = goal;
-		sint32 bonusFoodImp = ScoreGrowthImprovement(goalFood,     pos, best_growth_improvement, terr_food_rank, growth_rank, strategy, elem);
-		sint32 bonusFoodTer = ScoreFoodTerraform    (goalFoodTerr, pos, food_ter,  terrain_type, terr_food_rank, growth_rank, strategy, elem);
+		sint32 bonusFoodImp = ScoreGrowthImprovement(goalFood,     pos, best_growth_improvement,      terr_food_rank, growth_rank, strategy, elem);
+		sint32 bonusFoodTer = ScoreFoodTerraform    (goalFoodTerr, pos, food_ter,  terrain_type, terraform_food_rank, growth_rank, strategy, elem);
 		if(bonusFoodImp < bonusFoodTer)
 			goalFood = goalFoodTerr;
 
@@ -1984,14 +2008,14 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 		else
 		{
 			TiGoal goalProdTerr = goal;
-			sint32 bonusProdImp = ScoreProductionImprovement(goalProd,     pos, best_production_improvement, terr_prod_rank, production_rank, strategy, elem);
-			sint32 bonusProdTer = ScoreProductionTerraform  (goalProdTerr, pos, prod_ter,      terrain_type, terr_prod_rank, production_rank, strategy, elem);
+			sint32 bonusProdImp = ScoreProductionImprovement(goalProd,     pos, best_production_improvement,      terr_prod_rank, production_rank, strategy, elem);
+			sint32 bonusProdTer = ScoreProductionTerraform  (goalProdTerr, pos, prod_ter,      terrain_type, terraform_prod_rank, production_rank, strategy, elem);
 			if(bonusProdImp < bonusProdTer)
 				goalProd = goalProdTerr;
 
 			TiGoal goalGoldTerr = goal;
-			sint32 bonusGoldImp = ScoreGoldImprovement(goalGold,     pos, best_gold_improvement,               terr_gold_rank, gold_rank, strategy, elem);
-			sint32 bonusGoldTer = ScoreGoldTerraform  (goalGoldTerr, pos,              gold_ter, terrain_type, terr_gold_rank, gold_rank, strategy, elem);
+			sint32 bonusGoldImp = ScoreGoldImprovement(goalGold,     pos, best_gold_improvement,                    terr_gold_rank, gold_rank, strategy, elem);
+			sint32 bonusGoldTer = ScoreGoldTerraform  (goalGoldTerr, pos,              gold_ter, terrain_type, terraform_gold_rank, gold_rank, strategy, elem);
 			if(bonusGoldImp < bonusGoldTer)
 				goalGold = goalGoldTerr;
 
@@ -2020,7 +2044,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 		if(goal.type < 0
 		&& moreFoodNeeded
 		){
-			ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terr_food_rank, growth_rank, strategy, elem);
+			ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terraform_food_rank, growth_rank, strategy, elem);
 		}
 
 	//	if(goal.type < 0 && (moreProdNeeded
@@ -2034,13 +2058,18 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 
 		if(goal.type < 0 //(gold_rank > 0.4)
 		){
-			ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, production_rank, strategy, elem);
+			ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, gold_rank, strategy, elem);
 		}
 
 		if(goal.type < 0
 		&& city->GetNetCityGold() <= 0 // Improve even at zero
 		){
-			ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terr_gold_rank, production_rank, strategy, elem);
+			ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terraform_gold_rank, gold_rank, strategy, elem);
+		}
+
+		if(goal.type < 0
+		){
+			ScoreProductionTerraform(goal, pos, prod_ter, terrain_type, terraform_prod_rank, production_rank, strategy, elem);
 		}
 
 		if(goal.type < 0)
