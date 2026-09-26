@@ -2729,11 +2729,24 @@ void CtpAi::BombardNearbyEnemies(const Army & army, const sint32 & max_rge)
 			{
 				def_city = foreigner_ptr->m_all_cities->Access(i);
 
-				//should test if def_city is visible to player
-				if(!(def_city->GetVisibility() & (1 << playerId)))
+				// Same stale-reference risk as def_army above - a city
+				// destroyed elsewhere this turn but not yet pruned from
+				// m_all_cities would leave AccessData() NULL here.
+				UnitData * const defCityData = def_city.AccessData();
+				if(!defCityData)
+				{
+					DPRINTF(k_DBG_AI, ("CtpAi::BombardNearbyEnemies: stale city %x in player %d's m_all_cities - no longer exists in the pool\n",
+					        def_city.m_id, foreigner));
+				}
+				Assert(defCityData);
+				if(!defCityData)
 					continue;
 
-				def_city->GetPos(def_pos);
+				//should test if def_city is visible to player
+				if(!(defCityData->GetVisibility() & (1 << playerId)))
+					continue;
+
+				defCityData->GetPos(def_pos);
 				if(!army->CanBombard(def_pos))
 					continue;
 
