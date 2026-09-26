@@ -1213,7 +1213,15 @@ void Player::RemoveArmy(const Army &army, bool fromNetwork)
 
 	sint32 dead = FindArmyIndex(army);
 
-	m_all_armies->DelIndex(dead);
+	// FindArmyIndex already Assert(false)s and returns -1 when the army
+	// isn't in m_all_armies at all (e.g. double removal). Calling
+	// DelIndex(-1) unconditionally used to corrupt the array - it reads/
+	// writes m_array[-1] (out of bounds, before the array's own start)
+	// and then runs its shift loop starting at that same negative index.
+	if (dead >= 0)
+	{
+		m_all_armies->DelIndex(dead);
+	}
 }
 
 sint32 Player::FindArmyIndex(const Unit &unit_in_the_army) const
