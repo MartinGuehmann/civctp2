@@ -780,6 +780,7 @@ BUILD_LIST_SEQUENCE_SMALL_CITIES		"Piccole città"
 BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS		"Piccole città (unità)"
 BUILD_LIST_SEQUENCE_CITIES_AT_MAX_SIZE		"Città a dimensione massima"
 BUILD_LIST_SEQUENCE_DIRTY_CITIES		"Inquinamento"
+BUILD_LIST_SEQUENCE_OVERCROWDED_CITIES		"Città sovraffollate"
 
 ##Risk strings moved from junk_str.txt ##
 RISK_NO_DANGER_HERE				"Nessun pericolo qui"

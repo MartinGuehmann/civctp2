@@ -780,6 +780,7 @@ BUILD_LIST_SEQUENCE_SMALL_CITIES		"Malá mìsta"
 BUILD_LIST_SEQUENCE_SMALL_CITIES_UNITS		"Malá mìsta (jednotky)"
 BUILD_LIST_SEQUENCE_CITIES_AT_MAX_SIZE		"Mìsta s maximální velikostí"
 BUILD_LIST_SEQUENCE_DIRTY_CITIES		"Zneèištìní"
+BUILD_LIST_SEQUENCE_OVERCROWDED_CITIES		"Pøelidnìná mìsta"
 
 ##Risk strings moved from junk_str.txt ##
 RISK_NO_DANGER_HERE				"Žádné nebezpeèí"
