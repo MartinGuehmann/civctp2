@@ -332,7 +332,20 @@ void MapAnalysis::BeginTurn()
 		for (i = 0; i < num_armies; i++)
 		{
 			army = player_ptr->m_all_armies->Access(i);
-			Assert(army.IsValid());
+
+			// Same stale-reference risk as CtpAi::BombardNearbyEnemies
+			// (b9a2c00ee) - Assert(army.IsValid()) alone doesn't stop
+			// execution, and every use below dereferences army
+			// unconditionally via operator->(), which silently returns
+			// NULL for a dead ArmyPool id instead of asserting.
+			if(!army.IsValid())
+			{
+				DPRINTF(k_DBG_AI, ("MapAnalysis::BeginTurn: stale army %x in player %d's m_all_armies - no longer exists in the ArmyPool\n",
+				        army.m_id, static_cast<sint32>(player)));
+				Assert(army.IsValid());
+				continue;
+			}
+
 			army->GetPos(pos);
 
 			sint8 defense_count;
@@ -411,7 +424,23 @@ void MapAnalysis::BeginTurn()
 		for (i = 0; i < num_cities; i++)
 		{
 			city = player_ptr->m_all_cities->Access(i);
-			Assert(city.IsValid() && city->GetCityData());
+
+			// Same stale-reference risk as the army loop above - don't
+			// evaluate city->GetCityData() at all (unlike the old Assert
+			// expression, which dereferenced it unconditionally as part
+			// of the assert condition itself) unless city is confirmed
+			// live first.
+			if(!city.IsValid())
+			{
+				DPRINTF(k_DBG_AI, ("MapAnalysis::BeginTurn: stale city %x in player %d's m_all_cities - no longer exists in the pool\n",
+				        city.m_id, static_cast<sint32>(player)));
+				Assert(city.IsValid());
+				continue;
+			}
+			Assert(city->GetCityData());
+			if(!city->GetCityData())
+				continue;
+
 			city.GetPos(pos);
 			sint32 total_value = city->GetCityData()->GetValue();
 
