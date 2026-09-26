@@ -4545,15 +4545,18 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 		if (city_found)
 		{
 			found = Agent::FindPath(the_army->Get_Army(), nearest_city.RetPos(), true, found_path);
-			if (found) Set_Sub_Task(SUB_TASK_AIRLIFT);
+			if (found)
+			{
+				Set_Sub_Task(SUB_TASK_AIRLIFT);
 
-			if (the_army->Get_Pos() == nearest_city.RetPos())
-			{
-				the_army->PerformOrderHere(CtpAi::GetUnloadOrder(), (Path *) &found_path);
-			}
-			else if(!the_army->Get_Army()->HasLeftMap())
-			{
-				the_army->PerformOrderHere(CtpAi::GetSpaceLaunchOrder(), (Path *) &found_path);
+				if (the_army->Get_Pos() == nearest_city.RetPos())
+				{
+					the_army->PerformOrderHere(CtpAi::GetUnloadOrder(), (Path *) &found_path);
+				}
+				else if(!the_army->Get_Army()->HasLeftMap())
+				{
+					the_army->PerformOrderHere(CtpAi::GetSpaceLaunchOrder(), (Path *) &found_path);
+				}
 			}
 
 			return true;
