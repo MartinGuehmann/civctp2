@@ -2677,11 +2677,28 @@ void CtpAi::BombardNearbyEnemies(const Army & army, const sint32 & max_rge)
 			{
 				def_army = foreigner_ptr->m_all_armies->Access(i);
 
-				//visibility check
-				if(!def_army->IsVisible(playerId))
+				// def_army can be stale - Army::operator->()/AccessData()
+				// silently returns NULL for an id no longer in the
+				// ArmyPool (e.g. killed in combat elsewhere this turn but
+				// not yet pruned from m_all_armies) instead of asserting.
+				// Dereferencing it unconditionally segfaulted a live
+				// playtest in CellUnitList::IsVisible. Same stale-army
+				// pattern as Goal::Recompute_Matching_Value (86dc4a691).
+				ArmyData * const defArmyData = def_army.AccessData();
+				if(!defArmyData)
+				{
+					DPRINTF(k_DBG_AI, ("CtpAi::BombardNearbyEnemies: stale army %x in player %d's m_all_armies - no longer exists in the ArmyPool\n",
+					        def_army.m_id, foreigner));
+				}
+				Assert(defArmyData);
+				if(!defArmyData)
 					continue;
 
-				def_army->GetPos(def_pos);
+				//visibility check
+				if(!defArmyData->IsVisible(playerId))
+					continue;
+
+				defArmyData->GetPos(def_pos);
 
 				if(!army->CanBombard(def_pos))
 					continue;
