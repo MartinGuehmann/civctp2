@@ -1979,6 +1979,21 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 
 	if(hasElemPriority)
 	{
+/*		double terr_food_rank = (double) World::GetMaxFoodFromTerrain() /
+			(double) World::GetAvgFoodFromTerrain();
+		double terr_prod_rank = (double) World::GetMaxShieldsFromTerrain() /
+			(double) World::GetMaxShieldsFromTerrain();
+		double terr_gold_rank = (double) World::GetMaxGoldFromTerrain() /
+			(double) World::GetAvgGoldFromTerrain();*/
+
+		double terr_food_rank  = 1.0;
+		double terr_prod_rank  = 1.0;
+		double terr_gold_rank  = 1.0;
+		double growth_rank     = 1.0;
+		double production_rank = 1.0;
+		double gold_rank       = 1.0;
+
+
 		// goal.utility was reset to -1.0 above alongside goal.type, so
 		// every copy below starts as a clean "no candidate" TiGoal - a
 		// category that turns out fully unavailable (both Score* calls
@@ -4464,6 +4479,13 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 	sint32 pollution = city->GetPollution();
 	sint32 minPollution;
 
+	// How far this city's population is above its own overcrowding
+	// threshold (base-overcrowding-for-its-size-tier plus any building
+	// bonuses); zero or negative if the city isn't overcrowded at all.
+	sint32 overcrowding = city->PopCount() -
+		static_cast<sint32>(city->GetOvercrowding(g_theCitySizeDB->Get(city->GetSizeIndex())));
+	sint32 minOvercrowding;
+
 	sint32 minNumUnits;
 	sint32 maxRawHappiness;
 
@@ -4508,6 +4530,9 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 			continue;
 
 		if(elem->GetMinPollution(minPollution) && pollution < minPollution)
+			continue;
+
+		if(elem->GetMinOvercrowding(minOvercrowding) && overcrowding < minOvercrowding)
 			continue;
 
 		if(elem->GetCanBuildWonders() && !canBuildWonders)
@@ -4580,7 +4605,7 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 			// Do nothing
 		}
 
-		else if(elem->HasMinPollution() || elem->GetAllCities())
+		else if(elem->HasMinPollution() || elem->HasMinOvercrowding() || elem->GetAllCities())
 		{
 			best_priority = elem->GetPriority();
 			best_elem     = elem;
