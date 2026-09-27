@@ -550,6 +550,7 @@ public:
 
 	static sint32 GetMaxFoodFromTerrain();
 	static sint32 GetMaxShieldsFromTerrain();
+	static sint32 GetMaxGoldFromTerrain();
 	static sint32 GetAvgFoodFromTerrain();
 	static sint32 GetAvgShieldsFromTerrain();
 	static sint32 GetAvgGoldFromTerrain();
