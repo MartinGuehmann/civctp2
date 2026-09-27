@@ -420,7 +420,7 @@ STRATEGY_DEFAULT {
     }
 
     BuildListSequenceElement {
-        Priority 12000
+        Priority 13000
         BuildListSequence BUILD_LIST_SEQUENCE_DIRTY_CITIES
         HasBuildingsThenStop BUILDING_BUILD_LIST_DIRTY_CITIES
         MinPollution 300
@@ -1703,7 +1703,7 @@ STRATEGY_SCIENTIST_DEFAULT {
     }
 
     BuildListSequenceElement {
-        Priority 12000
+        Priority 13000
         BuildListSequence BUILD_LIST_SEQUENCE_DIRTY_CITIES
         HasBuildingsThenStop BUILDING_BUILD_LIST_DIRTY_CITIES
         MinPollution 200
@@ -2291,7 +2291,7 @@ STRATEGY_MILITARIST_DEFAULT {
     }
 
     BuildListSequenceElement {
-        Priority 12000
+        Priority 13000
         BuildListSequence BUILD_LIST_SEQUENCE_DIRTY_CITIES
         HasBuildingsThenStop BUILDING_BUILD_LIST_DIRTY_CITIES
         MinPollution 500
@@ -2885,7 +2885,7 @@ STRATEGY_ECONOMIC_DEFAULT {
     }
 
     BuildListSequenceElement {
-        Priority 12000
+        Priority 13000
         BuildListSequence BUILD_LIST_SEQUENCE_DIRTY_CITIES
         HasBuildingsThenStop BUILDING_BUILD_LIST_DIRTY_CITIES
         MinPollution 400
@@ -3466,7 +3466,7 @@ STRATEGY_ECOTOPIAN_DEFAULT {
     }
 
     BuildListSequenceElement {
-        Priority 12000
+        Priority 13000
         BuildListSequence BUILD_LIST_SEQUENCE_DIRTY_CITIES
         HasBuildingsThenStop BUILDING_BUILD_LIST_DIRTY_CITIES
         MinPollution 100
@@ -4050,7 +4050,7 @@ STRATEGY_DIPLOMATIC_DEFAULT {
     }
 
     BuildListSequenceElement {
-        Priority 12000
+        Priority 13000
         BuildListSequence BUILD_LIST_SEQUENCE_DIRTY_CITIES
         HasBuildingsThenStop BUILDING_BUILD_LIST_DIRTY_CITIES
         MinPollution 300
