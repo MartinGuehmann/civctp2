@@ -431,6 +431,16 @@ void CtpAi::GroupWithEscort(const Army & army)
 		if (tmp_army == army)
 			continue;
 
+		// A unit already wrapped in an Agent belongs to some goal's own
+		// plans, whatever those are - grabbing it here as "free escort
+		// material" just because it's standing on the same tile races
+		// that goal's own order for it (observed: the goal loaded this
+		// exact unit onto a ship the same turn GroupWithEscort tried to
+		// group it into a newly-arrived army instead, tripping
+		// ArmyData::GroupUnit's Assert(unit.GetArmy().IsValid())).
+		if (tmp_army->GetAgent() != NULL)
+			continue;
+
 		if (tmp_army.Num() > 1)
 			continue;
 
