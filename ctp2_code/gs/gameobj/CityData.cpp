@@ -10205,30 +10205,6 @@ sint32 CityData::HowMuchMoreFoodNeeded(sint32 bonusFood, bool onlyGrwoth, bool c
 	}
 	/////////////////////////////////////
 
-	const CitySizeRecord *nextRec = NULL;
-	if(m_sizeIndex >= 0
-		&& m_sizeIndex < g_theCitySizeDB->NumRecords())
-	{
-		nextRec = g_theCitySizeDB->Get(m_sizeIndex);
-	}
-	else
-	{
-		nextRec = g_theCitySizeDB->Get(g_theCitySizeDB->NumRecords()-1);
-	}
-
-	double foodForNextRing;
-	if(nextRec)
-	{
-//		foodForNextRing = GetFoodRequired(nextRec->GetPopulation() + 1 - SlaveCount());
-		foodForNextRing = GetFoodRequired(nextRec->GetPopulation() - SlaveCount());
-	}
-	else
-	{
-		foodForNextRing = GetFoodRequired(PopCount() - SlaveCount());
-	}
-
-	double foodForNextPop = GetFoodRequired(PopCount() + 1 - SlaveCount());
-
 	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_owner).GetCurrentStrategy();
 
 	sint32 timePerPop = strategy.GetTurnsAcceptedForOnePop();
@@ -10240,25 +10216,59 @@ sint32 CityData::HowMuchMoreFoodNeeded(sint32 bonusFood, bool onlyGrwoth, bool c
 //	DPRINTF(k_DBG_GAMESTATE, ("m_food_delta: %f\n", m_food_delta));
 	food -= foodDelta;
 //	DPRINTF(k_DBG_GAMESTATE, ("Food: %i\n", static_cast<sint32>(food)));
-//	DPRINTF(k_DBG_GAMESTATE, ("foodForNextRing: %i\n", static_cast<sint32>(foodForNextRing)));
-//	DPRINTF(k_DBG_GAMESTATE, ("maxFoodFromTerrain: %i\n", static_cast<sint32>(maxFoodFromTerrain)));
 
-	if(food < foodForNextRing - maxFoodFromTerrain)
+	// onlyGrwoth was previously ignored here (only the #if
+	// NEW_RESOURCE_PROCESS branch, which never compiles since that macro
+	// is permanently undefined, respected it) - the next-ring/next-pop
+	// floor below always applied regardless of the caller's request.
+	// governor.cpp's two callers pass onlyGrwoth=false wanting the raw
+	// growth-rate figure without this floor; only CityData::NeedMoreFood
+	// wants it (onlyGrwoth=true).
+	if(onlyGrwoth)
 	{
-		food = foodForNextRing - maxFoodFromTerrain;
-	}
-//	DPRINTF(k_DBG_GAMESTATE, ("FoodNextRing: %i\n", static_cast<sint32>(food)));
+		const CitySizeRecord *nextRec = NULL;
+		if(m_sizeIndex >= 0
+			&& m_sizeIndex < g_theCitySizeDB->NumRecords())
+		{
+			nextRec = g_theCitySizeDB->Get(m_sizeIndex);
+		}
+		else
+		{
+			nextRec = g_theCitySizeDB->Get(g_theCitySizeDB->NumRecords()-1);
+		}
 
-//	DPRINTF(k_DBG_GAMESTATE, ("Food: %i\n", static_cast<sint32>(food)));
-//	DPRINTF(k_DBG_GAMESTATE, ("foodForNextPop: %i\n", static_cast<sint32>(foodForNextPop)));
-//	DPRINTF(k_DBG_GAMESTATE, ("currentFood: %i\n", static_cast<sint32>(currentFood)));
+		double foodForNextRing;
+		if(nextRec)
+		{
+//			foodForNextRing = GetFoodRequired(nextRec->GetPopulation() + 1 - SlaveCount());
+			foodForNextRing = GetFoodRequired(nextRec->GetPopulation() - SlaveCount());
+		}
+		else
+		{
+			foodForNextRing = GetFoodRequired(PopCount() - SlaveCount());
+		}
 
-	if(food < foodForNextPop - currentFood)
-	{
-		food = foodForNextPop - currentFood;
+		double foodForNextPop = GetFoodRequired(PopCount() + 1 - SlaveCount());
+
+//		DPRINTF(k_DBG_GAMESTATE, ("foodForNextRing: %i\n", static_cast<sint32>(foodForNextRing)));
+//		DPRINTF(k_DBG_GAMESTATE, ("maxFoodFromTerrain: %i\n", static_cast<sint32>(maxFoodFromTerrain)));
+
+		if(food < foodForNextRing - maxFoodFromTerrain)
+		{
+			food = foodForNextRing - maxFoodFromTerrain;
+		}
+//		DPRINTF(k_DBG_GAMESTATE, ("FoodNextRing: %i\n", static_cast<sint32>(food)));
+
+//		DPRINTF(k_DBG_GAMESTATE, ("foodForNextPop: %i\n", static_cast<sint32>(foodForNextPop)));
+//		DPRINTF(k_DBG_GAMESTATE, ("currentFood: %i\n", static_cast<sint32>(currentFood)));
+
+		if(food < foodForNextPop - currentFood)
+		{
+			food = foodForNextPop - currentFood;
+		}
+//		DPRINTF(k_DBG_GAMESTATE, ("FoodNextPop: %i\n", static_cast<sint32>(foodForNextPop)));
+//		DPRINTF(k_DBG_GAMESTATE, ("FoodNextPop: %i\n", static_cast<sint32>(food)));
 	}
-//	DPRINTF(k_DBG_GAMESTATE, ("FoodNextPop: %i\n", static_cast<sint32>(foodForNextPop)));
-//	DPRINTF(k_DBG_GAMESTATE, ("FoodNextPop: %i\n", static_cast<sint32>(food)));
 
 	return static_cast<sint32>(ceil(food));
 
