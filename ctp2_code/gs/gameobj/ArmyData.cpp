@@ -11223,6 +11223,21 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 	sint32 range = 0;
 	if (order_rec->GetRange(range))
 	{
+		// Unlike the already-fixed GotoGoalTaskSolution case (7b3871a72,
+		// found==false -> empty path -> moves==0), every known caller of
+		// FollowPathToTask already gates on found==true before reaching
+		// here - so a fresh recurrence of this assert (62 hits, 2026-09-28
+		// playtest) means the path genuinely reached the destination but
+		// used up all its moves doing so, leaving none for an order that
+		// needs range>0 and isn't adjacency-pretested. Log which order and
+		// how far short the army was to find the actual call path.
+		if (!(range <= moves || order_rec->GetTargetPretestAdjacentPosition()))
+		{
+			DPRINTF(k_DBG_GAMESTATE,
+			    ("ArmyData::PerformOrderHere: army 0x%lx (owner %d) order %s needs range %d but only %d moves remain at (x=%d,y=%d), turn=%d\n",
+			     m_id, m_owner, g_orderInfo[order_rec->GetIndex()].m_name, range, moves,
+			     target_pos.x, target_pos.y, g_player[m_owner]->m_current_round));
+		}
 		Assert(range <= moves || order_rec->GetTargetPretestAdjacentPosition());
 	}
 
