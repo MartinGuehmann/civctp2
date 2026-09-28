@@ -371,6 +371,22 @@ void Scheduler::Process_Agent_Changes()
 
 		if(theAgent->Get_Is_Dead())
 		{
+			// Remove_Matches_For_Agent only walks each goal's m_matches
+			// (Goal::Remove_Match's own Rollback_Agent call only fires
+			// for a goal that still has this agent as a *candidate*
+			// match). An agent already fully committed to a goal - no
+			// longer in any m_matches, living purely in that goal's
+			// m_agents - was never detached here, so 'delete theAgent'
+			// below left that goal holding a dangling Agent* until its
+			// next Rollback_All_Agents walked it and read freed memory
+			// (observed: "army 0x21, owner -1" feeding Goal.cpp:422's
+			// Get_Unit_Count() >= Get_Agent_Count() assert). Detach from
+			// its own committed goal first, same idiom used at
+			// Goal.cpp:722.
+			if(theAgent->Get_Goal() != NULL)
+			{
+				theAgent->Get_Goal()->Rollback_Agent(theAgent);
+			}
 			Remove_Matches_For_Agent(theAgent);
 			delete theAgent;
 			agent_ptr_iter = m_agents.erase(agent_ptr_iter);
