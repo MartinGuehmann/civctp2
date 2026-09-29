@@ -1462,7 +1462,25 @@ sint32 Governor::ScoreGrowthImprovement(TiGoal & goal, const MapPoint & pos, sin
 		bonus += elem->GetImproveGrowthBonus();
 	goal.utility = bonus * terr_food_rank;
 
-	if(growth_rank < 0.2){
+	// Same top/bottom-growth-cities-element logic as
+	// ScoreProductionImprovement - see its comment for the reasoning.
+	// Top and bottom both apply the same SmallCityGrowthBonus formula, per
+	// the user's explicit call, even though "small city" doesn't quite
+	// describe a top-ranked one - simplicity/parity with production won
+	// out over the field's literal name.
+	double top_value    = -1.0;
+	double bottom_value = -1.0;
+	if(elem && elem->GetGrowthCities() && elem->GetTop(top_value))
+	{
+		strategy.GetImproveSmallCityGrowthBonus(bonus);
+		goal.utility += bonus * growth_rank;
+	}
+	else if(elem && elem->GetGrowthCities() && elem->GetBottom(bottom_value))
+	{
+		strategy.GetImproveSmallCityGrowthBonus(bonus);
+		goal.utility += bonus * (1.0 - growth_rank);
+	}
+	else if(growth_rank < 0.2){
 		strategy.GetImproveSmallCityGrowthBonus(bonus);
 		goal.utility +=  bonus * (1.0 - growth_rank);
 	}
@@ -1519,7 +1537,30 @@ sint32 Governor::ScoreProductionImprovement(TiGoal & goal, const MapPoint & pos,
 		bonus += elem->GetImproveProductionBonus();
 	goal.utility =  bonus * terr_prod_rank;
 
-	if(production_rank > 0.8)
+	// production_rank > 0.8 alone used to gate this unconditionally - now
+	// only a fallback for cities whose matched build-list element isn't a
+	// dedicated production-ranked category (e.g. Default/AllCities). When
+	// the city WAS specifically matched by a "top production cities" or
+	// "bottom production cities" element (GetMatchingSequenceElement's own
+	// GetTop()/GetBottom() checks, gated on GetProductionCities()), the
+	// element match itself is already the need signal - apply the bonus
+	// unconditionally rather than re-gating on a fixed rank threshold.
+	// Top and bottom currently do the same thing; kept as separate
+	// branches since they're conceptually distinct and may want to
+	// diverge later (e.g. scaling bottom-ranked cities differently).
+	double top_value    = -1.0;
+	double bottom_value = -1.0;
+	if(elem && elem->GetProductionCities() && elem->GetTop(top_value))
+	{
+		strategy.GetImproveLargeCityProductionBonus(bonus);
+		goal.utility += bonus * production_rank;
+	}
+	else if(elem && elem->GetProductionCities() && elem->GetBottom(bottom_value))
+	{
+		strategy.GetImproveLargeCityProductionBonus(bonus);
+		goal.utility += bonus * (1.0 - production_rank);
+	}
+	else if(production_rank > 0.8)
 	{
 		strategy.GetImproveLargeCityProductionBonus(bonus);
 		goal.utility += bonus *	production_rank;
@@ -1544,15 +1585,19 @@ sint32 Governor::ScoreProductionImprovement(TiGoal & goal, const MapPoint & pos,
 //              >= 0, the caller's own condition) - unlike growth/production,
 //              this branch has never had a need-check at all (the
 //              commented-out gold_rank/GetCommerceRank in the caller was
-//              never wired up either, see tileimp_need_vs_terrain). Also
-//              note production_rank, not a gold/commerce rank, drives its
-//              large-city bonus - the same field the production branch uses.
+//              never wired up either, see tileimp_need_vs_terrain). Its
+//              large-city bonus reuses ImproveLargeCityProductionBonus -
+//              there's no gold-specific equivalent field in strategy.cdb -
+//              but is driven by gold_rank (the call site passes its own
+//              GetCommerceRank() result); an earlier version of this
+//              comment mislabeled the parameter itself as production_rank,
+//              which it never actually was.
 //
 // Parameters : goal:                  The candidate goal, type/utility set in place
 //              pos:                   Position of the candidate tile
 //              best_gold_improvement: The chosen gold improvement type
 //              terr_gold_rank:        Tile's gold yield relative to the map average
-//              production_rank:       The city's production percentile
+//              gold_rank:             The city's commerce/gold percentile
 //              strategy:              The city owner's current strategy
 //              elem:                  The city's matching build-list-sequence element (may be NULL)
 //
@@ -1562,7 +1607,7 @@ sint32 Governor::ScoreProductionImprovement(TiGoal & goal, const MapPoint & pos,
 //              best_gold_improvement was unavailable
 //
 //----------------------------------------------------------------------------
-sint32 Governor::ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_gold_improvement, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const
+sint32 Governor::ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint32 best_gold_improvement, double terr_gold_rank, double gold_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const
 {
 	if (best_gold_improvement < 0)
 		return 0;
@@ -1577,10 +1622,25 @@ sint32 Governor::ScoreGoldImprovement(TiGoal & goal, const MapPoint & pos, sint3
 		bonus += elem->GetImproveGoldBonus();
 	goal.utility = bonus * terr_gold_rank;
 
-	if(production_rank > 0.8)
+	// Same top/bottom-element logic as ScoreProductionImprovement, gated on
+	// GetCommerceCities() (the gold-relevant category in
+	// GetMatchingSequenceElement) rather than GetProductionCities().
+	double top_value    = -1.0;
+	double bottom_value = -1.0;
+	if(elem && elem->GetCommerceCities() && elem->GetTop(top_value))
 	{
 		strategy.GetImproveLargeCityProductionBonus(bonus);
-		goal.utility += bonus * production_rank;
+		goal.utility += bonus * gold_rank;
+	}
+	else if(elem && elem->GetCommerceCities() && elem->GetBottom(bottom_value))
+	{
+		strategy.GetImproveLargeCityProductionBonus(bonus);
+		goal.utility += bonus * (1.0 - gold_rank);
+	}
+	else if(gold_rank > 0.8)
+	{
+		strategy.GetImproveLargeCityProductionBonus(bonus);
+		goal.utility += bonus * gold_rank;
 	}
 	if(g_theWorld->IsGood(pos))
 	{
@@ -1640,7 +1700,21 @@ sint32 Governor::ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 
 			bonus += elem->GetImproveGrowthBonus();
 		goal.utility = bonus * terr_food_rank;
 
-		if(growth_rank < 0.2)
+		// Same top/bottom-growth-cities-element logic as
+		// ScoreGrowthImprovement - see its comment for the reasoning.
+		double top_value    = -1.0;
+		double bottom_value = -1.0;
+		if(elem && elem->GetGrowthCities() && elem->GetTop(top_value))
+		{
+			strategy.GetImproveSmallCityGrowthBonus(bonus);
+			goal.utility += bonus * growth_rank;
+		}
+		else if(elem && elem->GetGrowthCities() && elem->GetBottom(bottom_value))
+		{
+			strategy.GetImproveSmallCityGrowthBonus(bonus);
+			goal.utility += bonus * (1.0 - growth_rank);
+		}
+		else if(growth_rank < 0.2)
 		{
 			strategy.GetImproveSmallCityGrowthBonus(bonus);
 			goal.utility +=  bonus * (1.0 - growth_rank);
@@ -1670,7 +1744,7 @@ sint32 Governor::ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 
 //              gold_ter:        The chosen gold-terraform improvement type
 //              terrain_type:    The tile's current terrain type
 //              terr_gold_rank:  Tile's gold yield relative to the map average
-//              production_rank: The city's production percentile
+//              gold_rank:       The city's commerce/gold percentile
 //              strategy:        The city owner's current strategy
 //              elem:            The city's matching build-list-sequence element (may be NULL)
 //
@@ -1680,7 +1754,7 @@ sint32 Governor::ScoreFoodTerraform(TiGoal & goal, const MapPoint & pos, sint32 
 //              gold_ter was unavailable/inapplicable
 //
 //----------------------------------------------------------------------------
-sint32 Governor::ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 gold_ter, sint32 terrain_type, double terr_gold_rank, double production_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const
+sint32 Governor::ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 gold_ter, sint32 terrain_type, double terr_gold_rank, double gold_rank, const StrategyRecord & strategy, const StrategyRecord::BuildListSequenceElement * elem) const
 {
 	if (gold_ter < 0 || g_theWorld->IsGood(pos))
 		return 0;
@@ -1698,10 +1772,24 @@ sint32 Governor::ScoreGoldTerraform(TiGoal & goal, const MapPoint & pos, sint32 
 			bonus += elem->GetImproveGoldBonus();
 		goal.utility = bonus * terr_gold_rank;
 
-		if(production_rank > 0.8)
+		// Same top/bottom-element logic as ScoreGoldImprovement - see its
+		// comment for the reasoning.
+		double top_value    = -1.0;
+		double bottom_value = -1.0;
+		if(elem && elem->GetCommerceCities() && elem->GetTop(top_value))
 		{
 			strategy.GetImproveLargeCityProductionBonus(bonus);
-			goal.utility += bonus * production_rank;
+			goal.utility += bonus * gold_rank;
+		}
+		else if(elem && elem->GetCommerceCities() && elem->GetBottom(bottom_value))
+		{
+			strategy.GetImproveLargeCityProductionBonus(bonus);
+			goal.utility += bonus * (1.0 - gold_rank);
+		}
+		else if(gold_rank > 0.8)
+		{
+			strategy.GetImproveLargeCityProductionBonus(bonus);
+			goal.utility += bonus * gold_rank;
 		}
 	}
 	else
@@ -1761,7 +1849,21 @@ sint32 Governor::ScoreProductionTerraform(TiGoal & goal, const MapPoint & pos, s
 			bonus += elem->GetImproveProductionBonus();
 		goal.utility = bonus * terr_prod_rank;
 
-		if(production_rank > 0.8)
+		// Same top/bottom-production-cities-element logic as
+		// ScoreProductionImprovement - see its comment for the reasoning.
+		double top_value    = -1.0;
+		double bottom_value = -1.0;
+		if(elem && elem->GetProductionCities() && elem->GetTop(top_value))
+		{
+			strategy.GetImproveLargeCityProductionBonus(bonus);
+			goal.utility += bonus * production_rank;
+		}
+		else if(elem && elem->GetProductionCities() && elem->GetBottom(bottom_value))
+		{
+			strategy.GetImproveLargeCityProductionBonus(bonus);
+			goal.utility += bonus * (1.0 - production_rank);
+		}
+		else if(production_rank > 0.8)
 		{
 			strategy.GetImproveLargeCityProductionBonus(bonus);
 			goal.utility += bonus * production_rank;
