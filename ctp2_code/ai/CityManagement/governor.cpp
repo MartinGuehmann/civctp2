@@ -1976,6 +1976,11 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 	sint32 foodMissing = 0;
 	bool moreFoodNeeded = city->NeedMoreFood(0, foodMissing, true);
 //	bool moreProdNeeded = city->NeedMoreProdOr(bonusCommerce, goldMissing, true);
+	// No CityData equivalent of NeedMoreFood exists for gold - GetNetCityGold()
+	// is the same per-city figure ScoreGoldTerraform below already gated on
+	// ("<= 0 // Improve even at zero"), just named and reused here so the
+	// improvement path can use the identical threshold.
+	bool moreGoldNeeded = city->GetNetCityGold() <= 0;
 
 	if(hasElemPriority)
 	{
@@ -2047,6 +2052,18 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 			ScoreFoodTerraform(goal, pos, food_ter, terrain_type, terraform_food_rank, growth_rank, strategy, elem);
 		}
 
+		// Gold's own hard-priority need check, mirroring food's above -
+		// tried before production gets a chance to grab the tile purely
+		// on terrain rank, so a genuinely gold-starved city doesn't lose
+		// the tile to production just because the terrain looks decent
+		// for it. The unconditional gold attempt further below stays as
+		// a fallback for cities that aren't gold-starved.
+		if(goal.type < 0
+		&& moreGoldNeeded
+		){
+			ScoreGoldImprovement(goal, pos, best_gold_improvement, terr_gold_rank, gold_rank, strategy, elem);
+		}
+
 	//	if(goal.type < 0 && (moreProdNeeded
 	//	|| best_gold_improvement < 0))
 		if(goal.type < 0
@@ -2062,7 +2079,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal) const
 		}
 
 		if(goal.type < 0
-		&& city->GetNetCityGold() <= 0 // Improve even at zero
+		&& moreGoldNeeded
 		){
 			ScoreGoldTerraform(goal, pos, gold_ter, terrain_type, terraform_gold_rank, gold_rank, strategy, elem);
 		}
