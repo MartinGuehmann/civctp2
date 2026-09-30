@@ -5756,7 +5756,13 @@ void Governor::ManageGoodsTradeRoutes()
 				if (!player_ptr->IsRobot()) // exlcude human players
 					continue;
 
-				if (((sellingVPC < maxValuePerCaravan) && (sellingVPC > 0) && !city.CD()->HasResource(g)) || // kill existing routes if lower in value but only if the good is NOT available multiple times within the city influence
+				// Cancelling a route always costs a caravan (see -1 below),
+				// so require the alternative to beat the existing route by
+				// more than a margin, not just any amount - otherwise
+				// routes churn every time some other city's offer nudges
+				// ahead by a hair, only to possibly flip back next turn.
+				if (((sellingVPC > 0) && !city.CD()->HasResource(g) && // kill existing routes if lower in value but only if the good is NOT available multiple times within the city influence
+					(maxValuePerCaravan > sellingVPC * (1.0 + g_theConstDB->Get(0)->GetTradeRouteBetterOfferMargin()))) ||
 					(curDestRoute.m_id != 0 && Diplomat::GetDiplomat(m_playerId). // or piracy risk is high, i.e. pirated too often
 					GetTradeRoutePiracyRisk(city, curDestRoute->GetDestination())))
 				{
