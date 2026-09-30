@@ -3748,7 +3748,12 @@ void CityData::CalculateBonusGold()
 	t1.start();
 #endif
 
-	m_bonusGold  = static_cast<double>(CalculateGoldFromTradeRoutes());
+	// The one real per-turn commit point - CalculateGoldFromTradeRoutes()
+	// itself no longer writes these members, so this is the only place
+	// that does (see its own doc comment). Everyone else gets a fresh,
+	// non-persisted computation.
+	m_goldFromTradeRoutes = CalculateGoldFromTradeRoutes(&m_goldLostToPiracy);
+	m_bonusGold  = static_cast<double>(m_goldFromTradeRoutes);
 	DPRINTF(k_DBG_GOVERNOR_DETAIL, ("//  CalculateGoldFromTradeRoutes    = %f ms (%s)\n", t1.getElapsedTimeInMilliSec(), GetName()));
 
 	Player* player_ptr = g_player[m_owner];
@@ -4602,20 +4607,49 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 	}
 }
 
-sint32 CityData::CalculateGoldFromTradeRoutes()
+//----------------------------------------------------------------------------
+//
+// Name       : CityData::CalculateGoldFromTradeRoutes
+//
+// Description: Computes this city's current gold income from trade routes
+//              (and, via the out-param, gold lost to piracy) fresh from
+//              m_tradeSourceList - does NOT write m_goldFromTradeRoutes/
+//              m_goldLostToPiracy itself. The real per-turn commit
+//              (CityData.cpp, called from ProcessProduction) is the only
+//              place that assigns the returned values to those members;
+//              everyone else (UI screens wanting a live number, logging)
+//              gets a fresh computation without disturbing the canonical
+//              per-turn value MapAnalysis/the historical strength graph
+//              read via GetGoldFromTradeRoutes(). Previously this function
+//              mutated those members on every call, including from two UI
+//              call sites that could fire at any arbitrary moment mid-turn
+//              (CauseAndEffectTab, trademanager) - which could make the
+//              graph record a value that never corresponded to any real
+//              turn boundary. See traderoute_calculate_vs_getter session
+//              notes.
+//
+// Parameters : outGoldLostToPiracy: if non-NULL, receives the gold lost to
+//                                    piracy this call computed
+//
+// Globals    : -
+//
+// Returns    : sint32: gold from trade routes not currently being pirated
+//
+//----------------------------------------------------------------------------
+sint32 CityData::CalculateGoldFromTradeRoutes(sint32 * outGoldLostToPiracy)
 {
-	m_goldFromTradeRoutes = 0;
-	m_goldLostToPiracy    = 0;
+	sint32 goldFromTradeRoutes = 0;
+	sint32 goldLostToPiracy    = 0;
 
 	for(sint32 i = 0; i < m_tradeSourceList.Num(); i++)
 	{
 		if(!m_tradeSourceList[i]->IsBeingPirated())
 		{
-			m_goldFromTradeRoutes += m_tradeSourceList[i]->GetValue();
+			goldFromTradeRoutes += m_tradeSourceList[i]->GetValue();
 		}
 		else
 		{
-			m_goldLostToPiracy += m_tradeSourceList[i]->GetValue();
+			goldLostToPiracy += m_tradeSourceList[i]->GetValue();
 		}
 	}
 
@@ -4623,13 +4657,16 @@ sint32 CityData::CalculateGoldFromTradeRoutes()
 
 	if(wonderTradeBonus > 0)
 	{
-		m_goldFromTradeRoutes += sint32(double(m_goldFromTradeRoutes) *
-		                                (double(wonderTradeBonus) * 0.01));
-		m_goldLostToPiracy += sint32(double(m_goldLostToPiracy) *
-		                             (double(wonderTradeBonus) * 0.01));
+		goldFromTradeRoutes += sint32(double(goldFromTradeRoutes) *
+		                              (double(wonderTradeBonus) * 0.01));
+		goldLostToPiracy += sint32(double(goldLostToPiracy) *
+		                           (double(wonderTradeBonus) * 0.01));
 	}
 
-	return m_goldFromTradeRoutes;
+	if(outGoldLostToPiracy)
+		*outGoldLostToPiracy = goldLostToPiracy;
+
+	return goldFromTradeRoutes;
 }
 
 //----------------------------------------------------------------------------
