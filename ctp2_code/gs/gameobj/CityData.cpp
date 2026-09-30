@@ -3748,8 +3748,8 @@ void CityData::CalculateBonusGold()
 	t1.start();
 #endif
 
-	m_bonusGold  = static_cast<double>(CalculateGoldFromResources());
-	DPRINTF(k_DBG_GOVERNOR_DETAIL, ("//  CalculateGoldFromResources    = %f ms (%s)\n", t1.getElapsedTimeInMilliSec(), GetName()));
+	m_bonusGold  = static_cast<double>(CalculateGoldFromTradeRoutes());
+	DPRINTF(k_DBG_GOVERNOR_DETAIL, ("//  CalculateGoldFromTradeRoutes    = %f ms (%s)\n", t1.getElapsedTimeInMilliSec(), GetName()));
 
 	Player* player_ptr = g_player[m_owner];
 	sint32 gov = player_ptr->m_government_type;
@@ -4469,7 +4469,7 @@ void CityData::AddTradeResource(ROUTE_TYPE type, sint32 resource)
 //
 // Globals    :
 //
-// Returns    : sint32 m_goldFromTradeRoutes (via CalculateGoldFromResources() )
+// Returns    : sint32 m_goldFromTradeRoutes (via CalculateGoldFromTradeRoutes() )
 //
 // Remark(s)  :
 //
@@ -4602,7 +4602,7 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 	}
 }
 
-sint32 CityData::CalculateGoldFromResources()
+sint32 CityData::CalculateGoldFromTradeRoutes()
 {
 	m_goldFromTradeRoutes = 0;
 	m_goldLostToPiracy    = 0;
