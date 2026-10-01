@@ -318,6 +318,18 @@ void Goal::Commit_Agent(const Agent_ptr & agent)
 			m_current_attacking_strength.Add_Agent_Strength(agent);
 			m_agents.push_back(agent);
 
+			// Unconditional (unlike Rollback_Agent's own "already gone
+			// wrong" diagnostic below) - pairs with the matching
+			// Remove_Agent_Strength trace so a full-game log can be
+			// grepped for one goal_type+army pair and the exact point
+			// m_unit_count first goes negative can be bisected, instead
+			// of only ever seeing the already-corrupted end state.
+			AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, agent->Get_Army().m_id,
+			    ("\tAdd_Agent_Strength: army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
+			     agent->Get_Army().m_id,
+			     m_current_attacking_strength.Get_Unit_Count(),
+			     Get_Agent_Count()));
+
 			agent->Set_Goal(this);
 		}
 		else
@@ -377,6 +389,14 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 #endif
 
 	m_current_attacking_strength.Remove_Agent_Strength(agent_ptr);
+
+	// Unconditional counterpart to Commit_Agent's Add_Agent_Strength
+	// trace above - see its comment.
+	AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, agent_ptr->Get_Army().m_id,
+	    ("\tRemove_Agent_Strength: army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
+	     agent_ptr->Get_Army().m_id,
+	     m_current_attacking_strength.Get_Unit_Count(),
+	     Get_Agent_Count()));
 
 #if defined(_DEBUG) || defined(USE_LOGGING)
 	if (!m_current_attacking_strength.NothingNeeded())
