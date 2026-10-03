@@ -1717,7 +1717,7 @@ AUI_ERRCODE CityWindow::DrawGrowthBar(ctp2_Static *control,
 	if(overcrowding > 1)
 		overcrowding = 1;
 
-	destRect.right = destRect.left + sint32((1.0 - cd->GetOvercrowdingCoefficient()) * double(width));
+	destRect.right = destRect.left + sint32((1.0 - overcrowding) * double(width));
 	if(destRect.right > rect.right)
 		destRect.right = rect.right;
 
