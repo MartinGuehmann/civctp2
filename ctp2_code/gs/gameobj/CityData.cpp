@@ -570,7 +570,12 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 
 	ResetStarvationTurns();
 
-	m_distanceToGood    = new sint32[g_theResourceDB->NumRecords()];
+	// Zero-initialized (not just allocated): FindGoodDistances() always
+	// runs right after this during a normal Initialize()/load, but a
+	// genuinely uninitialized array here is a live landmine for any code
+	// that reads GetDistanceToGood() during a window this analysis hasn't
+	// fully ruled out - see tradeutil_GetTradeValue's own diagnostic.
+	m_distanceToGood    = new sint32[g_theResourceDB->NumRecords()]();
 
 	m_ringFood          = new sint32[g_theCitySizeDB->NumRecords()];
 	m_ringProd          = new sint32[g_theCitySizeDB->NumRecords()];
@@ -973,16 +978,16 @@ void CityData::Serialize(CivArchive &archive)
 
 		if(ressourceNum == g_theResourceDB->NumRecords())
 		{
-			m_distanceToGood = new sint32[g_theResourceDB->NumRecords()];
+			m_distanceToGood = new sint32[g_theResourceDB->NumRecords()](); // zero-init, see Initialize()'s allocation comment
 			archive.Load((uint8*)m_distanceToGood, sizeof(sint32) * g_theResourceDB->NumRecords());
 		}
 		else
 		{ // Fix trade if the good database was increased in size.
 
-			sint32 *tmpDistanceToGood = new sint32[ressourceNum];
+			sint32 *tmpDistanceToGood = new sint32[ressourceNum]();
 			archive.Load((uint8*)tmpDistanceToGood, sizeof(sint32) * ressourceNum);
 
-			m_distanceToGood = new sint32[g_theResourceDB->NumRecords()];
+			m_distanceToGood = new sint32[g_theResourceDB->NumRecords()](); // zero-init, see Initialize()'s allocation comment - FindGoodDistances() right below resets every slot anyway, but matches the other sites for consistency
 
 			// To check later: next 3 lines are invalid when CTP1_TRADE has been defined. See CityData.h.
 			m_collectingResources.Resize(g_theResourceDB->NumRecords());
@@ -1336,7 +1341,7 @@ CityData::CityData(CivArchive &archive)
 CityData::CityData(CityData *copy)
 : m_name(NULL)
 {
-	m_distanceToGood = new sint32[g_theResourceDB->NumRecords()];
+	m_distanceToGood = new sint32[g_theResourceDB->NumRecords()](); // zero-init, see Initialize()'s allocation comment - memcpy() below overwrites it fully anyway
 	m_happy = new Happy;
 
 	m_ringFood  = new sint32[g_theCitySizeDB->NumRecords()];
@@ -6927,6 +6932,17 @@ void CityData::ResetCityOwner(sint32 owner)
 	n = m_tradeSourceList.Num();
 	for(i = n-1; i >= 0; i--)
 		m_tradeSourceList[i].Kill(CAUSE_KILL_TRADE_ROUTE_CITY_CHANGED_OWNER);
+
+	// The routes themselves are now dead, but m_goldFromTradeRoutes/
+	// m_goldLostToPiracy are cached scalars only written by
+	// CalculateBonusGold() - nothing above touches them, so without this
+	// a city that changes hands keeps reporting its *previous* owner's
+	// last-computed trade income until its own next CalculateBonusGold()
+	// call naturally overwrites it. Misattributing an established trade
+	// network's income to a brand-new owner (e.g. a revolt spinning off a
+	// new civ) produced a one-turn trade-power-graph spike.
+	m_goldFromTradeRoutes = 0;
+	m_goldLostToPiracy    = 0;
 
 	m_build_queue.ResetOwner(owner);
 
