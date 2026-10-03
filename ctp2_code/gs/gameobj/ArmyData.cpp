@@ -8145,7 +8145,7 @@ void ArmyData::MoveActors(const MapPoint &pos, bool teleport)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void ArmyData::MoveUnits(const MapPoint &pos)
+void ArmyData::MoveUnits(const MapPoint &pos, bool skipRemoval)
 {
 	if (m_flags & k_CULF_IN_SPACE)
 	{
@@ -8205,7 +8205,19 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 				                       GEA_End);
 			}
 
-			g_theWorld->RemoveUnitReference(m_pos, m_array[i]);
+			// skipRemoval: for a unit that was never actually registered in
+			// the QuadTree in the first place (e.g. a beach-assault passenger
+			// disembarking onto its transport's own tile - FinishUnloadOrder
+			// deliberately skips InsertUnit there, since it can't coexist
+			// with the transport's own entry at that position - see
+			// quadtree_leaked_rebase_entry memory). Removing a never-inserted
+			// unit finds no QuadTree node for wherever it claims to be,
+			// tripping QuadTreeNode::RemoveObject's child-node Assert.
+			// MoveToPosition() below still inserts it fresh regardless.
+			if(!skipRemoval)
+			{
+				g_theWorld->RemoveUnitReference(m_pos, m_array[i]);
+			}
 
 			UnitDynamicArray revealedUnits;
 			m_array[i].MoveToPosition(pos, &revealedUnits);
@@ -8913,7 +8925,13 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 				{
 					g_director->AddShow(debark[i]);
 				}
-				debark.AutoAddOrders(UNIT_ORDER_TELEPORT_TO, NULL, m_pos, 0);
+				// Argument 1: these units were never InsertUnit()'d - they
+				// can't coexist with the transport's own QuadTree entry at
+				// this same tile (see UnloadCargo's own comment on that),
+				// so their first real move must skip trying to remove a
+				// registration that was never created. See
+				// ExecuteTeleportOrder/MoveUnits' skipRemoval.
+				debark.AutoAddOrders(UNIT_ORDER_TELEPORT_TO, NULL, m_pos, 1);
 			}
 		}
 	}
@@ -9308,7 +9326,10 @@ bool ArmyData::ExecuteTeleportOrder(Order *order)
 {
 	UpdateZOCForRemoval();
 
-	MoveUnits(order->m_point);
+	// m_argument != 0: this army was never inserted into the QuadTree to
+	// begin with (see MoveUnits' skipRemoval parameter) - skip trying to
+	// remove a registration that was never created.
+	MoveUnits(order->m_point, order->m_argument != 0);
 
 	for (sint32 i = 0; i < m_nElements; i++)
 	{
