@@ -333,9 +333,15 @@ void Goal::Commit_Agent(const Agent_ptr & agent)
 			// DebugLogCheck player filter would silently drop every line
 			// that actually matters here. Player/goal_type now spelled
 			// out in the message itself since AI_DPRINTF isn't doing it.
+			// 'this' (the goal pointer) is included because goal_type is
+			// only a type index shared by every city's own instance of a
+			// goal (e.g. every city's own GOAL_DEFEND) - without it, an
+			// add to one city's goal and a later remove from a different
+			// city's goal of the same type look like a single mismatched
+			// round-trip on one goal, which they are not.
 			DPRINTF(k_DBG_SQUAD_STRENGTH,
-			    ("\tAdd_Agent_Strength: player %d goal_type %d army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
-			     m_playerId, m_goal_type, agent->Get_Army().m_id,
+			    ("\tAdd_Agent_Strength: player %d goal_type %d goal %x army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
+			     m_playerId, m_goal_type, this, agent->Get_Army().m_id,
 			     m_current_attacking_strength.Get_Unit_Count(),
 			     Get_Agent_Count()));
 
@@ -401,10 +407,12 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 
 	// Unconditional counterpart to Commit_Agent's Add_Agent_Strength
 	// trace above - see its comment, including why this is plain
-	// DPRINTF (not AI_DPRINTF) and spells out player/goal_type itself.
+	// DPRINTF (not AI_DPRINTF) and spells out player/goal_type/goal
+	// itself. The goal pointer ('this') disambiguates between different
+	// cities' own instances of the same goal_type - see the Add side.
 	DPRINTF(k_DBG_SQUAD_STRENGTH,
-	    ("\tRemove_Agent_Strength: player %d goal_type %d army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
-	     m_playerId, m_goal_type, agent_ptr->Get_Army().m_id,
+	    ("\tRemove_Agent_Strength: player %d goal_type %d goal %x army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
+	     m_playerId, m_goal_type, this, agent_ptr->Get_Army().m_id,
 	     m_current_attacking_strength.Get_Unit_Count(),
 	     Get_Agent_Count()));
 
