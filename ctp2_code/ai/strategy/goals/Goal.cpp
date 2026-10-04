@@ -323,10 +323,19 @@ void Goal::Commit_Agent(const Agent_ptr & agent)
 			// Remove_Agent_Strength trace so a full-game log can be
 			// grepped for one goal_type+army pair and the exact point
 			// m_unit_count first goes negative can be bisected, instead
-			// of only ever seeing the already-corrupted end state.
-			AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, agent->Get_Army().m_id,
-			    ("\tAdd_Agent_Strength: army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
-			     agent->Get_Army().m_id,
+			// of only ever seeing the already-corrupted end state. Its
+			// own debug channel (not k_DBG_SCHEDULER_DETAIL) so enabling
+			// it doesn't also pull in that channel's much heavier,
+			// unrelated scheduler-detail output. Plain DPRINTF, not
+			// AI_DPRINTF - every recorded occurrence of this bug (players
+			// 9, 10, 10, 4 across sessions) has hit a different player,
+			// never the hardcoded debug player, so AI_DPRINTF's own
+			// DebugLogCheck player filter would silently drop every line
+			// that actually matters here. Player/goal_type now spelled
+			// out in the message itself since AI_DPRINTF isn't doing it.
+			DPRINTF(k_DBG_SQUAD_STRENGTH,
+			    ("\tAdd_Agent_Strength: player %d goal_type %d army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
+			     m_playerId, m_goal_type, agent->Get_Army().m_id,
 			     m_current_attacking_strength.Get_Unit_Count(),
 			     Get_Agent_Count()));
 
@@ -391,10 +400,11 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 	m_current_attacking_strength.Remove_Agent_Strength(agent_ptr);
 
 	// Unconditional counterpart to Commit_Agent's Add_Agent_Strength
-	// trace above - see its comment.
-	AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, agent_ptr->Get_Army().m_id,
-	    ("\tRemove_Agent_Strength: army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
-	     agent_ptr->Get_Army().m_id,
+	// trace above - see its comment, including why this is plain
+	// DPRINTF (not AI_DPRINTF) and spells out player/goal_type itself.
+	DPRINTF(k_DBG_SQUAD_STRENGTH,
+	    ("\tRemove_Agent_Strength: player %d goal_type %d army 0x%lx -> unit_count=%d (Get_Agent_Count()=%zu)\n",
+	     m_playerId, m_goal_type, agent_ptr->Get_Army().m_id,
 	     m_current_attacking_strength.Get_Unit_Count(),
 	     Get_Agent_Count()));
 
