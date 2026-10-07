@@ -655,7 +655,27 @@ bool Unit::SetPosition(const MapPoint &p, UnitDynamicArray *revealed)
 	bool left_map = false;
 	AccessData()->SetPos(p, left_map);
 
-	return left_map || g_theWorld->InsertUnit(p, *this, revealed);
+	bool inserted = left_map || g_theWorld->InsertUnit(p, *this, revealed);
+
+	if(!inserted)
+	{
+		// SetPos() above already committed this unit's own position to (p)
+		// unconditionally, but CellUnitList::Insert just refused to
+		// register it there (tile already at k_MAX_ARMY_SIZE) - a "ghost"
+		// registration: the unit believes it arrived, the cell's own
+		// tracked list still doesn't include it. Suspected source of
+		// CityData::SetCurrentGarrison's and CellUnitList::Insert's own
+		// k_MAX_ARMY_SIZE Asserts, since anything that trusts a unit's own
+		// RetPos() instead of the cell's list (e.g.
+		// CtpAi::ComputeCityGarrisons, which sums defense_count across
+		// every army whose own position matches a city) can overcount
+		// relative to what the cell actually holds.
+		DPRINTF(k_DBG_GAMESTATE,
+		    ("Unit::SetPosition: id 0x%lx -> (%d,%d) rejected by cell (already at k_MAX_ARMY_SIZE=%d) - position committed anyway, unit not in CellUnitList\n",
+		     m_id, p.x, p.y, k_MAX_ARMY_SIZE));
+	}
+
+	return inserted;
 }
 
 void Unit::SetPosAndNothingElse(const MapPoint &p)

@@ -9326,7 +9326,20 @@ void CityData::SetCurrentGarrison(const sint8 & value)
 {
 	Assert(value >= 0);
 	Assert(value <= k_MAX_ARMY_SIZE);
-	m_currentGarrison = value;
+
+	// Clamp rather than store an invariant-violating value regardless of root
+	// cause. ComputeCityGarrisons (ctpai.cpp) sums defense_count across every
+	// army whose own RetPos() matches this city - that overcounts if a unit's
+	// position was set to a city tile that CellUnitList::Insert actually
+	// refused for being at the k_MAX_ARMY_SIZE cap (see Unit::SetPosition's
+	// diagnostic for that). A garrison count above the max stack size is
+	// logically impossible and shouldn't propagate into stored city state.
+	sint8 clamped = value;
+	if(clamped < 0)
+		clamped = 0;
+	if(clamped > k_MAX_ARMY_SIZE)
+		clamped = k_MAX_ARMY_SIZE;
+	m_currentGarrison = clamped;
 }
 
 sint8 CityData::GetNeededGarrison() const
