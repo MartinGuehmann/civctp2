@@ -8905,7 +8905,23 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 				// it just removes and re-inserts at the same position.
 				for(sint32 i = 0; i < debark.Num(); i++)
 				{
-					g_theWorld->InsertUnit(to_pt, debark[i]);
+					// UnitData::UnloadCargo already committed this
+					// passenger's position to to_pt via
+					// SetPosAndNothingElse() before this runs - if
+					// InsertUnit() is rejected here (to_pt's cell already
+					// at k_MAX_ARMY_SIZE), the passenger is left believing
+					// it arrived while the cell's own CellUnitList doesn't
+					// include it. Same ghost-registration shape as
+					// Unit::SetPosition's own diagnostic (see
+					// citydata_setcurrentgarrison_overflow memory) - a
+					// separate path to the same symptom, since this call
+					// bypasses Unit::SetPosition entirely.
+					if(!g_theWorld->InsertUnit(to_pt, debark[i]))
+					{
+						DPRINTF(k_DBG_GAMESTATE,
+						    ("ArmyData::FinishUnloadOrder: InsertUnit rejected for debarking unit 0x%lx at (%d,%d) - cell already at k_MAX_ARMY_SIZE=%d, unit not in CellUnitList\n",
+						     debark[i].m_id, to_pt.x, to_pt.y, k_MAX_ARMY_SIZE));
+					}
 				}
 
 				for(sint32 i = 0; i < debark.Num(); i++)
