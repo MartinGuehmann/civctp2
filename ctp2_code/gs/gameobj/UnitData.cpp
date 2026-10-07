@@ -1126,7 +1126,19 @@ bool UnitData::UnloadCargo(const MapPoint &unload_pos, Army &debark, sint32 &cou
 
 			if(debark.m_id == 0)
 			{
-				debark = g_player[m_owner]->GetNewArmy(CAUSE_NEW_ARMY_TRANSPORTED);
+				// Must be the PASSENGER's owner, not this transport's
+				// (m_owner) - a captured transport can still be carrying
+				// its previous owner's cargo. GetNewArmy() both sets the
+				// new army's owner and registers it in that owner's
+				// m_all_armies; using the wrong player here left the army
+				// registered under the transport's owner while
+				// ArmyData::Insert() below silently overwrote its owner
+				// field to the passenger's, desyncing the two - the army
+				// was never added to its real owner's m_all_armies, so
+				// Player::RemoveArmy() couldn't find it there when the
+				// army was later killed. See army_list_desync_boardtransport
+				// memory.
+				debark = g_player[passenger.GetOwner()]->GetNewArmy(CAUSE_NEW_ARMY_TRANSPORTED);
 			}
 
 			debark.Insert(passenger);
