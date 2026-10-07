@@ -444,7 +444,16 @@ void MapAnalysis::BeginTurn()
 			city.GetPos(pos);
 			sint32 total_value = city->GetCityData()->GetValue();
 
-			m_totalTrade[player] += city->GetCityData()->GetGoldFromTradeRoutes();
+			sint32 cityTradeGold = city->GetCityData()->GetGoldFromTradeRoutes();
+			m_totalTrade[player] += cityTradeGold;
+
+			// Write-side counterpart to Strengths::Calculate's own
+			// diagnostic - logs each city's own contribution plus the
+			// running per-player total, to catch a future trade-power-
+			// graph spike at its source (which city, how large) instead
+			// of inferring it indirectly.
+			DPRINTF(k_DBG_AI, ("MapAnalysis::BeginTurn: player %d city %s trade gold %d -> running m_totalTrade=%d\n",
+			        static_cast<sint32>(player), city->GetCityData()->GetName(), cityTradeGold, m_totalTrade[player]));
 
 			m_cityValueGrid[player].AddValue(pos, total_value);
 
