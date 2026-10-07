@@ -683,6 +683,11 @@ void MapAnalysis::CalcEmpireCenter(const size_t playerId)
 
 const MapPoint & MapAnalysis::GetEmpireCenter(const PLAYER_INDEX player) const
 {
+	if (static_cast<size_t>(player) >= m_empireCenter.size())
+	{
+		static const MapPoint s_noEmpireCenter(0, 0);
+		return s_noEmpireCenter;
+	}
 	return m_empireCenter[player];
 }
 
@@ -860,75 +865,109 @@ const PLAYER_INDEX foreignerId) const
 	return false;
 }
 
+// All playerId-indexed accessors below bounds-check against their own
+// backing array before indexing/assigning - see the matching comment on
+// the inline getters in mapanalysis.h for why (a newly-created civ's
+// player index can briefly outrun these arrays until the next
+// MapAnalysis::Resize() call grows them). The two Set* calls are the
+// more serious half of this: writing out of bounds, not just reading
+// garbage back.
 bool MapAnalysis::PlayerCanEnter
 (
 	const PLAYER_INDEX  playerId,
 	const MapPoint &    pos
 ) const
 {
+	if (static_cast<size_t>(playerId) >= m_movementTypeUnion.size())
+		return false;
 	return g_theWorld->GetCell(pos)->CanEnter(m_movementTypeUnion[playerId]);
 }
 
 sint16 MapAnalysis::GetNuclearWeaponsCount(const PLAYER_INDEX playerId) const
 {
+	if (static_cast<size_t>(playerId) >= m_nuclearWeapons.size())
+		return 0;
 	return m_nuclearWeapons[playerId];
 }
 
 sint16 MapAnalysis::GetBioWeaponsCount(const PLAYER_INDEX playerId) const
 {
+	if (static_cast<size_t>(playerId) >= m_bioWeapons.size())
+		return 0;
 	return m_bioWeapons[playerId];
 }
 
 sint16 MapAnalysis::GetNanoWeaponsCount(const PLAYER_INDEX playerId) const
 {
+	if (static_cast<size_t>(playerId) >= m_nanoWeapons.size())
+		return 0;
 	return m_nanoWeapons[playerId];
 }
 
 void MapAnalysis::SetNuclearWeaponsCount(const PLAYER_INDEX playerId, const sint32 value)
 {
+	if (static_cast<size_t>(playerId) >= m_nuclearWeapons.size())
+		return;
 	m_nuclearWeapons[playerId] = static_cast<sint16>(value);
 }
 
 void MapAnalysis::SetBioWeaponsCount(const PLAYER_INDEX playerId, const sint32 value)
 {
+	if (static_cast<size_t>(playerId) >= m_bioWeapons.size())
+		return;
 	m_bioWeapons[playerId] = static_cast<sint16>(value);
 }
 
 void MapAnalysis::SetNanoWeaponsCount(const PLAYER_INDEX playerId, const sint32 value)
 {
+	if (static_cast<size_t>(playerId) >= m_nanoWeapons.size())
+		return;
 	m_nanoWeapons[playerId] = static_cast<sint16>(value);
 }
 
 sint16 MapAnalysis::GetSpecialAttackers(const PLAYER_INDEX playerId) const
 {
+	if (static_cast<size_t>(playerId) >= m_specialAttackers.size())
+		return 0;
 	return m_specialAttackers[playerId];
 }
 
 sint32 MapAnalysis::AverageSettledContinentSize(const PLAYER_INDEX playerId) const
 {
+	if (static_cast<size_t>(playerId) >= m_continentSize.size())
+		return 0;
 	return m_continentSize[playerId];
 }
 
 sint16 MapAnalysis::GetTotalPopulation(const PLAYER_INDEX playerId) const
 {
-	return (playerId == PLAYER_UNASSIGNED) ? m_worldPopulation
-	                                       : m_totalPopulation[playerId];
+	if (playerId == PLAYER_UNASSIGNED)
+		return m_worldPopulation;
+	if (static_cast<size_t>(playerId) >= m_totalPopulation.size())
+		return 0;
+	return m_totalPopulation[playerId];
 }
 
 sint16 MapAnalysis::GetLandArea(const PLAYER_INDEX playerId) const
 {
+	if (static_cast<size_t>(playerId) >= m_landArea.size())
+		return 0;
 	return m_landArea[playerId];
 }
 
 double MapAnalysis::GetPopulationPercent(const PLAYER_INDEX playerId) const
 {
 	Assert(m_worldPopulation);
+	if (static_cast<size_t>(playerId) >= m_totalPopulation.size())
+		return 0.0;
 	return (double)m_totalPopulation[playerId] / m_worldPopulation;
 }
 
 double MapAnalysis::GetLandPercent(const PLAYER_INDEX playerId) const
 {
 	Assert(g_theWorld);
+	if (static_cast<size_t>(playerId) >= m_landArea.size())
+		return 0.0;
 	return (double)m_landArea[playerId] /
 	            (g_theWorld->GetWidth() * g_theWorld->GetHeight());
 }
@@ -1091,6 +1130,11 @@ double MapAnalysis::GetProductionHandicapRatio(const PLAYER_INDEX playerId) cons
 {
 	Assert(playerId >= 0);
 	Assert(static_cast<size_t>(playerId) < m_productionHandicapRatio.size());
+	// The Asserts above are diagnostic only - they don't stop execution,
+	// so an out-of-range playerId would still fall through to the
+	// out-of-bounds read below without this check.
+	if (playerId < 0 || static_cast<size_t>(playerId) >= m_productionHandicapRatio.size())
+		return 1.0;
 	return m_productionHandicapRatio[playerId];
 }
 
@@ -1098,6 +1142,8 @@ double MapAnalysis::GetGoldHandicapRatio(const PLAYER_INDEX playerId) const
 {
 	Assert(playerId >= 0);
 	Assert(static_cast<size_t>(playerId) < m_goldHandicapRatio.size());
+	if (playerId < 0 || static_cast<size_t>(playerId) >= m_goldHandicapRatio.size())
+		return 1.0;
 	return m_goldHandicapRatio[playerId];
 }
 
@@ -1105,6 +1151,8 @@ double MapAnalysis::GetScienceHandicapRatio(const PLAYER_INDEX playerId) const
 {
 	Assert(playerId >= 0);
 	Assert(static_cast<size_t>(playerId) < m_scienceHandicapRatio.size());
+	if (playerId < 0 || static_cast<size_t>(playerId) >= m_scienceHandicapRatio.size())
+		return 1.0;
 	return m_scienceHandicapRatio[playerId];
 }
 
