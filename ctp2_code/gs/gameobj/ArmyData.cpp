@@ -7229,6 +7229,14 @@ void ArmyData::CheckLoadSleepingCargoFromCity()
 				if(!u.IsAsleep())
 					continue;
 
+				// Same owner check as World::GetEmptyTransports - a sleeping
+				// foreign unit can be physically present on this tile (fog
+				// of war doesn't block sharing a tile with an unseen
+				// foreign unit, see PretestDest_HasRoom's IsVisible() gate)
+				// and CanCarry() below only checks unit-type compatibility.
+				if(u.GetOwner() != m_owner)
+					continue;
+
 				if(m_array[i].CanCarry(u))
 				{
 					bool out_of_fuel;
@@ -8378,7 +8386,7 @@ void ArmyData::CheckTerrainEvents()
 bool ArmyData::CanMoveIntoTransport(const MapPoint &pos,
                                     CellUnitList &transports) const
 {
-	if(!g_theWorld->GetEmptyTransports(pos, transports)) // Make a list of the transports with empty slots at pos
+	if(!g_theWorld->GetEmptyTransports(pos, transports, m_owner)) // Make a list of the transports with empty slots at pos
 		return false;
 
 	return CanMoveIntoThisTransport(transports); // true if this army can be loaded onto those transports
@@ -8403,7 +8411,7 @@ bool ArmyData::CanMoveIntoTransport(const MapPoint &pos,
 sint32 ArmyData::NumUnitsCanMoveIntoTransport(const MapPoint &pos,
                                               CellUnitList &transports) const
 {
-	if(!g_theWorld->GetEmptyTransports(pos, transports)) // Make a list of the transports with empty slots at pos
+	if(!g_theWorld->GetEmptyTransports(pos, transports, m_owner)) // Make a list of the transports with empty slots at pos
 		return 0;
 
 	return NumUnitsCanMoveIntoThisTransport(transports); // true if this army can be loaded onto those transports

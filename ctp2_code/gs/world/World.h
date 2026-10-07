@@ -514,7 +514,7 @@ public:
     double GetMoveCost(const MapPoint &pos) const;
     sint32 GetEnvFlags(const MapPoint &pos) const;
 
-    sint32 GetEmptyTransports(const MapPoint pos, CellUnitList &transports);
+    sint32 GetEmptyTransports(const MapPoint pos, CellUnitList &transports, const PLAYER_INDEX &owner);
 
     void GetArmy(const MapPoint &pos, CellUnitList &army);
     void GetNeighborUnits(const MapPoint &pos, UnitDynamicArray &n);
