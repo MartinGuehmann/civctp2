@@ -679,6 +679,44 @@ void Scheduler::Match_Resources(const bool move_armies)
 	{
 		if(committed_agents >= total_agents)
 		{
+			if(committed_agents > total_agents)
+			{
+				// Diagnostic: every agent should appear on at most one
+				// goal's m_agents list at a time, so committed_agents
+				// (summed from Get_Agent_Count() as each goal is visited
+				// this pass) should never exceed total_agents, fixed at
+				// the top of this function. When it does, some agent got
+				// committed to two goals within this same call - cross-
+				// reference every goal's own agent list now to find
+				// exactly which one, instead of only ever seeing the
+				// already-overcounted total. See
+				// scheduler_committed_agents_overcount memory.
+				for(Goal_List::iterator outer_iter = m_goals.begin(); outer_iter != m_goals.end(); ++outer_iter)
+				{
+					Goal_ptr outer_goal = static_cast<Goal_ptr>(*outer_iter);
+					const Agent_List & outer_agents = outer_goal->Get_Agents();
+
+					for(Agent_List::const_iterator agent_iter = outer_agents.begin(); agent_iter != outer_agents.end(); ++agent_iter)
+					{
+						sint32 goalsContaining = 0;
+						for(Goal_List::iterator inner_iter = m_goals.begin(); inner_iter != m_goals.end(); ++inner_iter)
+						{
+							const Agent_List & inner_agents = static_cast<Goal_ptr>(*inner_iter)->Get_Agents();
+							goalsContaining += static_cast<sint32>(
+								std::count(inner_agents.begin(), inner_agents.end(), *agent_iter));
+						}
+
+						if(goalsContaining > 1)
+						{
+							DPRINTF(k_DBG_SQUAD_STRENGTH,
+							    ("Scheduler::Match_Resources: OVERCOUNT - player %d army 0x%lx is committed on %d goals' agent lists simultaneously (seen on goal_type %d, goal %x)\n",
+							     m_playerId, (*agent_iter)->Get_Army().m_id, goalsContaining,
+							     outer_goal->Get_Goal_Type(), outer_goal));
+						}
+					}
+				}
+			}
+
 			Assert(committed_agents == total_agents);
 
 			break;
