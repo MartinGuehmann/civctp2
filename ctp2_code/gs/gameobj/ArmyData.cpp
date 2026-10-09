@@ -9348,6 +9348,26 @@ void ArmyData::UpdateZOCForRemoval()
 
 bool ArmyData::ExecuteTeleportOrder(Order *order)
 {
+	// Teleport (used by the expel mechanic and by a debarking army's own
+	// position announcement) bypasses ArmyMoveEvent's IsOccupiedByForeigner
+	// gate entirely - unlike a plain move, nothing here resolves combat or
+	// diplomacy before committing the position, so a foreign unit already
+	// standing on the target tile would otherwise silently end up sharing
+	// it with us (confirmed possible: a playtest log caught ArmyData::
+	// Insert's own owner-mismatch assert firing for real while unloading a
+	// transport's cargo - see foreign_tile_sharing_root_cause memory).
+	// Drop the order instead of teleporting onto an already-foreign tile.
+	if (IsOccupiedByForeigner(order->m_point))
+	{
+		DPRINTF(k_DBG_GAMESTATE,
+		    ("ArmyData::ExecuteTeleportOrder: army 0x%lx (player %d) teleport to (%d,%d) blocked - already occupied by foreign player %d\n",
+		     m_id, m_owner, order->m_point.x, order->m_point.y,
+		     g_theWorld->GetCell(order->m_point)->UnitArmy()->GetOwner()));
+		bool teleportTargetOccupiedByForeigner = false;
+		Assert(teleportTargetOccupiedByForeigner);
+		return true;
+	}
+
 	UpdateZOCForRemoval();
 
 	// m_argument != 0: this army was never inserted into the QuadTree to
