@@ -11,6 +11,8 @@ SpriteEditor {
 	int	widthpix	800
 	int	heightpix	232
 
+	string	pattern	"uptg20e.tga"
+
 	# File Controls
 	STLoadButton:CTP2_BUTTON_TITLE_BAR {
 

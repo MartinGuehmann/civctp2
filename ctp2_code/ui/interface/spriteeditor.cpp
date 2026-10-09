@@ -489,7 +489,12 @@ AUI_ERRCODE SpriteEditWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y
 	if ( IsHidden() )
 		return AUI_ERRCODE_OK;
 
-	return AUI_ERRCODE_OK;
+	// Unlike this window, sibling windows (BattleViewWindow,
+	// SpecialAttackWindow, TileImpTracker) all call the base class here -
+	// C3Window::DrawThis is what actually draws m_pattern (the LDL
+	// "pattern" property) onto this window's own surface. Without it, the
+	// panel behind the buttons never gets its background drawn at all.
+	return C3Window::DrawThis(surface, x, y);
 }
 
 bool SpriteEditWindow::FileExists(const char *name)
@@ -580,10 +585,17 @@ void SpriteEditWindow::LoadSprite(const char *name)
 	{
 		m_spriteData = m_currentSprite->GetGroupSprite((GAME_ACTION)i);
 
+		fprintf(stderr, "%s L%d: LoadSprite - GetGroupSprite(%d) returned %p%s\n", __FILE__, __LINE__, i,
+		        (void*)m_spriteData,
+		        m_spriteData ? "" : " (NULL - no sprite data for this action)");
+
 		if (m_spriteData != NULL)
 		{
 			w =  m_spriteData->GetWidth();
 			h =  m_spriteData->GetHeight();
+
+			fprintf(stderr, "%s L%d: LoadSprite - action %d: w=%u h=%u numFrames=%u\n", __FILE__, __LINE__, i,
+			        w, h, (unsigned)m_spriteData->GetNumFrames());
 
 			if (m_spriteRect.right < w)
 				m_spriteRect.right = w;
@@ -593,9 +605,15 @@ void SpriteEditWindow::LoadSprite(const char *name)
 		}
 	}
 
+	fprintf(stderr, "%s L%d: LoadSprite - final m_spriteRect=(%d,%d)-(%d,%d)\n", __FILE__, __LINE__,
+	        m_spriteRect.left, m_spriteRect.top, m_spriteRect.right, m_spriteRect.bottom);
+
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	m_spriteSurface=new aui_Surface(&errcode,m_spriteRect.right,m_spriteRect.bottom,16);
+
+	fprintf(stderr, "%s L%d: LoadSprite - m_spriteSurface=%p errcode=%d\n", __FILE__, __LINE__,
+	        (void*)m_spriteSurface, (int)errcode);
 
 	m_spriteData = m_currentSprite->GetGroupSprite((GAME_ACTION)m_animation);
 
@@ -728,6 +746,18 @@ void SpriteEditWindow::DrawSprite()
 
 void SpriteEditWindow::ReDrawLargeSprite()
 {
+	// Diagnostic for the black-preview investigation - logged only a
+	// handful of times so a short interactive test doesn't flood stderr,
+	// since this runs every Idle() tick.
+	static int s_logCount = 0;
+	bool const doLog = (s_logCount < 10);
+	if (doLog)
+	{
+		s_logCount++;
+		fprintf(stderr, "%s L%d: ReDrawLargeSprite - m_largeSurface=%p m_currentSprite=%p g_tiledMap=%p m_animation=%d m_frame=%d m_spriteSurface=%p\n",
+		        __FILE__, __LINE__, (void*)m_largeSurface, (void*)m_currentSprite, (void*)g_tiledMap, m_animation, m_frame, (void*)m_spriteSurface);
+	}
+
 	if (m_largeSurface==NULL)
 		return;
 
@@ -749,6 +779,14 @@ void SpriteEditWindow::ReDrawLargeSprite()
 		m_currentSprite->SetHotPoint((GOODACTION)m_animation, pt); // set only for large view
 		m_currentSprite->DrawDirect(m_spriteSurface, (GOODACTION)m_animation, m_frame, 0, 0, m_facing, 1.0, 15, 0, k_DRAWFLAGS_NORMAL);
 		m_currentSprite->SetHotPoint((GOODACTION)m_animation, sav); // reset for drawing on map
+
+		if (doLog)
+		{
+			fprintf(stderr, "%s L%d: ReDrawLargeSprite - about to StretchBlt: m_largeRect=(%d,%d)-(%d,%d) m_spriteRect=(%d,%d)-(%d,%d)\n",
+			        __FILE__, __LINE__,
+			        m_largeRect.left, m_largeRect.top, m_largeRect.right, m_largeRect.bottom,
+			        m_spriteRect.left, m_spriteRect.top, m_spriteRect.right, m_spriteRect.bottom);
+		}
 
 		g_c3ui->TheBlitter()->StretchBlt(m_largeSurface, &m_largeRect, m_spriteSurface, &m_spriteRect, k_AUI_BLITTER_FLAG_COPY);
 
