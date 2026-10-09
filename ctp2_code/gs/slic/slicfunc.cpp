@@ -7651,14 +7651,10 @@ SFN_ERROR Slic_Liberate::Call(SlicArgList *args)
 	Cell *cell = g_theWorld->GetCell(city.RetPos());
 	sint32 i, n = cell->GetNumUnits();
 
-	bool 		foundCity	= false;
-	MapPoint 		cpos;
 	CellUnitList 	expelled;
 	for(i = 0; i < n; i++)
 	{
-		Unit u = cell->AccessUnit(i);
-		foundCity = u.NearestFriendlyCityWithRoom(cpos, n, u.GetArmy());
-		expelled.Insert(u);
+		expelled.Insert(cell->AccessUnit(i));
 	}
 
 	n = expelled.Num();
@@ -7666,6 +7662,17 @@ SFN_ERROR Slic_Liberate::Call(SlicArgList *args)
 	{
 		for(i = 0; i < n; i++)
 		{
+			// Computed per unit, not shared across the loop like the old
+			// single cpos/foundCity did - this tile can hold units from
+			// more than one owner, and NearestFriendlyCityWithRoom()
+			// resolves to a city belonging to THAT unit's own civ. Reusing
+			// one result for every unit sent whichever owner was computed
+			// last to every other owner's "friendly" city - a real way
+			// for a teleport order's target to end up foreign-occupied.
+			// See foreign_tile_sharing_root_cause memory.
+			MapPoint cpos;
+			bool foundCity = expelled[i].NearestFriendlyCityWithRoom(cpos, n, expelled[i].GetArmy());
+
 			if(foundCity)
 			{
 				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_GetExpelledOrder,
