@@ -55,6 +55,8 @@ void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32
 {
 	Assert(action > GOODACTION_NONE &&
 			action < GOODACTION_MAX);
+	if (action <= GOODACTION_NONE || action >= GOODACTION_MAX)
+		return;
 
 	if (m_sprites[action] == NULL) return;
 
@@ -74,6 +76,8 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 {
 	Assert(action > GOODACTION_NONE &&
 			action < GOODACTION_MAX);
+	if (action <= GOODACTION_NONE || action >= GOODACTION_MAX)
+		return;
 
 	if (m_sprites[action] == NULL) return;
 

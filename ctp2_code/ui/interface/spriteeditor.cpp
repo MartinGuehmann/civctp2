@@ -125,6 +125,19 @@ void AnimCallback( aui_Control *control, uint32 action, uint32 data, Cookie cook
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
+	// m_MOVEAnim/m_ATTACKAnim/m_VICTORYAnim/m_WORKAnim are all wired to
+	// GOODACTION_MAX (see InitializeControls) - GoodSpriteGroup only ever
+	// has GOODACTION_IDLE, so there is no valid action for those buttons
+	// to select. Without this guard, SetAnimation() stores the invalid
+	// value and every repaint calls GoodSpriteGroup::Draw()/DrawDirect()
+	// with it, indexing m_sprites[] out of bounds and eventually
+	// crashing in ReDrawLargeSprite.
+	if (cookie.m_sin32Type <= (sint32)GOODACTION_NONE ||
+	    cookie.m_sin32Type >= (sint32)GOODACTION_MAX)
+	{
+		return;
+	}
+
 	g_spriteEditWindow->SetAnimation(cookie.m_sin32Type);
 	g_spriteEditWindow->m_frame             = 0;
 	g_spriteEditWindow->m_facing            = k_DEFAULTSPRITEFACING;
