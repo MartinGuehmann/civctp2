@@ -536,6 +536,13 @@ void SpriteEditWindow::LoadSprite(const char *name)
 
 	delete m_currentSprite;
 	delete m_spriteSurface;
+	// If the name below doesn't match .SPR/.TXT, or the file doesn't
+	// exist, every branch below just returns without ever reassigning
+	// m_spriteSurface - leaving it a dangling pointer to the memory just
+	// freed above. ReDrawLargeSprite() only checks m_currentSprite (which
+	// IS reassigned next line, so it looks valid) before blitting into
+	// m_spriteSurface on the very next frame, corrupting the heap.
+	m_spriteSurface = NULL;
 
 	m_currentSprite = new GoodSpriteGroup(GROUPTYPE_UNIT);
 
@@ -759,6 +766,13 @@ void SpriteEditWindow::ReDrawLargeSprite()
 	}
 
 	if (m_largeSurface==NULL)
+		return;
+
+	// m_spriteSurface is only valid once LoadSprite() has actually
+	// loaded a real .SPR/.TXT file - a failed/invalid load leaves it
+	// NULL (see LoadSprite's own comment). Guard here too, since this
+	// runs every Idle() tick regardless of whether a load ever succeeded.
+	if (m_spriteSurface==NULL)
 		return;
 
 	if ((m_currentSprite!=NULL)&&(g_tiledMap!=NULL))
