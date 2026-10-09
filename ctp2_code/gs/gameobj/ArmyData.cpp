@@ -8837,6 +8837,23 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 					i--;
 				}
 			}
+
+			// Whatever's left in debark is beach-assault/paratrooper-legal
+			// and is about to be InsertUnit()'d directly onto an occupied
+			// enemy tile below - unlike a normal attacking move, nothing
+			// routes through ArmyMoveEvent's IsOccupiedByForeigner ->
+			// FinishAttack -> MoveIntoForeigner combat resolution to get
+			// here, since this army's position was already committed
+			// directly (SetPosAndNothingElse), bypassing that path
+			// entirely. Resolve the fight now, before debark has any
+			// presence on the cell, so MoveIntoForeigner's own
+			// GetArmy(to_pt, defender) lookup sees only the real defenders,
+			// not debark's own not-yet-inserted units. See
+			// foreign_tile_sharing_root_cause memory.
+			if(debark.IsValid() && debark.Num() > 0)
+			{
+				debark.AccessData()->MoveIntoForeigner(to_pt);
+			}
 		}
 		else if(g_theWorld->GetCity(to_pt).m_id != 0 &&
 		        g_theWorld->GetCity(to_pt).GetOwner() != m_owner)
