@@ -11315,9 +11315,17 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 		// how far short the army was to find the actual call path.
 		if (!(range <= moves || order_rec->GetTargetPretestAdjacentPosition()))
 		{
+			// g_orderInfo[] is indexed by the UNIT_ORDER_* enum (Order.cpp),
+			// while order_rec->GetIndex() is this order's position within the
+			// data-driven Orders.txt file - the two numbering schemes have
+			// drifted apart (e.g. file position 26 is ORDER_SLAVE_RAID, but
+			// g_orderInfo[26] is ORDER_CAUSE_UNHAPPINESS), so indexing
+			// g_orderInfo[] with GetIndex() can print the wrong order name.
+			// g_theOrderDB->GetNameStr() reads the order's own name directly
+			// out of the DB record instead.
 			DPRINTF(k_DBG_GAMESTATE,
 			    ("ArmyData::PerformOrderHere: army 0x%lx (owner %d) order %s needs range %d but only %d moves remain at (x=%d,y=%d), turn=%d\n",
-			     m_id, m_owner, g_orderInfo[order_rec->GetIndex()].m_name, range, moves,
+			     m_id, m_owner, g_theOrderDB->GetNameStr(order_rec->GetIndex()), range, moves,
 			     target_pos.x, target_pos.y, g_player[m_owner]->m_current_round));
 		}
 		Assert(range <= moves || order_rec->GetTargetPretestAdjacentPosition());
