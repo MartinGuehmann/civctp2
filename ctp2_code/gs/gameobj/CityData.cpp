@@ -6492,9 +6492,32 @@ void CityData::CleanupUprising(Army &sa)
 		DPRINTF(k_DBG_GAMESTATE, ("The uprising succeeded in city: %s\n", m_home_city.CD()->GetName()));
 
 		// city army was already removed by sa.Fight(defenders); in CityData::FinishUprising
-
+		// (that only holds when the fight actually killed every defender -
+		// sa.Fight only auto-kills the whole defending stack when every
+		// single defender has 0 attack and 0 defense; otherwise it falls
+		// through to normal stack combat, which does not guarantee every
+		// defender dies). A unit can also simply have had no reason to
+		// fight at all: a barbarian city is normally undefended (barbarians
+		// are purely offensive, they keep no garrison), so any unit sitting
+		// here is typically not a defeated defender but something like a
+		// unit the city itself finished building this same turn, with
+		// nothing to fight over. Either way, a leftover unit of the old
+		// owner is still standing on what is about to become the new
+		// civilisation's tile - transfer it along with the city instead of
+		// leaving it orphaned under an owner who no longer holds the
+		// ground it's on.
 		PLAYER_INDEX si = civilisation_NewCivilisationOrVandals(m_owner);
 		sint32 nsa = sa.Num();
+
+		CellUnitList leftover;
+		g_theWorld->GetArmy(m_home_city.RetPos(), leftover);
+		for(sint32 i = leftover.Num() - 1; i >= 0; i--)
+		{
+			if(leftover[i].IsValid() && leftover[i].GetOwner() == m_owner)
+			{
+				leftover[i].ResetUnitOwner(si, CAUSE_REMOVE_ARMY_SLAVE_UPRISING);
+			}
+		}
 
 		if (si != PLAYER_INDEX_VANDALS)
 		{ // number of possible players not exausted
