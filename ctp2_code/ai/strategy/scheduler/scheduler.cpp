@@ -679,6 +679,7 @@ void Scheduler::Match_Resources(const bool move_armies)
 	{
 		if(committed_agents >= total_agents)
 		{
+#if defined(_DEBUG) || defined(USE_LOGGING)
 			if(committed_agents > total_agents)
 			{
 				// Diagnostic: every agent should appear on at most one
@@ -691,6 +692,12 @@ void Scheduler::Match_Resources(const bool move_armies)
 				// exactly which one, instead of only ever seeing the
 				// already-overcounted total. See
 				// scheduler_committed_agents_overcount memory.
+				//
+				// The O(n^2) search below is only ever useful for reading
+				// its DPRINTF output, which the macro itself already
+				// compiles out entirely without _DEBUG/USE_LOGGING - guard
+				// the whole block, not just the DPRINTF, so a release
+				// build never pays for the search either.
 				for(Goal_List::iterator outer_iter = m_goals.begin(); outer_iter != m_goals.end(); ++outer_iter)
 				{
 					Goal_ptr outer_goal = static_cast<Goal_ptr>(*outer_iter);
@@ -716,6 +723,7 @@ void Scheduler::Match_Resources(const bool move_armies)
 					}
 				}
 			}
+#endif
 
 			Assert(committed_agents == total_agents);
 
