@@ -282,6 +282,28 @@ void Goal::Commit_Agent(const Agent_ptr & agent)
 		return;
 	}
 
+	// Hard ceiling on the total units one goal can commit, expressed as a
+	// multiple of k_MAX_ARMY_SIZE (worth of several full stacks, since a
+	// siege force is meant to be organized into multiple stacks, not
+	// squeezed into one) rather than a raw agent count - an agent isn't
+	// necessarily a full stack (most committed agents in the playtest log
+	// below were lone single-unit armies), so capping by agent count
+	// alone could cap a siege at just a handful of units if they happen
+	// to arrive unstacked. 8 stacks' worth (up to 96 units) is already an
+	// enormous commitment, but it keeps Squad_Strength's sint8 fields
+	// (m_unit_count and friends) nowhere near their +-127 range regardless
+	// of how a goal's own satisfaction logic behaves. Without this, a
+	// NeverSatisfied goal (or any goal whose satisfaction check has a
+	// bug) can greedily absorb every available agent in one matching
+	// pass - confirmed in a playtest log where one GOAL_SEIGE instance
+	// reached 255 committed agents, wrapping m_unit_count repeatedly.
+	// See squad_strength_stack_ceiling memory.
+	static const sint32 k_MaxGoalUnitCount = 8 * k_MAX_ARMY_SIZE;
+	if(m_current_attacking_strength.Get_Unit_Count() >= k_MaxGoalUnitCount)
+	{
+		return;
+	}
+
 	// Only refresh the cache when the agent is actually unowned - nobody
 	// else has counted its strength yet, so it's safe to update. An agent
 	// already owned by m_sub_goal can be re-evaluated as a candidate here

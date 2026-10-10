@@ -124,7 +124,22 @@ GOAL_GARRISON {
 
 GOAL_SEIGE {
   RallyFirst
-  NeverSatisfied
+
+  # NeverSatisfied made this goal keep absorbing agents forever, since it
+  # has no natural stopping point - Is_Satisfied() never returns true, so
+  # Commit_Agent kept accepting every available agent in a single
+  # matching pass (one instance reached 255 committed agents in a
+  # playtest, wrapping Squad_Strength's sint8 counters). There is no
+  # point sending more troops than necessary, so disabled.
+  #NeverSatisfied
+
+  # NoRollback locked this goal's committed agents in for good once
+  # matched, even when a much better opportunity for those same units
+  # showed up elsewhere (e.g. 11 units already massed for a siege, while
+  # another unit stayed committed to marching across the map to besiege
+  # a different city alone). Its supposed stability benefit doesn't even
+  # survive a save/reload, so disabled.
+  #NoRollback
 
   # Normally the AI determines the prioity of a goal
   # by evaluating the units that could be used for the
