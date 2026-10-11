@@ -3177,9 +3177,18 @@ void UnitData::EndTurn()
 		if(rec->GetSpawnsBarbarians()
 		&& cellowner != m_owner
 		){
-			g_director->AddCenterMap(m_pos);
+			// Used to call g_director->AddCenterMap(m_pos) directly here,
+			// unconditionally - no owner/visibility check at all, unlike
+			// every other centering call site, so it could yank the camera
+			// even while a completely different player's turn was being
+			// processed, or reveal a position outside the viewer's actual
+			// vision. EyePoint(unit[0]) below routes this through the same
+			// SlicEyePoint mechanism every other notification-driven camera
+			// jump already uses, which correctly checks the unit's owner
+			// against the currently viewed player first.
 			Barbarians::AddBarbarians(m_pos, cellowner, FALSE);
 			SlicObject *so = new SlicObject("999GuerrillaSpawn");
+			so->AddUnit(Unit(m_id));
 			so->AddRecipient(m_owner);
 			so->AddUnitRecord(GetType());
 			g_slicEngine->Execute(so);
