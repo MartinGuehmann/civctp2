@@ -1523,7 +1523,15 @@ public:
 		}
 
 		const MapPoint & actorPosition = moveActor->GetMapPos();
-		if (g_selected_item->GetVisiblePlayer() != moveActor->GetPlayerNum()
+		// Sibling single-actor path (DirectorImpl::AddMove) gates this same
+		// "foreign move happened off-screen, snap the camera there" behavior
+		// on both the IsEnemyMoves() preference and the mover being visible
+		// to the watching player - this stack-move path was missing both,
+		// so it recentered on other players' moves even with "Show Enemy
+		// Moves" off, and could also reveal units outside current vision.
+		if (g_theProfileDB->IsEnemyMoves()
+			&& g_selected_item->GetVisiblePlayer() != moveActor->GetPlayerNum()
+			&& (moveActor->GetUnitVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
 			&& !g_tiledMap->TileIsVisible(actorPosition.x, actorPosition.y))
 		{
 			CenterMap(actorPosition);
