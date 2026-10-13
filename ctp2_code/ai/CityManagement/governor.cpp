@@ -1311,6 +1311,55 @@ void Governor::PlaceTileImprovements()
 
 		CityInfluenceIterator it(unit.RetPos(), city->GetSizeIndex());
 
+		// GetRingImprovementPriority (CityData.cpp) scores a tile purely by
+		// which ring it's in - identical for every city that reaches that
+		// ring, every turn, with no regard for how much of that ring this
+		// specific city has already improved. A city with a large or
+		// terrain-rich ring 1 can keep winning every one of its own
+		// candidates there turn after turn while a sibling city's equally
+		// deserving but lower-terrain ring 1 never gets a look in, since
+		// nothing discounts a ring as it fills up. First pass: tally, for
+		// this city, how many of each ring's eligible tiles already carry
+		// a finished improvement (same eligibility filter as the second
+		// pass below, so the denominator matches what can actually compete).
+		sint32 const maxRing = g_theCitySizeDB->NumRecords();
+		std::vector<sint32> ringTotal(maxRing, 0);
+		std::vector<sint32> ringImproved(maxRing, 0);
+
+		for (it.Start(); !it.End(); it.Next())
+		{
+			if(unit.RetPos() == it.Pos())
+				continue;
+
+			Cell const * cell = g_theWorld->GetCell(it.Pos());
+
+			if(cell->GetCityOwner() != unit)
+				continue;
+
+			if(cell->GetNumUnfinishedImprovements() > 0)
+				continue;
+
+			if(g_theInstallationTree->GetCount(it.Pos()) > 0
+			&& g_theWorld->GetCell(it.Pos())->GetTerrainType() != terrainutil_GetDead())
+				continue;
+
+			sint32 const ring = city->GetRing(it.Pos());
+			if(ring >= 0 && ring < maxRing)
+			{
+				ringTotal[ring]++;
+				if(cell->GetNumBuiltImprovementTypes() > 0)
+					ringImproved[ring]++;
+			}
+		}
+
+		// Second pass: gather candidates as before, but discount a
+		// brand-new-improvement candidate by the fraction of its own ring
+		// already improved - scoped per ring, not per city, so a city that
+		// has exhausted ring 1 still competes fully for ring 2. Upgrade
+		// candidates (a tile that already has some improvement) are left
+		// alone - they're not claiming fresh ring real estate from another
+		// city, so the same "give someone else a turn" reasoning doesn't
+		// apply.
 		for (it.Start(); !it.End(); it.Next())
 		{
 			if(unit.RetPos() == it.Pos())
@@ -1330,6 +1379,15 @@ void Governor::PlaceTileImprovements()
 
 			if(FindBestTileImprovement(it.Pos(), ti_goal))
 			{
+				sint32 const ring = city->GetRing(it.Pos());
+				if(cell->GetNumBuiltImprovementTypes() == 0
+				&& ring >= 0 && ring < maxRing && ringTotal[ring] > 0)
+				{
+					double const ringStillUnimproved =
+					    1.0 - static_cast<double>(ringImproved[ring]) /
+					          static_cast<double>(ringTotal[ring]);
+					ti_goal.utility *= ringStillUnimproved;
+				}
 				m_tileImprovementGoals.push_back(ti_goal);
 			}
 		}
