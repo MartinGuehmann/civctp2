@@ -1353,13 +1353,31 @@ void Governor::PlaceTileImprovements()
 		}
 
 		// Second pass: gather candidates as before, but discount a
-		// brand-new-improvement candidate by the fraction of its own ring
-		// already improved - scoped per ring, not per city, so a city that
-		// has exhausted ring 1 still competes fully for ring 2. Upgrade
-		// candidates (a tile that already has some improvement) are left
-		// alone - they're not claiming fresh ring real estate from another
-		// city, so the same "give someone else a turn" reasoning doesn't
-		// apply.
+		// brand-new-improvement candidate two ways - scoped per ring, not
+		// per city, so a city that has exhausted ring 1 still competes
+		// fully for ring 2. Upgrade candidates (a tile that already has
+		// some improvement) are left alone for both factors below - they
+		// aren't claiming fresh ring real estate from another city, so the
+		// same "give someone else a turn" reasoning doesn't apply.
+		//
+		// (1) By the fraction of its own ring already improved (as before).
+		//
+		// (2) By how UNimproved its immediately-inner ring still is - rings
+		// were scored fully independently before this, so ring 2 could win
+		// every turn's budget purely on terrain while ring 1 still had
+		// empty tiles sitting untouched (the ring-distance steps are
+		// shallow enough - 1.000/0.833/0.667/... - that just one or two
+		// ring-1 tiles getting improved was enough to drag ring 1's
+		// discounted score below ring 2's undiscounted one). Multiplying
+		// by the inner ring's own improved-fraction means ring 2 only
+		// ramps up as ring 1 actually fills in, rather than switching on
+		// the instant ring 1 has *any* progress - and since ring 2's own
+		// cascade factor is ring 1's progress, ring 3's is ring 2's, and so
+		// on, the whole inside-out ordering falls out of chaining just the
+		// immediately-inner ring at each level, with no need to look back
+		// further than one ring. Ring 1 itself has no inner ring (ring 0 is
+		// the city tile, never a candidate, so ringTotal[0] stays 0) and so
+		// is never cascade-discounted.
 		for (it.Start(); !it.End(); it.Next())
 		{
 			if(unit.RetPos() == it.Pos())
@@ -1380,13 +1398,24 @@ void Governor::PlaceTileImprovements()
 			if(FindBestTileImprovement(it.Pos(), ti_goal))
 			{
 				sint32 const ring = city->GetRing(it.Pos());
-				if(cell->GetNumBuiltImprovementTypes() == 0
-				&& ring >= 0 && ring < maxRing && ringTotal[ring] > 0)
+				if(cell->GetNumBuiltImprovementTypes() == 0 && ring >= 0 && ring < maxRing)
 				{
-					double const ringStillUnimproved =
-					    1.0 - static_cast<double>(ringImproved[ring]) /
-					          static_cast<double>(ringTotal[ring]);
-					ti_goal.utility *= ringStillUnimproved;
+					if(ringTotal[ring] > 0)
+					{
+						double const ringStillUnimproved =
+						    1.0 - static_cast<double>(ringImproved[ring]) /
+						          static_cast<double>(ringTotal[ring]);
+						ti_goal.utility *= ringStillUnimproved;
+					}
+
+					sint32 const innerRing = ring - 1;
+					if(innerRing >= 0 && ringTotal[innerRing] > 0)
+					{
+						double const innerRingImprovedFraction =
+						    static_cast<double>(ringImproved[innerRing]) /
+						    static_cast<double>(ringTotal[innerRing]);
+						ti_goal.utility *= innerRingImprovedFraction;
+					}
 				}
 				m_tileImprovementGoals.push_back(ti_goal);
 			}
