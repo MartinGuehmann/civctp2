@@ -321,6 +321,7 @@ Strategy {
 		Bit ProductionCities         // Based on production
 		Bit GrowthCities             // Based growth
 		Bit CommerceCities           // Based on commerce income
+		Bit (Int) GoldNegativePriority // For a CommerceCities element: when the city's net gold is negative, match using this priority instead of the normal Top/Bottom commerce-rank check - a direct "losing money right now" override, independent of how the city ranks against others.
 		Bit HappyCities              // Based on happiness
 		Bit ThreatenedCities         // Based on enemy threat
 		Bit PowerCities              // Based on domestic attack strength

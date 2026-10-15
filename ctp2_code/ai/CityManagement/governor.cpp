@@ -4764,6 +4764,22 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 
 		else if(elem->GetCommerceCities())
 		{
+			// A city can rank fine against other cities by commerce
+			// percentile while still spending more gold than it earns in
+			// absolute terms (e.g. unusually high upkeep for its own
+			// size/buildings) - the normal Top/Bottom rank check below
+			// wouldn't catch that. When net gold is actually negative,
+			// match this element using GoldNegativePriority instead,
+			// bypassing the percentile check entirely - a direct "losing
+			// money right now" signal independent of how other cities compare.
+			sint32 goldNegativePriority;
+			if(elem->GetGoldNegativePriority(goldNegativePriority) && city->GetNetCityGold() < 0)
+			{
+				best_priority = goldNegativePriority;
+				best_elem     = elem;
+				continue;
+			}
+
 			rank = MapAnalysis::GetMapAnalysis().
 			       GetCommerceRank(city);
 		}
