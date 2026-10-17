@@ -135,9 +135,14 @@ m_closeButton(static_cast<ctp2_Button*>(aui_Ldl::GetObject(
 
 	m_map->SetInteractive(false);
 
-	m_map->DisplayUnits(false);
-	m_map->DisplayCities(false);
-	m_map->DisplayBorders(false);
+	// false, false: this dialog's own embedded construction-coverage map
+	// shouldn't show units/cities/borders, but it must NOT persist that
+	// to the shared profile - g_theProfileDB is global, not per-RadarMap-
+	// instance, and doing so was silently overwriting the user's real
+	// saved minimap preference every time this dialog got constructed.
+	m_map->DisplayUnits(false, false);
+	m_map->DisplayCities(false, false);
+	m_map->DisplayBorders(false, false);
 
 	m_startButton->Enable(false);
 
