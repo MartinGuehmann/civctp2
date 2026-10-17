@@ -459,7 +459,6 @@ STRATEGY_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_GOLD
         Bottom 0.4
         CommerceCities
-        GoldNegativePriority 11500
         Advice BUILD_GOLD_ADVICE
         ImproveGoldBonus  30
         ImproveProductionBonus  -30
@@ -1728,7 +1727,6 @@ STRATEGY_SCIENTIST_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_GOLD
         Bottom 0.4
         CommerceCities
-        GoldNegativePriority 11500
         Advice BUILD_GOLD_ADVICE
         ImproveGoldBonus  40
         ImproveProductionBonus  -30
@@ -2316,7 +2314,6 @@ STRATEGY_MILITARIST_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_GOLD
         Bottom 0.4
         CommerceCities
-        GoldNegativePriority 11500
         Advice BUILD_GOLD_ADVICE
         ImproveGoldBonus  70
         ImproveProductionBonus  -60
@@ -2912,7 +2909,6 @@ STRATEGY_ECONOMIC_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_GOLD
         Bottom 0.4
         CommerceCities
-        GoldNegativePriority 11500
         Advice BUILD_GOLD_ADVICE
         ImproveGoldBonus  10
     }
@@ -3494,7 +3490,6 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_GOLD
         Bottom 0.4
         CommerceCities
-        GoldNegativePriority 11500
         Advice BUILD_GOLD_ADVICE
         ImproveGoldBonus  60
         ImproveProductionBonus  -10
@@ -4079,7 +4074,6 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         BuildListSequence BUILD_LIST_SEQUENCE_GOLD
         Bottom 0.4
         CommerceCities
-        GoldNegativePriority 11500
         Advice BUILD_GOLD_ADVICE
         ImproveGoldBonus  10
         ImproveGrowthBonus  -10
