@@ -4802,6 +4802,24 @@ const StrategyRecord::BuildListSequenceElement * Governor::GetMatchingSequenceEl
 			       GetPowerRank(city);
 		}
 
+		else if(elem->GetHasDeficit())
+		{
+			// Replacement for the reverted GoldNegativePriority override -
+			// a standalone condition rather than a CommerceCities-specific
+			// override, so it needs its own branch instead of folding into
+			// the rank-based matching below. Matches outright whenever the
+			// city's net gold is actually negative, independent of how it
+			// ranks against other cities; otherwise this element simply
+			// doesn't apply - skip it the same as a failed gate earlier in
+			// this function would have.
+			if(city->GetNetCityGold() >= 0)
+				continue;
+
+			best_priority = elem->GetPriority();
+			best_elem     = elem;
+			continue;
+		}
+
 		else if(elem->HasSmallCitiesMaxSize())
 		{
 			// Do nothing

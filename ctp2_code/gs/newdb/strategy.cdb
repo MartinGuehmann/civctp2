@@ -325,6 +325,7 @@ Strategy {
 		Bit HappyCities              // Based on happiness
 		Bit ThreatenedCities         // Based on enemy threat
 		Bit PowerCities              // Based on domestic attack strength
+		Bit HasDeficit               // Matches whenever the city's net gold is negative, independent of any rank-based criteria above
 		Bit Default                  // If neither top or bottom, then use default
 		Bit (StringId) Advice        // Advice to give player if selected
 		Bit (Int) SmallCitiesMaxSize // For cities up to this size
