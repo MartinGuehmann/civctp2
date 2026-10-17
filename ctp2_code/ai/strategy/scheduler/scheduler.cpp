@@ -1084,10 +1084,32 @@ void Scheduler::Associate_Goals_With_Sub_Goals()
 
 			Goal_ptr the_goal = tmp_goal_iter->second;
 
+			// A goal whose target city/army died this turn but hasn't been
+			// cleaned up yet would otherwise hit Get_Target_Pos()'s own
+			// Assert(pos.IsValid()) below - this function isn't only called
+			// once per turn in the normal goal-processing cycle, it also
+			// runs from Scheduler's copy constructor whenever the per-player
+			// Scheduler vector reallocates (e.g. CtpAi::AddPlayer resizing
+			// it for a newly-created civ, such as one born from a slave
+			// uprising), which can catch a goal in that dead-target window
+			// before its own regular per-turn invalidation pass would have
+			// removed it.
+			if(the_goal->IsInvalid())
+			{
+				tmp_goal_iter++;
+				continue;
+			}
+
 			// Goal and subgoal may not be in the same order
 			while(sub_goal_iter != m_goals_of_type[sub_goal].end())
 			{
 				Goal_ptr sub_goal = sub_goal_iter->second;
+
+				if(sub_goal->IsInvalid())
+				{
+					sub_goal_iter++;
+					continue;
+				}
 
 				MapPoint     tagetPos = the_goal->Get_Target_Pos();
 				MapPoint subTaregtPos = sub_goal->Get_Target_Pos();
