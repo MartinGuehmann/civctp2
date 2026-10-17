@@ -1352,32 +1352,37 @@ void Governor::PlaceTileImprovements()
 			}
 		}
 
-		// Second pass: gather candidates as before, but discount a
-		// brand-new-improvement candidate two ways - scoped per ring, not
-		// per city, so a city that has exhausted ring 1 still competes
-		// fully for ring 2. Upgrade candidates (a tile that already has
-		// some improvement) are left alone for both factors below - they
-		// aren't claiming fresh ring real estate from another city, so the
-		// same "give someone else a turn" reasoning doesn't apply.
+		// Second pass: gather candidates as before, but a brand-new-
+		// improvement candidate (one with no improvement at all yet) is
+		// now gated two ways:
 		//
-		// (1) By the fraction of its own ring already improved (as before).
+		// (1) Hard-gated by its immediately-inner ring: it doesn't compete
+		// at all - not even discounted, excluded entirely - until that
+		// inner ring is completely improved. A soft, proportional discount
+		// was tried first and wasn't strict enough: once an inner ring was
+		// mostly (not completely) done, its own few remaining tiles were
+		// often the worst-terrain leftovers (the better ones get taken
+		// first), so a good-terrain outer-ring tile could still outscore
+		// them even heavily discounted - exactly the "ring 1 has a few
+		// empty spots, ring 2 fills anyway" symptom this replaces. Since
+		// ring 2's own gate is ring 1's completeness, ring 3's is ring 2's,
+		// and so on, the whole inside-out ordering falls out of chaining
+		// just the immediately-inner ring at each level, with no need to
+		// look back further than one ring. Ring 1 itself has no inner ring
+		// (ring 0 is the city tile, never a candidate, so ringTotal[0]
+		// stays 0) and so is never gated.
 		//
-		// (2) By how UNimproved its immediately-inner ring still is - rings
-		// were scored fully independently before this, so ring 2 could win
-		// every turn's budget purely on terrain while ring 1 still had
-		// empty tiles sitting untouched (the ring-distance steps are
-		// shallow enough - 1.000/0.833/0.667/... - that just one or two
-		// ring-1 tiles getting improved was enough to drag ring 1's
-		// discounted score below ring 2's undiscounted one). Multiplying
-		// by the inner ring's own improved-fraction means ring 2 only
-		// ramps up as ring 1 actually fills in, rather than switching on
-		// the instant ring 1 has *any* progress - and since ring 2's own
-		// cascade factor is ring 1's progress, ring 3's is ring 2's, and so
-		// on, the whole inside-out ordering falls out of chaining just the
-		// immediately-inner ring at each level, with no need to look back
-		// further than one ring. Ring 1 itself has no inner ring (ring 0 is
-		// the city tile, never a candidate, so ringTotal[0] stays 0) and so
-		// is never cascade-discounted.
+		// (2) Still discounted by the fraction of its OWN ring already
+		// improved, same as before the hard gate was added - once a ring
+		// unlocks, its own candidates all compete together in this turn's
+		// shared budget, and without this one city's whole ring could
+		// still hog an entire turn's budget the same way the original
+		// ring-saturation bug did, just one ring later.
+		//
+		// Upgrade candidates (a tile that already has some improvement)
+		// are exempt from both - they aren't claiming fresh ring real
+		// estate from another ring, so neither "wait your turn" reasoning
+		// applies.
 		for (it.Start(); !it.End(); it.Next())
 		{
 			if(unit.RetPos() == it.Pos())
@@ -1400,6 +1405,16 @@ void Governor::PlaceTileImprovements()
 				sint32 const ring = city->GetRing(it.Pos());
 				if(cell->GetNumBuiltImprovementTypes() == 0 && ring >= 0 && ring < maxRing)
 				{
+					sint32 const innerRing = ring - 1;
+					if(innerRing >= 0 && ringImproved[innerRing] < ringTotal[innerRing])
+						continue;    // inner ring isn't fully improved yet - this ring doesn't compete at all
+
+					// Still needed even with the hard gate above: once a
+					// ring IS unlocked, its own candidates all compete
+					// together in this turn's shared budget - without this,
+					// one city's whole ring could still hog an entire
+					// turn's budget the same way the original ring-
+					// saturation bug did, just one ring later.
 					if(ringTotal[ring] > 0)
 					{
 						double const ringStillUnimproved =
