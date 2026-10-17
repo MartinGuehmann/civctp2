@@ -396,6 +396,18 @@ STRATEGY_DEFAULT {
     }
 
     BuildListSequenceElement {
+        Priority 11500
+        BuildListSequence BUILD_LIST_SEQUENCE_FIGHT_DEFICIT
+        HasBuildingsThenStop BUILDING_BUILD_LIST_GOLD
+        HasDeficit
+        Advice BUILD_GOLD_ADVICE
+        MinNumUnits 2
+        MinTransporters 2
+        ImproveGoldBonus  30
+        ImproveProductionBonus  -30
+    }
+
+    BuildListSequenceElement {
         Priority 12000
         BuildListSequence BUILD_LIST_SEQUENCE_SMALL_CITIES
         HasBuildingsThenStop BUILDING_BUILD_LIST_SMALL_CITIES
@@ -1714,6 +1726,19 @@ STRATEGY_SCIENTIST_DEFAULT {
     }
 
     BuildListSequenceElement {
+        Priority 11500
+        BuildListSequence BUILD_LIST_SEQUENCE_FIGHT_DEFICIT
+        HasBuildingsThenStop BUILDING_BUILD_LIST_GOLD
+        HasDeficit
+        Advice BUILD_GOLD_ADVICE
+        MinNumUnits 2
+        MinTransporters 2
+        ImproveGoldBonus  40
+        ImproveProductionBonus  -30
+        ImproveGrowthBonus  -10
+    }
+
+    BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
         Top 0.2
@@ -2285,6 +2310,19 @@ STRATEGY_MILITARIST_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  70
+        ImproveProductionBonus  -60
+        ImproveGrowthBonus  -10
+    }
+
+    BuildListSequenceElement {
+        Priority 11500
+        BuildListSequence BUILD_LIST_SEQUENCE_FIGHT_DEFICIT
+        HasBuildingsThenStop BUILDING_BUILD_LIST_GOLD
+        HasDeficit
+        Advice BUILD_GOLD_ADVICE
+        MinNumUnits 2
+        MinTransporters 2
         ImproveGoldBonus  70
         ImproveProductionBonus  -60
         ImproveGrowthBonus  -10
@@ -2873,6 +2911,17 @@ STRATEGY_ECONOMIC_DEFAULT {
     }
 
     BuildListSequenceElement {
+        Priority 11500
+        BuildListSequence BUILD_LIST_SEQUENCE_FIGHT_DEFICIT
+        HasBuildingsThenStop BUILDING_BUILD_LIST_GOLD
+        HasDeficit
+        Advice BUILD_GOLD_ADVICE
+        MinNumUnits 2
+        MinTransporters 2
+        ImproveGoldBonus  10
+    }
+
+    BuildListSequenceElement {
         Priority 7000
         BuildListSequence BUILD_LIST_SEQUENCE_OFFENSE
         Top 0.2
@@ -3441,6 +3490,19 @@ STRATEGY_ECOTOPIAN_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  60
+        ImproveProductionBonus  -10
+        ImproveGrowthBonus  -50
+    }
+
+    BuildListSequenceElement {
+        Priority 11500
+        BuildListSequence BUILD_LIST_SEQUENCE_FIGHT_DEFICIT
+        HasBuildingsThenStop BUILDING_BUILD_LIST_GOLD
+        HasDeficit
+        Advice BUILD_GOLD_ADVICE
+        MinNumUnits 2
+        MinTransporters 2
         ImproveGoldBonus  60
         ImproveProductionBonus  -10
         ImproveGrowthBonus  -50
@@ -4016,6 +4078,18 @@ STRATEGY_DIPLOMATIC_DEFAULT {
         Bottom 0.4
         CommerceCities
         Advice BUILD_GOLD_ADVICE
+        ImproveGoldBonus  10
+        ImproveGrowthBonus  -10
+    }
+
+    BuildListSequenceElement {
+        Priority 11500
+        BuildListSequence BUILD_LIST_SEQUENCE_FIGHT_DEFICIT
+        HasBuildingsThenStop BUILDING_BUILD_LIST_GOLD
+        HasDeficit
+        Advice BUILD_GOLD_ADVICE
+        MinNumUnits 2
+        MinTransporters 2
         ImproveGoldBonus  10
         ImproveGrowthBonus  -10
     }
