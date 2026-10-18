@@ -2819,7 +2819,15 @@ void DirectorImpl::AddSpaceLaunch(const Unit & launcher, const MapPoint & destin
 		return;
 	}
 
-	bool playerInvolved = (launcher->GetOwner() == g_selected_item->GetVisiblePlayer());
+	// playerInvolved (your own unit) needs its own IsAutoCenterOn() gate,
+	// same as the sibling bombardment-centering checks in ArmyData.cpp -
+	// this one was missing it entirely, so a space launch always
+	// recentered the camera regardless of the auto-center setting
+	// (confirmed via director.cpp's own AddCenterMap diagnostic Assert,
+	// the dominant cause - 28 of 60 hits in one playtest). visibleEnemyUnit
+	// keeps its own, separate IsEnemyMoves() gate, unchanged.
+	bool playerInvolved = g_selected_item->IsAutoCenterOn()
+	                      && (launcher->GetOwner() == g_selected_item->GetVisiblePlayer());
 	bool visibleEnemyUnit = g_theProfileDB->IsEnemyMoves()
 	                        && (launcher->GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()));
 	if ((playerInvolved || visibleEnemyUnit)
