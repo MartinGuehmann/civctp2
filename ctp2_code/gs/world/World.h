@@ -368,8 +368,8 @@ public:
     void InsertWaterNextToLand(const sint32 waterc, const sint32 landc);
     void InsertLandNextToWater(const sint32 landc, const sint32 waterc);
 
-    bool IsWaterNextTooLand(const sint32 waterc, const sint32 landc) const;
-    bool IsLandNextTooWater(const sint32 landc, const sint32 waterc) const;
+    bool IsWaterNextToLand(const sint32 waterc, const sint32 landc) const;
+    bool IsLandNextToWater(const sint32 landc, const sint32 waterc) const;
 
     bool LandShareWater(const sint32 land1, const sint32 land2) const;
 

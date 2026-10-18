@@ -538,11 +538,11 @@ bool Agent::CanReachTargetContinent(const MapPoint & pos) const
 	}
 	else if(origin_is_land && !target_is_land)
 	{
-		return g_theWorld->IsLandNextTooWater(my_continent, target_cont);
+		return g_theWorld->IsLandNextToWater(my_continent, target_cont);
 	}
 	else // if(!origin_is_land && target_is_land) // Last possibility
 	{
-		return g_theWorld->IsLandNextTooWater(target_cont, my_continent);
+		return g_theWorld->IsLandNextToWater(target_cont, my_continent);
 	}
 }
 
@@ -574,7 +574,7 @@ bool Agent::EstimateTransportUtility(const Agent_ptr transport, Utility & utilit
 		}
 		else
 		{
-			if (!g_theWorld->IsLandNextTooWater(my_continent, trans_cont))
+			if (!g_theWorld->IsLandNextToWater(my_continent, trans_cont))
 				return false;
 		}
 	}
