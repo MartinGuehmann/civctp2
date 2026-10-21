@@ -5076,6 +5076,15 @@ MapPoint Goal::MoveAwayFromTargetCity(Agent_ptr rallyAgent)
 		{
 			if(rallyPos.GetNeighborPosition(WORLD_DIRECTION(i), tempPos))
 			{
+				// IsNextTo excludes tiles adjacent to the target, but not the
+				// target's own tile - if the target city currently has no
+				// army on it, it would otherwise pass every check below and
+				// get picked as a "move away from target" destination, which
+				// is backwards, and GotoGoalTaskSolution then (correctly)
+				// fails to path a plain move order onto an enemy-owned city.
+				if(tempPos == targetPos)
+					continue;
+
 				if(targetPos.IsNextTo(tempPos))
 					continue;
 
