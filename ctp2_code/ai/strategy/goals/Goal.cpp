@@ -5130,6 +5130,7 @@ MapPoint Goal::MoveOutOfCity(Agent_ptr rallyAgent)
 	MapPoint rallyPos = rallyAgent->Get_Pos();
 	if(g_theWorld->GetCity(rallyPos).IsValid())
 	{
+		MapPoint const startPos = rallyPos;
 		MapPoint tempPos;
 		for(sint32 i = 0 ; i < NOWHERE; i++)
 		{
@@ -5146,7 +5147,27 @@ MapPoint Goal::MoveOutOfCity(Agent_ptr rallyAgent)
 		}
 
 		if(!GotoGoalTaskSolution(rallyAgent, rallyPos))
+		{
+			// Same pathfind-failure class as the sibling MoveAwayFromTargetCity/
+			// MoveToTarget call sites - log what we know to see why on the
+			// next playtest, rather than assume blind. rallyPos == startPos
+			// means the neighbor search above never found an empty,
+			// enterable cell at all (every neighbor blocked/occupied), as
+			// opposed to finding one but still failing to path there.
+			const Unit & first_unit = rallyAgent->Get_Army()->Get(0);
+			DPRINTF(k_DBG_SCHEDULER,
+			    ("GOAL %x (%s): MoveOutOfCity: GotoGoalTaskSolution failed for army 0x%lx, unit type %d (%s), from (x=%d,y=%d) to (x=%d,y=%d), foundEmptyNeighbor %d, HasCargo %d\n",
+			     this,
+			     g_theGoalDB->Get(m_goal_type)->GetNameText(),
+			     rallyAgent->Get_Army().m_id,
+			     first_unit.GetType(),
+			     g_theUnitDB->GetNameStr(first_unit.GetType()),
+			     startPos.x, startPos.y,
+			     rallyPos.x, rallyPos.y,
+			     (rallyPos != startPos),
+			     rallyAgent->Get_Army()->HasCargo()));
 			Assert(false);
+		}
 	}
 
 	return rallyPos;
