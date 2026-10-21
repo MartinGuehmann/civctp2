@@ -2720,23 +2720,6 @@ void DirectorImpl::AddCopyVision()
 
 void DirectorImpl::AddCenterMap(const MapPoint &pos)
 {
-#if defined(_DEBUG) || defined(USE_LOGGING)
-	// Diagnostic: two unwanted-centering-with-auto-center-off cases were
-	// already found and fixed this way (stack moves missing the
-	// IsEnemyMoves()/visibility gate, guerrilla barbarian spawn with no
-	// gate at all), but the user reports it's still happening - watching
-	// a robot player, no GUI interaction, no SLIC message (confirmed
-	// suppressed for a robot recipient without a pending request), city
-	// capture excluded as expected. Rather than keep auditing every
-	// AddCenterMap call site in the codebase by inspection, log the exact
-	// caller whenever this fires with auto-center actually off.
-	if (!g_selected_item->IsAutoCenterOn())
-	{
-		DPRINTF(k_DBG_UI, ("DirectorImpl::AddCenterMap: pos (%d,%d) with auto-center OFF, turn=%d - caller:\n%s",
-		        pos.x, pos.y, NewTurnCount::GetCurrentRound(), c3debug_StackTrace()));
-	}
-	Assert(g_selected_item->IsAutoCenterOn());
-#endif
 	DQActionCenterMap *action = new DQActionCenterMap(pos);
 	m_actionQueue->AddTail(action);
 	m_latestCenterMap = action;
